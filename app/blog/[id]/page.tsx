@@ -1,6 +1,7 @@
 import { MOCK_BLOGS } from "@/data/mock";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { ArrowLeft, Calendar, User, Share2, Linkedin, Twitter } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
