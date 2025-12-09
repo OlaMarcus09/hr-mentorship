@@ -2,16 +2,15 @@ import type { Metadata } from "next";
 import { Libre_Baskerville, Lato } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 import { ThemeProvider } from "@/components/theme-provider";
 
-// 1. Configure the "Authority" font for Headings
 const libreBaskerville = Libre_Baskerville({
   subsets: ["latin"],
   weight: ["400", "700"],
   variable: "--font-heading",
 });
 
-// 2. Configure the "Human" font for Body text
 const lato = Lato({
   subsets: ["latin"],
   weight: ["400", "700"],
@@ -30,7 +29,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${libreBaskerville.variable} ${lato.variable} font-body antialiased`}>
+      <body className={`${libreBaskerville.variable} ${lato.variable} font-body antialiased flex flex-col min-h-screen`}>
         <ThemeProvider
             attribute="class"
             defaultTheme="system"
@@ -38,9 +37,10 @@ export default function RootLayout({
             disableTransitionOnChange
           >
           <Navbar />
-          <main className="min-h-screen bg-background">
+          <main className="flex-1 bg-background">
             {children}
           </main>
+          <Footer />
         </ThemeProvider>
       </body>
     </html>

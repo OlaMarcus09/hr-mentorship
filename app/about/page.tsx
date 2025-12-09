@@ -6,9 +6,17 @@ import { Users, Target, Shield } from "lucide-react";
 export default function AboutPage() {
   return (
     <div className="flex flex-col min-h-screen">
-      {/* 1. Hero Banner */}
-      <section className="bg-slate-900 text-white py-24 text-center">
-        <div className="container mx-auto px-4">
+      {/* 1. Hero Banner with Image */}
+      <section className="relative py-24 flex items-center justify-center text-center text-white overflow-hidden">
+        <div 
+          className="absolute inset-0 z-0 bg-cover bg-center"
+          style={{ 
+             backgroundImage: 'url("https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&w=2000&q=80")',
+          }}
+        >
+          <div className="absolute inset-0 bg-slate-900/85" />
+        </div>
+        <div className="relative z-10 container mx-auto px-4">
           <h1 className="text-4xl md:text-6xl font-bold font-heading mb-6">Our Mission</h1>
           <p className="text-xl text-slate-300 max-w-2xl mx-auto font-body font-light">
             To democratize access to world-class HR mentorship and resources across Africa.
@@ -84,7 +92,7 @@ export default function AboutPage() {
             {MOCK_TEAM.map((member) => (
               <div key={member.id} className="flex flex-col items-center">
                 <Avatar className="h-32 w-32 mb-4 border-4 border-white shadow-lg">
-                  <AvatarImage src={member.imageUrl} />
+                  <AvatarImage src={member.imageUrl} className="object-cover" />
                   <AvatarFallback>{member.name.substring(0, 2)}</AvatarFallback>
                 </Avatar>
                 <h3 className="text-lg font-bold">{member.name}</h3>

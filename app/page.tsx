@@ -1,12 +1,10 @@
 import Hero from "@/components/Hero";
-import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { MOCK_BLOGS, MOCK_EVENTS } from "@/data/mock";
 import Link from "next/link";
-import { ArrowRight, Calendar, BookOpen, Users } from "lucide-react";
+import { ArrowRight, Calendar, Users } from "lucide-react";
 
 export default function Home() {
   return (
@@ -25,10 +23,9 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {MOCK_BLOGS.map((blog) => (
+            {MOCK_BLOGS.slice(0, 3).map((blog) => (
               <Card key={blog.id} className="hover:shadow-lg transition-shadow border-none shadow-md overflow-hidden">
                 <div className="h-48 w-full bg-gray-200 relative">
-                   {/* Using simple img tag for mock data, normally Next/Image */}
                    <img src={blog.imageUrl} alt={blog.title} className="object-cover w-full h-full" />
                 </div>
                 <CardHeader>
@@ -90,13 +87,11 @@ export default function Home() {
             Connect with seasoned HR veterans who have shaped the industry. 
             Get mentorship, advice, and career guidance.
           </p>
-          <Button size="lg" className="bg-white text-primary hover:bg-gray-100 font-bold">
+          <Button size="lg" className="bg-white text-primary hover:bg-gray-100 font-bold rounded-full px-8">
             Find a Mentor
           </Button>
         </div>
       </section>
-
-      <Footer />
     </div>
   );
 }

@@ -1,22 +1,30 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { MOCK_JOBS } from "@/data/mock";
-import { Search, MapPin, Briefcase, Clock, DollarSign, Building } from "lucide-react";
+import { Search, MapPin, Building, Clock, DollarSign } from "lucide-react";
 
 export default function RemoteHRPage() {
   return (
     <div className="flex flex-col min-h-screen bg-slate-50 dark:bg-slate-950">
       
-      {/* 1. Hero Section (Two-Sided Marketplace) */}
-      <section className="bg-slate-900 text-white py-20">
-        <div className="container mx-auto px-4 text-center space-y-8">
+      {/* 1. Hero Section with Image */}
+      <section className="relative py-24 text-center text-white overflow-hidden">
+        <div 
+          className="absolute inset-0 z-0 bg-cover bg-center"
+          style={{ 
+             backgroundImage: 'url("https://images.unsplash.com/photo-1593642532400-2682810df593?auto=format&fit=crop&w=2000&q=80")',
+          }}
+        >
+          <div className="absolute inset-0 bg-slate-900/90" />
+        </div>
+        <div className="relative z-10 container mx-auto px-4 space-y-8">
           <h1 className="text-4xl md:text-6xl font-bold font-heading">
             The <span className="text-cyan-400 italic">Marketplace</span> for HR Talent
           </h1>
           <p className="text-xl text-slate-300 max-w-2xl mx-auto font-light font-body">
-            Whether you need an Interim HR Manager for 3 months or a full-time Head of People, find them here.
+            Whether you need an Interim HR Manager or a full-time Head of People, find them here.
           </p>
           
           <div className="flex flex-col sm:flex-row justify-center gap-4 pt-4">
@@ -96,7 +104,7 @@ export default function RemoteHRPage() {
             ))}
           </div>
 
-          {/* Sidebar (Upsell) */}
+          {/* Sidebar */}
           <div className="space-y-6">
             <div className="bg-primary/5 border border-primary/20 rounded-xl p-6">
               <h3 className="text-lg font-bold font-heading mb-2 text-primary">Need a Contract Template?</h3>
@@ -107,18 +115,7 @@ export default function RemoteHRPage() {
                 Go to Resources
               </Button>
             </div>
-
-            <div className="bg-cyan-50 dark:bg-cyan-900/20 border border-cyan-100 dark:border-cyan-800 rounded-xl p-6">
-              <h3 className="text-lg font-bold font-heading mb-2 text-cyan-800 dark:text-cyan-200">Verify a Company</h3>
-              <p className="text-sm text-muted-foreground mb-4">
-                Check our "Greylist" before you accept an offer to ensure the employer is verified.
-              </p>
-              <Button className="w-full bg-cyan-600 hover:bg-cyan-700 text-white">
-                Check Greylist
-              </Button>
-            </div>
           </div>
-
         </div>
       </section>
     </div>
