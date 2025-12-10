@@ -1,17 +1,17 @@
 import Hero from "@/components/Hero";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { MOCK_EVENTS, MOCK_TEAM } from "@/data/mock";
 import Link from "next/link";
-import { Calendar, MapPin, ArrowRight, Users, Trophy } from "lucide-react";
+import { MapPin, ArrowRight, Users, Trophy } from "lucide-react";
 
 export default function Home() {
   return (
     <div className="flex flex-col min-h-screen">
       <Hero />
       
-      {/* SECTION 1: Mission (Exact Wording) */}
+      {/* SECTION 1: Mission */}
       <section className="py-20 bg-white dark:bg-slate-950 text-center">
         <div className="container mx-auto px-4 max-w-4xl">
           <Badge variant="secondary" className="mb-6 bg-purple-100 text-purple-700 hover:bg-purple-100 px-4 py-1">
@@ -37,7 +37,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* SECTION 2: Meet Our Expert Team (Exact Wording) */}
+      {/* SECTION 2: Meet Our Expert Team */}
       <section className="py-20 bg-slate-50 dark:bg-slate-900">
         <div className="container mx-auto px-4">
            <div className="text-center mb-16">
@@ -63,14 +63,17 @@ export default function Home() {
            </div>
            
            <div className="text-center mt-12">
-              <Button className="bg-purple-600 hover:bg-purple-700 text-white rounded-full px-8 h-12 text-lg">
-                 View Full Team
-              </Button>
+              {/* FIXED: Added Link to /experts */}
+              <Link href="/experts">
+                <Button className="bg-purple-600 hover:bg-purple-700 text-white rounded-full px-8 h-12 text-lg">
+                   View Full Team
+                </Button>
+              </Link>
            </div>
         </div>
       </section>
 
-      {/* SECTION 3: Upcoming Events (Exact Wording) */}
+      {/* SECTION 3: Upcoming Events */}
       <section className="py-20 bg-white dark:bg-background">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
@@ -101,9 +104,12 @@ export default function Home() {
           </div>
           
           <div className="text-center mt-12">
-             <Button className="bg-purple-600 hover:bg-purple-700 text-white rounded-full px-8 h-12 text-lg">
-                View All Events
-             </Button>
+             {/* FIXED: Added Link to /events */}
+             <Link href="/events">
+                <Button className="bg-purple-600 hover:bg-purple-700 text-white rounded-full px-8 h-12 text-lg">
+                   View All Events
+                </Button>
+             </Link>
           </div>
         </div>
       </section>
@@ -146,7 +152,7 @@ export default function Home() {
          </div>
       </section>
 
-      {/* SECTION 5: Bottom CTA (Purple Gradient) */}
+      {/* SECTION 5: Bottom CTA */}
       <section className="py-24 bg-gradient-to-br from-purple-900 to-indigo-900 text-center text-white">
         <div className="container mx-auto px-4">
            <Badge className="bg-white/10 text-white hover:bg-white/20 mb-6 border-none px-4 py-1">Join Our Growing Community</Badge>
