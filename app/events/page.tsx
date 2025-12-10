@@ -18,12 +18,12 @@ export default function EventsPage() {
         </div>
         
         <div className="relative z-10 container mx-auto px-4">
-          <h1 className="text-4xl md:text-6xl font-bold font-heading mb-4">Upcoming Events</h1>
-          <p className="text-xl text-white/80 max-w-2xl mx-auto font-light">
+          <h1 className="text-3xl md:text-5xl font-bold font-heading mb-4">Upcoming Events</h1>
+          <p className="text-base md:text-xl text-white/80 max-w-2xl mx-auto font-light">
              Webinars, Summits, and Workshops to level up your game.
           </p>
           <div className="mt-8">
-            <Button className="bg-white text-primary hover:bg-gray-100 rounded-full">
+            <Button className="bg-white text-primary hover:bg-gray-100 rounded-full font-bold px-8">
                <Plus className="mr-2 h-4 w-4" /> Submit an Event
             </Button>
           </div>
@@ -34,7 +34,7 @@ export default function EventsPage() {
       <section className="py-20 container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
            {MOCK_EVENTS.map((event) => (
-             <Card key={event.id} className="overflow-hidden border-none shadow-lg flex flex-col h-full">
+             <Card key={event.id} className="overflow-hidden border-none shadow-lg flex flex-col h-full hover:shadow-xl transition-shadow">
                 <div className="h-48 overflow-hidden relative">
                    <img src={event.imageUrl} alt={event.title} className="w-full h-full object-cover" />
                    <div className="absolute top-4 right-4 bg-white text-primary font-bold px-3 py-1 rounded text-sm shadow-sm">
