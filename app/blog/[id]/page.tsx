@@ -21,7 +21,7 @@ export default function BlogDetailPage({ params }: PageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-white dark:bg-slate-950 pb-20">
+    <div className="min-h-screen bg-background pb-20">
       
       {/* Hero Header */}
       <div className="relative h-[400px] w-full bg-slate-900">
@@ -79,8 +79,8 @@ export default function BlogDetailPage({ params }: PageProps) {
                  nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
               </p>
               <blockquote className="border-l-4 border-cyan-500 pl-4 italic my-8 text-foreground">
-                 "The greatest asset of any organization is its people. Protecting their wellbeing is 
-                 not just charity, it's strategy."
+                 &quot;The greatest asset of any organization is its people. Protecting their wellbeing is 
+                 not just charity, it&apos;s strategy.&quot;
               </blockquote>
               <p>
                  Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu 
@@ -115,11 +115,11 @@ export default function BlogDetailPage({ params }: PageProps) {
 
            {/* Newsletter Widget */}
            <div className="bg-primary/5 border border-primary/20 p-6 rounded-2xl">
-              <h3 className="font-bold font-heading mb-2 text-primary">Don't miss an update</h3>
+              <h3 className="font-bold font-heading mb-2 text-primary">Don&apos;t miss an update</h3>
               <p className="text-sm text-muted-foreground mb-4">
                  Get the latest HR trends delivered to your inbox weekly.
               </p>
-              <Input placeholder="Your email address" className="bg-white dark:bg-slate-950 mb-2" />
+              <Input placeholder="Your email address" className="bg-background mb-2" />
               <Button className="w-full">Subscribe</Button>
            </div>
         </div>

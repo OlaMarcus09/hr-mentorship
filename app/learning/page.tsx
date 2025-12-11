@@ -36,9 +36,9 @@ export default function LearningCentre() {
             <h2 className="text-2xl font-bold font-heading">Book of the Month</h2>
           </div>
           
-          <div className="bg-white dark:bg-slate-900 rounded-3xl p-8 shadow-xl border border-slate-100 dark:border-slate-800 flex flex-col md:flex-row gap-8 items-center">
+          <div className="bg-card rounded-3xl p-8 shadow-xl border border-border flex flex-col md:flex-row gap-8 items-center">
             {/* Book Cover */}
-            <div className="w-48 h-72 bg-slate-200 shrink-0 shadow-lg rounded-md overflow-hidden relative">
+            <div className="w-48 h-72 bg-muted shrink-0 shadow-lg rounded-md overflow-hidden relative">
                <img src={MOCK_BOOK.imageUrl} alt={MOCK_BOOK.title} className="w-full h-full object-cover" />
                <div className="absolute top-2 right-2">
                  <Badge className="bg-orange-500 hover:bg-orange-600">Featured</Badge>
@@ -52,7 +52,7 @@ export default function LearningCentre() {
               <p className="text-muted-foreground leading-relaxed max-w-2xl">
                 {MOCK_BOOK.description}
                 <br className="mb-4" />
-                This month's pick dives deep into the psychology of high-performance teams.
+                This month&apos;s pick dives deep into the psychology of high-performance teams.
               </p>
               <div className="pt-4 flex flex-col md:flex-row gap-4 justify-center md:justify-start">
                 <Button size="lg" className="rounded-full">Get this Book</Button>

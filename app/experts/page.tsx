@@ -1,7 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { MOCK_EXPERTS } from "@/data/mock";
-import { Linkedin, ArrowRight } from "lucide-react";
+import { Linkedin } from "lucide-react";
 import Link from "next/link";
 
 export default function ExpertsPage() {
@@ -65,7 +65,7 @@ export default function ExpertsPage() {
       <section className="py-20 bg-primary text-white text-center">
          <div className="container mx-auto px-4">
             <h2 className="text-3xl font-bold font-heading mb-4">Are you an HR Veteran?</h2>
-            <Button size="lg" className="bg-white text-primary hover:bg-gray-100 mt-4 rounded-full px-8">Apply to Join Council</Button>
+            <Button size="lg" className="bg-card text-primary hover:bg-muted mt-4 rounded-full px-8">Apply to Join Council</Button>
          </div>
       </section>
     </div>

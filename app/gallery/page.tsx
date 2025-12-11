@@ -1,4 +1,3 @@
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Camera, Users, ArrowRight } from "lucide-react";
@@ -43,7 +42,7 @@ export default function GalleryPage() {
                 </div>
                 <h3 className="text-3xl font-bold text-white mb-2">Events Gallery</h3>
                 <p className="text-gray-300 mb-6 max-w-md">Highlights from our summits, workshops, and networking mixers.</p>
-                <Button variant="outline" className="w-fit text-white border-white hover:bg-white hover:text-black">
+                <Button variant="outline" className="w-fit text-white border-white hover:bg-card hover:text-foreground">
                   View Photos <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </div>
@@ -65,7 +64,7 @@ export default function GalleryPage() {
                 </div>
                 <h3 className="text-3xl font-bold text-white mb-2">Members Gallery</h3>
                 <p className="text-gray-300 mb-6 max-w-md">Meet the vibrant faces that make up the HR Mentorship community.</p>
-                <Button variant="outline" className="w-fit text-white border-white hover:bg-white hover:text-black">
+                <Button variant="outline" className="w-fit text-white border-white hover:bg-card hover:text-foreground">
                   View Members <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </div>

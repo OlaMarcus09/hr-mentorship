@@ -52,3 +52,30 @@ export interface BookOfTheMonth {
   imageUrl: string;
   active: boolean;
 }
+
+export interface TeamMember {
+  id: number;
+  name: string;
+  role: string;
+  bio: string;
+  imageUrl: string;
+}
+
+export interface Expert {
+  id: number;
+  name: string;
+  role: string;
+  company: string;
+  imageUrl: string;
+}
+
+export interface Job {
+  id: number;
+  title: string;
+  company: string;
+  type: string;
+  location: string;
+  salary: string;
+  postedAt: string;
+  description: string;
+}
