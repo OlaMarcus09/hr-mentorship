@@ -54,7 +54,7 @@ export default function BlogPage() {
                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
                  />
                  <div className="absolute top-4 left-4">
-                   <Badge className="bg-white/95 text-primary shadow-sm">{blog.category}</Badge>
+                   <Badge className="bg-card text-primary shadow-sm">{blog.category}</Badge>
                  </div>
               </div>
               

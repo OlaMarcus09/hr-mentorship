@@ -21,7 +21,7 @@ export default function ContactPage() {
         <div className="relative z-10 container mx-auto px-4">
           <h1 className="text-3xl md:text-5xl font-bold font-heading mb-4">Contact Us</h1>
           <p className="text-base md:text-xl text-white/90 max-w-xl mx-auto font-light">
-            Have questions about membership, events, or partnerships? We'd love to hear from you.
+            Have questions about membership, events, or partnerships? We&apos;d love to hear from you.
           </p>
         </div>
       </section>

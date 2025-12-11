@@ -1,12 +1,12 @@
 import Link from "next/link";
-import { Menu, Search, Home, BookOpen, Users, Briefcase, Calendar, FileText, ImageIcon, Mail, Phone } from "lucide-react";
+import { Menu, Search, Home, BookOpen, Users, Briefcase, Calendar, ImageIcon, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetClose } from "@/components/ui/sheet";
 import { ModeToggle } from "@/components/mode-toggle";
 
 export default function Navbar() {
   const navLinks = [
-    { name: "Home", href: "/", icon: Home },
+    { name: "Home", href: "/home", icon: Home },
     { name: "About", href: "/about", icon: Users },
     { name: "Learning", href: "/learning", icon: BookOpen },
     { name: "Remote HR", href: "/remote-hr", icon: Briefcase },
@@ -21,7 +21,7 @@ export default function Navbar() {
       <div className="container mx-auto flex h-14 md:h-16 items-center justify-between px-4">
         
         {/* Logo */}
-        <Link href="/" className="flex items-center space-x-2">
+        <Link href="/home" className="flex items-center space-x-2">
           <div className="h-8 w-8 md:h-9 md:w-9 overflow-hidden rounded-md border border-slate-200 dark:border-slate-800">
              <img 
                src="https://res.cloudinary.com/dmqjicpcc/image/upload/v1765218297/1001440111_dztflg.jpg" 
