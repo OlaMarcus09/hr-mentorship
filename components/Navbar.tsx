@@ -7,22 +7,18 @@ import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { ModeToggle } from "@/components/mode-toggle"
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
 
+// Menu Structure
 const menuItems = [
   { name: "Home", href: "/" },
   {
     name: "About Us",
+    href: "/about",
     children: [
       { name: "Who We Are", href: "/about" },
       { name: "Core Team Members", href: "/about#team" },
@@ -31,6 +27,7 @@ const menuItems = [
   },
   {
     name: "Learning Centre",
+    href: "/learning",
     children: [
       { name: "Certificate Courses", href: "/learning" },
       { name: "Webinars", href: "/learning" },
@@ -44,6 +41,7 @@ const menuItems = [
   { name: "Contact Us", href: "/contact" },
   {
     name: "Gallery",
+    href: "/gallery",
     children: [
       { name: "Members Gallery", href: "/gallery" },
       { name: "Events Gallery", href: "/gallery" },
@@ -51,6 +49,7 @@ const menuItems = [
   },
   {
     name: "More",
+    href: "/remote-hr",
     children: [
       { name: "Remote HR", href: "/remote-hr" },
       { name: "Greylist", href: "/remote-hr" },
@@ -78,34 +77,38 @@ export default function Navbar() {
           <span className="text-xl font-bold text-primary hidden sm:block font-heading">HR Mentorship</span>
         </Link>
 
-        {/* Desktop Navigation */}
-        <div className="hidden xl:flex items-center gap-6">
+        {/* Desktop Navigation (Hover Dropdowns) */}
+        <div className="hidden xl:flex items-center gap-6 h-full">
           {menuItems.map((item) => (
-            item.children ? (
-              <DropdownMenu key={item.name}>
-                <DropdownMenuTrigger className="flex items-center gap-1 text-sm font-medium text-foreground/80 hover:text-primary outline-none transition-colors data-[state=open]:text-primary">
-                  {item.name} <ChevronDown className="h-4 w-4" />
-                </DropdownMenuTrigger>
-                {/* FIXED: Added explicit background, border, and shadow classes */}
-                <DropdownMenuContent className="w-56 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 shadow-xl rounded-xl p-2 z-50">
-                  {item.children.map((child) => (
-                    <DropdownMenuItem key={child.name} asChild className="focus:bg-slate-100 dark:focus:bg-slate-800 cursor-pointer rounded-lg px-3 py-2.5">
-                      <Link href={child.href} className="w-full font-medium">
-                        {child.name}
-                      </Link>
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            ) : (
+            <div key={item.name} className="relative group h-full flex items-center">
+              {/* Parent Link */}
               <Link 
-                key={item.name} 
                 href={item.href} 
-                className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors"
+                className="flex items-center gap-1 text-sm font-semibold text-slate-700 dark:text-slate-200 hover:text-primary transition-colors py-2"
               >
                 {item.name}
+                {item.children && <ChevronDown className="h-4 w-4 opacity-50 group-hover:rotate-180 transition-transform duration-200" />}
               </Link>
-            )
+
+              {/* Hover Content (Only if children exist) */}
+              {item.children && (
+                <div className="absolute top-[calc(100%-10px)] left-0 pt-4 w-56 hidden group-hover:block hover:block z-50">
+                  <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl rounded-xl p-2 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+                    <div className="flex flex-col">
+                      {item.children.map((child) => (
+                        <Link 
+                          key={child.name} 
+                          href={child.href} 
+                          className="px-4 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-purple-50 hover:text-purple-700 dark:hover:bg-purple-900/30 dark:hover:text-purple-300 rounded-lg transition-colors"
+                        >
+                          {child.name}
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
           ))}
         </div>
 
@@ -115,12 +118,12 @@ export default function Navbar() {
           <Button variant="ghost" size="icon">
             <Search className="h-5 w-5 text-muted-foreground" />
           </Button>
-          <Button className="bg-primary hover:bg-primary/90 text-white shadow-sm px-6 rounded-full">
+          <Button className="bg-primary hover:bg-primary/90 text-white shadow-sm px-6 rounded-full font-bold">
             Join Now
           </Button>
         </div>
 
-        {/* Mobile Menu */}
+        {/* Mobile Menu (Accordion) */}
         <div className="flex xl:hidden items-center gap-2">
           <ModeToggle />
           
@@ -130,7 +133,7 @@ export default function Navbar() {
                 <Menu className="h-6 w-6 text-foreground" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-[300px] sm:w-[350px] overflow-y-auto bg-background border-l">
+            <SheetContent side="right" className="w-[300px] sm:w-[350px] overflow-y-auto">
               <SheetHeader className="text-left mb-6">
                 <SheetTitle className="flex items-center gap-2">
                   <img src="https://res.cloudinary.com/dmqjicpcc/image/upload/v1765218297/1001440111_dztflg.jpg" className="h-8 w-8 rounded" />
@@ -138,21 +141,22 @@ export default function Navbar() {
                 </SheetTitle>
               </SheetHeader>
 
+              {/* Mobile List */}
               <div className="flex flex-col gap-1">
                 {menuItems.map((item) => (
                   item.children ? (
-                    <Accordion type="single" collapsible key={item.name} className="w-full border-none">
+                    <Accordion type="single" collapsible key={item.name} className="w-full">
                       <AccordionItem value={item.name} className="border-b-0">
-                        <AccordionTrigger className="py-3 text-base font-medium hover:no-underline hover:text-primary [&[data-state=open]]:text-primary">
+                        <AccordionTrigger className="py-3 text-base font-semibold text-slate-800 dark:text-slate-100 hover:no-underline hover:text-primary">
                           {item.name}
                         </AccordionTrigger>
-                        <AccordionContent className="flex flex-col gap-1 pl-4 border-l-2 border-slate-100 dark:border-slate-800 ml-2 pb-2">
+                        <AccordionContent className="flex flex-col gap-2 pl-4 border-l-2 border-slate-100 dark:border-slate-800 ml-2">
                           {item.children.map((child) => (
                             <Link 
                               key={child.name} 
                               href={child.href} 
                               onClick={() => setIsOpen(false)}
-                              className="py-2 px-2 text-sm text-muted-foreground hover:text-primary hover:bg-slate-50 dark:hover:bg-slate-900 rounded-md transition-colors block"
+                              className="py-2 text-sm text-slate-600 dark:text-slate-400 hover:text-primary font-medium"
                             >
                               {child.name}
                             </Link>
@@ -165,7 +169,7 @@ export default function Navbar() {
                       key={item.name}
                       href={item.href}
                       onClick={() => setIsOpen(false)}
-                      className="py-3 text-base font-medium border-b border-transparent hover:text-primary flex justify-between items-center"
+                      className="py-3 text-base font-semibold text-slate-800 dark:text-slate-100 border-b border-transparent hover:text-primary flex justify-between items-center"
                     >
                       {item.name}
                     </Link>
@@ -174,7 +178,7 @@ export default function Navbar() {
               </div>
 
               <div className="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800">
-                 <Button className="w-full bg-primary text-white h-12 text-lg rounded-xl">
+                 <Button className="w-full bg-primary text-white h-12 text-lg rounded-xl font-bold shadow-lg">
                    Join Now
                  </Button>
               </div>
