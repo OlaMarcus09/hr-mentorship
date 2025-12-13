@@ -63,7 +63,6 @@ export default function Home() {
            </div>
            
            <div className="text-center mt-12">
-              {/* FIXED: Added Link to /experts */}
               <Link href="/experts">
                 <Button className="bg-purple-600 hover:bg-purple-700 text-white rounded-full px-8 h-12 text-lg">
                    View Full Team
@@ -104,7 +103,6 @@ export default function Home() {
           </div>
           
           <div className="text-center mt-12">
-             {/* FIXED: Added Link to /events */}
              <Link href="/events">
                 <Button className="bg-purple-600 hover:bg-purple-700 text-white rounded-full px-8 h-12 text-lg">
                    View All Events
@@ -114,7 +112,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* SECTION 4: Community In Action (Gallery) */}
+      {/* SECTION 4: Community In Action */}
       <section className="py-20 bg-slate-50 dark:bg-slate-900">
          <div className="container mx-auto px-4">
             <div className="text-center mb-12">
@@ -166,7 +164,8 @@ export default function Home() {
              <Button size="lg" className="bg-white text-purple-900 hover:bg-gray-100 rounded-full px-8 h-14 text-lg font-bold">
                Become a Mentee
              </Button>
-             <Button size="lg" variant="outline" className="text-white border-white hover:bg-white hover:text-purple-900 rounded-full px-8 h-14 text-lg font-bold">
+             {/* FIXED: Added 'bg-transparent' so text isn't white-on-white */}
+             <Button size="lg" variant="outline" className="bg-transparent text-white border-white hover:bg-white hover:text-purple-900 rounded-full px-8 h-14 text-lg font-bold">
                Join as Mentor
              </Button>
            </div>
