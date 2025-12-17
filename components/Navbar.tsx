@@ -123,7 +123,7 @@ export default function Navbar() {
           </Button>
         </div>
 
-        {/* Mobile Menu (Accordion) */}
+        {/* Mobile Menu (Bottom Sheet Accordion) */}
         <div className="flex xl:hidden items-center gap-2">
           <ModeToggle />
           
@@ -133,8 +133,9 @@ export default function Navbar() {
                 <Menu className="h-6 w-6 text-foreground" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-[300px] sm:w-[350px] overflow-y-auto">
-              <SheetHeader className="text-left mb-6">
+            {/* UPDATED: side="bottom", height 85vh, rounded top */}
+            <SheetContent side="bottom" className="h-[85vh] rounded-t-[2rem] overflow-y-auto px-6 pt-8">
+              <SheetHeader className="text-left mb-6 flex flex-row items-center justify-between">
                 <SheetTitle className="flex items-center gap-2">
                   <img src="https://res.cloudinary.com/dmqjicpcc/image/upload/v1765218297/1001440111_dztflg.jpg" className="h-8 w-8 rounded" />
                   <span className="text-primary font-bold">Menu</span>
@@ -142,21 +143,21 @@ export default function Navbar() {
               </SheetHeader>
 
               {/* Mobile List */}
-              <div className="flex flex-col gap-1">
+              <div className="flex flex-col gap-1 pb-20">
                 {menuItems.map((item) => (
                   item.children ? (
                     <Accordion type="single" collapsible key={item.name} className="w-full">
                       <AccordionItem value={item.name} className="border-b-0">
-                        <AccordionTrigger className="py-3 text-base font-semibold text-slate-800 dark:text-slate-100 hover:no-underline hover:text-primary">
+                        <AccordionTrigger className="py-4 text-lg font-semibold text-slate-800 dark:text-slate-100 hover:no-underline hover:text-primary">
                           {item.name}
                         </AccordionTrigger>
-                        <AccordionContent className="flex flex-col gap-2 pl-4 border-l-2 border-slate-100 dark:border-slate-800 ml-2">
+                        <AccordionContent className="flex flex-col gap-3 pl-4 border-l-2 border-slate-100 dark:border-slate-800 ml-2 mb-2">
                           {item.children.map((child) => (
                             <Link 
                               key={child.name} 
                               href={child.href} 
                               onClick={() => setIsOpen(false)}
-                              className="py-2 text-sm text-slate-600 dark:text-slate-400 hover:text-primary font-medium"
+                              className="py-1 text-base text-slate-600 dark:text-slate-400 hover:text-primary font-medium"
                             >
                               {child.name}
                             </Link>
@@ -169,18 +170,18 @@ export default function Navbar() {
                       key={item.name}
                       href={item.href}
                       onClick={() => setIsOpen(false)}
-                      className="py-3 text-base font-semibold text-slate-800 dark:text-slate-100 border-b border-transparent hover:text-primary flex justify-between items-center"
+                      className="py-4 text-lg font-semibold text-slate-800 dark:text-slate-100 border-b border-transparent hover:text-primary flex justify-between items-center"
                     >
                       {item.name}
                     </Link>
                   )
                 ))}
-              </div>
 
-              <div className="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800">
-                 <Button className="w-full bg-primary text-white h-12 text-lg rounded-xl font-bold shadow-lg">
-                   Join Now
-                 </Button>
+                <div className="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800">
+                   <Button className="w-full bg-primary text-white h-14 text-lg rounded-2xl font-bold shadow-lg">
+                     Join Now
+                   </Button>
+                </div>
               </div>
 
             </SheetContent>
