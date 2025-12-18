@@ -2,36 +2,62 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, FileText, Calendar, Briefcase } from "lucide-react";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
-import LogoutButton from "./logout-button"; // Import the new button
+import LogoutButton from "./logout-button";
+import { cookies } from 'next/headers'; // We need this to read the login cookie
 
-// FETCH REAL STATS FROM DATABASE
 export const dynamic = 'force-dynamic';
 
-async function getStats() {
+async function getData() {
+  // 1. Fetch Stats
   const blogCount = await prisma.blog.count();
   const jobCount = await prisma.job.count();
   const eventCount = await prisma.event.count();
   const adminCount = await prisma.admin.count();
-  return { blogCount, jobCount, eventCount, adminCount };
+  
+  // 2. Identify Current User from Cookie
+  const cookieStore = cookies();
+  const token = cookieStore.get('admin_token')?.value;
+  let isSuperAdmin = false;
+
+  if (token) {
+    // Extract ID from "mock-jwt-token-{ID}"
+    const adminId = token.split('-').pop(); 
+    if (adminId) {
+      const admin = await prisma.admin.findUnique({ where: { id: parseInt(adminId) } });
+      if (admin?.role === 'SUPER_ADMIN') {
+        isSuperAdmin = true;
+      }
+    }
+  }
+
+  return { blogCount, jobCount, eventCount, adminCount, isSuperAdmin };
 }
 
 export default async function AdminDashboard() {
-  const stats = await getStats();
+  const data = await getData();
 
   return (
     <div className="space-y-8 p-8">
-      {/* HEADER WITH LOGOUT */}
+      {/* HEADER */}
       <div className="flex justify-between items-center border-b pb-6">
         <div>
            <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Admin Dashboard</h1>
-           <p className="text-gray-500">Overview of system performance</p>
+           <p className="text-gray-500">
+             {data.isSuperAdmin ? "Welcome, Super Admin" : "Welcome, Admin"}
+           </p>
         </div>
         
         <div className="flex items-center gap-3">
            <LogoutButton />
            <Link href="/admin/blogs/new" className="bg-black text-white px-4 py-2 rounded hover:bg-gray-800 text-sm">+ Blog</Link>
            <Link href="/admin/jobs/new" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm">+ Job</Link>
-           <Link href="/admin/team" className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 text-sm">Manage Team</Link>
+           
+           {/* CONDITIONAL RENDERING: Only Super Admin sees this */}
+           {data.isSuperAdmin && (
+             <Link href="/admin/team" className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 text-sm">
+               Manage Team
+             </Link>
+           )}
         </div>
       </div>
       
@@ -43,7 +69,7 @@ export default async function AdminDashboard() {
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.blogCount}</div>
+            <div className="text-2xl font-bold">{data.blogCount}</div>
             <p className="text-xs text-muted-foreground">Published articles</p>
           </CardContent>
         </Card>
@@ -54,7 +80,7 @@ export default async function AdminDashboard() {
             <Briefcase className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.jobCount}</div>
+            <div className="text-2xl font-bold">{data.jobCount}</div>
             <p className="text-xs text-muted-foreground">Open positions</p>
           </CardContent>
         </Card>
@@ -65,7 +91,7 @@ export default async function AdminDashboard() {
             <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.eventCount}</div>
+            <div className="text-2xl font-bold">{data.eventCount}</div>
             <p className="text-xs text-muted-foreground">Upcoming</p>
           </CardContent>
         </Card>
@@ -76,7 +102,7 @@ export default async function AdminDashboard() {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.adminCount}</div>
+            <div className="text-2xl font-bold">{data.adminCount}</div>
             <p className="text-xs text-muted-foreground">Active Admins</p>
           </CardContent>
         </Card>
