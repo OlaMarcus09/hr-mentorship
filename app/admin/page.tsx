@@ -20,7 +20,7 @@ export default async function AdminDashboard() {
         <h1 className="text-3xl font-bold font-heading text-slate-900 dark:text-white">Admin Dashboard</h1>
         <div className="space-x-4">
            <Link href="/admin/blogs/new" className="bg-black text-white px-4 py-2 rounded hover:bg-gray-800">+ New Blog</Link>
-           <Link href="/admin/jobs/new" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">+ Post Job</Link>
+           <Link href="/admin/jobs/new" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">+ Post Job</Link><Link href="/admin/team" className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 ml-2">Manage Team</Link>
         </div>
       </div>
       
