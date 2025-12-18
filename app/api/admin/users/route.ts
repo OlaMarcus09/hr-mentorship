@@ -17,17 +17,16 @@ export async function POST(request: Request) {
     const body = await request.json();
 
     // 1. SECURITY CHECK: Validate input with Zod
-    // If 'name' has special characters like <script>, this will throw an error.
     const validation = createAdminSchema.safeParse(body);
 
     if (!validation.success) {
       return NextResponse.json(
-        { error: validation.error.errors[0].message }, 
+        // FIX: Use 'issues' instead of 'errors' for TypeScript compliance
+        { error: validation.error.issues[0].message }, 
         { status: 400 }
       );
     }
 
-    // 2. Use the sanitized data
     const { name, email, password } = validation.data;
     
     const existing = await prisma.admin.findUnique({ where: { email } });
@@ -39,7 +38,7 @@ export async function POST(request: Request) {
       data: {
         name,
         email,
-        password, // Ideally, hash this in the future!
+        password,
         role: 'ADMIN'
       }
     });
