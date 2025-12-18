@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, FileText, Calendar, Briefcase } from "lucide-react";
+import { Users, FileText, Calendar, Briefcase, Trash2, FileCheck, Shield } from "lucide-react";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import LogoutButton from "./logout-button";
@@ -34,40 +34,55 @@ export default async function AdminDashboard() {
   const data = await getData();
 
   return (
-    <div className="space-y-8 p-8">
+    <div className="space-y-8 p-4 md:p-8">
       {/* HEADER */}
-      <div className="flex flex-col md:flex-row justify-between items-center border-b pb-6 gap-4">
-        <div>
-           <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Admin Dashboard</h1>
-           <p className="text-gray-500">
-             {data.isSuperAdmin ? "Welcome, Super Admin" : "Welcome, Admin"}
-           </p>
+      <div className="flex flex-col gap-6 border-b pb-6">
+        <div className="flex justify-between items-center">
+           <div>
+             <h1 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white">Dashboard</h1>
+             <p className="text-sm text-gray-500">
+               {data.isSuperAdmin ? "Super Admin" : "Admin Panel"}
+             </p>
+           </div>
+           {/* Logout sits alone on the right */}
+           <LogoutButton />
         </div>
         
-        <div className="flex flex-wrap items-center gap-3">
-           <LogoutButton />
+        {/* ACTION TOOLBAR - Mobile: Grid, Desktop: Flex */}
+        <div className="grid grid-cols-2 md:flex md:flex-wrap items-center gap-3">
            
-           {/* Content Creation Buttons */}
-           <Link href="/admin/blogs/new" className="bg-black text-white px-4 py-2 rounded hover:bg-gray-800 text-sm font-medium">+ Blog</Link>
-           <Link href="/admin/jobs/new" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm font-medium">+ Job</Link>
-           <Link href="/admin/events/new" className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 text-sm font-medium">+ Event</Link>
+           {/* Content Creation - Full width on very small phones, 2-col on standard phones */}
+           <Link href="/admin/blogs/new" className="bg-black text-white px-4 py-3 md:py-2 rounded-lg hover:bg-gray-800 text-sm font-medium text-center shadow-sm">
+             + Blog
+           </Link>
+           <Link href="/admin/jobs/new" className="bg-blue-600 text-white px-4 py-3 md:py-2 rounded-lg hover:bg-blue-700 text-sm font-medium text-center shadow-sm">
+             + Job
+           </Link>
+           <Link href="/admin/events/new" className="bg-green-600 text-white px-4 py-3 md:py-2 rounded-lg hover:bg-green-700 text-sm font-medium text-center shadow-sm">
+             + Event
+           </Link>
+
+           <div className="hidden md:block h-6 w-px bg-gray-300 mx-1"></div>
 
            {/* Management Tools */}
-           <div className="h-6 w-px bg-gray-300 mx-1"></div>
-           <Link href="/admin/applications" className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 text-sm font-medium">Applicants</Link>
-           <Link href="/admin/manage" className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 text-sm font-medium">Delete</Link>
+           <Link href="/admin/applications" className="bg-indigo-600 text-white px-4 py-3 md:py-2 rounded-lg hover:bg-indigo-700 text-sm font-medium text-center shadow-sm flex items-center justify-center gap-2">
+             <FileCheck size={16} /> Applicants
+           </Link>
+           <Link href="/admin/manage" className="bg-red-600 text-white px-4 py-3 md:py-2 rounded-lg hover:bg-red-700 text-sm font-medium text-center shadow-sm flex items-center justify-center gap-2">
+             <Trash2 size={16} /> Delete
+           </Link>
            
            {/* Super Admin Only */}
            {data.isSuperAdmin && (
-             <Link href="/admin/team" className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 text-sm font-medium border border-purple-400">
-               Team
+             <Link href="/admin/team" className="col-span-2 md:col-span-1 bg-purple-600 text-white px-4 py-3 md:py-2 rounded-lg hover:bg-purple-700 text-sm font-medium border border-purple-400 text-center flex items-center justify-center gap-2">
+               <Shield size={16} /> Team
              </Link>
            )}
         </div>
       </div>
       
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      {/* Stats Grid - Already Responsive */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Blogs</CardTitle>
