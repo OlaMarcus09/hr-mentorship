@@ -1,9 +1,16 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
+// FIX: Force this route to be dynamic (Server-Side only)
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
-  const blogs = await prisma.blog.findMany();
-  return NextResponse.json(blogs);
+  try {
+    const blogs = await prisma.blog.findMany();
+    return NextResponse.json(blogs);
+  } catch (error) {
+    return NextResponse.json({ error: 'Database Error' }, { status: 500 });
+  }
 }
 
 export async function POST(request: Request) {

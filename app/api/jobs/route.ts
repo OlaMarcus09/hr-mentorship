@@ -1,18 +1,31 @@
 import { NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
 
-const MOCK_JOBS = [
-  { id: 1, title: 'Senior HR Manager', company: 'TechCorp', type: 'Remote' },
-  { id: 2, title: 'Talent Lead', company: 'Startup', type: 'Hybrid' }
-];
+export const dynamic = 'force-dynamic';
 
 export async function GET() {
-  return NextResponse.json(MOCK_JOBS, { status: 200 });
+  try {
+    const jobs = await prisma.job.findMany({ orderBy: { postedAt: 'desc' } });
+    return NextResponse.json(jobs, { status: 200 });
+  } catch (error) {
+    return NextResponse.json({ error: 'Failed to fetch jobs' }, { status: 500 });
+  }
 }
 
 export async function POST(request: Request) {
-  const body = await request.json();
-  return NextResponse.json(
-    { message: 'Job created', job: { id: 3, ...body } },
-    { status: 201 }
-  );
+  try {
+    const body = await request.json();
+    const newJob = await prisma.job.create({
+      data: {
+        title: body.title,
+        company: body.company,
+        type: body.type,
+        location: body.location || 'Remote',
+        salary: body.salary || 'Competitive',
+      }
+    });
+    return NextResponse.json({ message: 'Job created', job: newJob }, { status: 201 });
+  } catch (error) {
+    return NextResponse.json({ error: 'Failed to create job' }, { status: 500 });
+  }
 }
