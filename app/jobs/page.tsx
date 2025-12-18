@@ -1,9 +1,10 @@
-import Link from 'next/link';
+import { prisma } from '@/lib/prisma';
 
 async function getJobs() {
-  const res = await fetch('http://localhost:3000/api/jobs', { cache: 'no-store' });
-  if (!res.ok) return [];
-  return res.json();
+  const jobs = await prisma.job.findMany({
+    orderBy: { postedAt: 'desc' }
+  });
+  return jobs;
 }
 
 export default async function JobsPage() {
@@ -17,7 +18,7 @@ export default async function JobsPage() {
       </div>
       
       <div className="grid gap-4">
-        {jobs.map((job: any) => (
+        {jobs.map((job) => (
           <div key={job.id} className="border p-5 rounded-lg flex justify-between items-center bg-white shadow-sm">
             <div>
               <h3 className="text-xl font-semibold">{job.title}</h3>
