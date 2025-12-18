@@ -50,7 +50,7 @@ export default async function AdminDashboard() {
         <div className="flex items-center gap-3">
            <LogoutButton />
            <Link href="/admin/blogs/new" className="bg-black text-white px-4 py-2 rounded hover:bg-gray-800 text-sm">+ Blog</Link>
-           <Link href="/admin/jobs/new" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm">+ Job</Link>
+           <Link href="/admin/jobs/new" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm">+ Job</Link><Link href="/admin/events/new" className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 text-sm ml-2">+ Event</Link><Link href="/admin/events/new" className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 text-sm ml-2">+ Event</Link>
            
            {/* CONDITIONAL RENDERING: Only Super Admin sees this */}
            {data.isSuperAdmin && (

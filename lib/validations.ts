@@ -1,22 +1,25 @@
 import { z } from 'zod';
 
-// 1. Strict Regex for Names (Alphanumeric + Spaces only, No special symbols)
-// This rejects < > / \ ; -- which are used in injections
 const stringSanitizer = z.string()
   .min(2, "Must be at least 2 characters")
-  .regex(/^[a-zA-Z0-9\s]+$/, "Only letters, numbers, and spaces allowed (No special characters)");
+  .regex(/^[a-zA-Z0-9\s.,!?'"-]+$/, "No special symbols allowed");
 
-// 2. Schema for Creating an Admin
 export const createAdminSchema = z.object({
   name: stringSanitizer,
-  email: z.string().email("Invalid email format"),
-  password: z.string().min(6, "Password must be at least 6 characters")
+  email: z.string().email(),
+  password: z.string().min(6)
 });
 
-// 3. Schema for Creating a Job (Stricter validation)
 export const createJobSchema = z.object({
   title: stringSanitizer,
   company: stringSanitizer,
-  type: z.enum(["Remote", "Hybrid", "On-site"]), // Only allows these 3 exact values
+  type: z.enum(["Remote", "Hybrid", "On-site"]),
   location: stringSanitizer,
+});
+
+export const createEventSchema = z.object({
+  title: stringSanitizer,
+  date: z.string(),
+  image: z.string().url().optional().or(z.literal("")),
+  location: stringSanitizer
 });

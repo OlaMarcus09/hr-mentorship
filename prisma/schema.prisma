@@ -39,15 +39,17 @@ model Blog {
   title     String
   content   String?
   author    String
-  image     String?  // NEW: Stores the Cloudinary URL
+  image     String?
   createdAt DateTime @default(now())
 }
 
+// Updated Event Model (includes location)
 model Event {
   id        Int      @id @default(autoincrement())
   title     String
   date      String
-  image     String?  // NEW
+  image     String?
+  location  String   @default("Online") 
   createdAt DateTime @default(now())
 }
 
