@@ -8,19 +8,16 @@ import { cookies } from 'next/headers';
 export const dynamic = 'force-dynamic';
 
 async function getData() {
-  // 1. Fetch Stats
   const blogCount = await prisma.blog.count();
   const jobCount = await prisma.job.count();
   const eventCount = await prisma.event.count();
   const adminCount = await prisma.admin.count();
   
-  // 2. NEXT.JS 15 FIX: We must 'await' the cookies() call
   const cookieStore = await cookies();
   const token = cookieStore.get('admin_token')?.value;
   let isSuperAdmin = false;
 
   if (token) {
-    // Extract ID from "mock-jwt-token-{ID}"
     const adminId = token.split('-').pop(); 
     if (adminId) {
       const admin = await prisma.admin.findUnique({ where: { id: parseInt(adminId) } });
@@ -39,7 +36,7 @@ export default async function AdminDashboard() {
   return (
     <div className="space-y-8 p-8">
       {/* HEADER */}
-      <div className="flex justify-between items-center border-b pb-6">
+      <div className="flex flex-col md:flex-row justify-between items-center border-b pb-6 gap-4">
         <div>
            <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Admin Dashboard</h1>
            <p className="text-gray-500">
@@ -47,15 +44,23 @@ export default async function AdminDashboard() {
            </p>
         </div>
         
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
            <LogoutButton />
-           <Link href="/admin/blogs/new" className="bg-black text-white px-4 py-2 rounded hover:bg-gray-800 text-sm">+ Blog</Link>
-           <Link href="/admin/jobs/new" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm">+ Job</Link><Link href="/admin/events/new" className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 text-sm ml-2">+ Event</Link><Link href="/admin/events/new" className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 text-sm ml-2">+ Event</Link>
            
-           {/* CONDITIONAL RENDERING: Only Super Admin sees this */}
+           {/* Content Creation Buttons */}
+           <Link href="/admin/blogs/new" className="bg-black text-white px-4 py-2 rounded hover:bg-gray-800 text-sm font-medium">+ Blog</Link>
+           <Link href="/admin/jobs/new" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm font-medium">+ Job</Link>
+           <Link href="/admin/events/new" className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 text-sm font-medium">+ Event</Link>
+
+           {/* Management Tools */}
+           <div className="h-6 w-px bg-gray-300 mx-1"></div>
+           <Link href="/admin/applications" className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 text-sm font-medium">Applicants</Link>
+           <Link href="/admin/manage" className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 text-sm font-medium">Delete</Link>
+           
+           {/* Super Admin Only */}
            {data.isSuperAdmin && (
-             <Link href="/admin/team" className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 text-sm">
-               Manage Team
+             <Link href="/admin/team" className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 text-sm font-medium border border-purple-400">
+               Team
              </Link>
            )}
         </div>
