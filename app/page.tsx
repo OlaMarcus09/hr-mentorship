@@ -1,174 +1,123 @@
-import Hero from "@/components/Hero";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { MOCK_EVENTS, MOCK_TEAM } from "@/data/mock";
 import Link from "next/link";
-import { MapPin, ArrowRight, Users, Trophy } from "lucide-react";
+import { ArrowRight, CheckCircle, Users, Briefcase } from "lucide-react";
+import { prisma } from "@/lib/prisma";
 
-export default function Home() {
+export const dynamic = 'force-dynamic';
+
+// Fetch Data for Homepage
+async function getData() {
+  const latestBlogs = await prisma.blog.findMany({
+    take: 3,
+    orderBy: { createdAt: 'desc' }
+  });
+  
+  const upcomingEvents = await prisma.event.findMany({
+    take: 3,
+    orderBy: { date: 'asc' }
+  });
+
+  return { latestBlogs, upcomingEvents };
+}
+
+export default async function Home() {
+  const { latestBlogs, upcomingEvents } = await getData();
+
   return (
     <div className="flex flex-col min-h-screen">
-      <Hero />
       
-      {/* SECTION 1: Mission */}
-      <section className="py-20 bg-white dark:bg-slate-950 text-center">
-        <div className="container mx-auto px-4 max-w-4xl">
-          <Badge variant="secondary" className="mb-6 bg-purple-100 text-purple-700 hover:bg-purple-100 px-4 py-1">
-             About HR Mentorship
-          </Badge>
-          <h2 className="text-3xl md:text-5xl font-bold font-heading mb-8 text-slate-900 dark:text-white leading-tight">
-            Empowering the Next Generation of HR Professionals
-          </h2>
-          <p className="text-lg md:text-xl text-muted-foreground leading-relaxed mb-8">
-            HR Mentorship is a global platform dedicated to bridging the gap between aspiring HR professionals and experienced leaders. We foster growth through structured mentorship, knowledge-sharing, and real-world exposure — creating a community where every HR professional can thrive with purpose, clarity, and confidence.
-          </p>
-          
-          <div className="bg-slate-50 dark:bg-slate-900 p-8 rounded-3xl border border-slate-100 dark:border-slate-800 my-12">
-             <p className="text-xl md:text-2xl font-medium text-purple-900 dark:text-purple-300 italic font-heading">
-               "Our goal is to cultivate human resource experts who not only understand organizational dynamics but also champion people-first leadership in workplaces around the world."
-             </p>
-             <div className="mt-6">
-                <Link href="/about" className="text-purple-600 font-bold hover:underline inline-flex items-center">
-                   Explore More <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
-             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* SECTION 2: Meet Our Expert Team */}
-      <section className="py-20 bg-slate-50 dark:bg-slate-900">
-        <div className="container mx-auto px-4">
-           <div className="text-center mb-16">
-              <h2 className="text-3xl md:text-5xl font-bold font-heading mb-4">Meet Our Expert Team</h2>
-              <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-                 Learn from industry-leading HR professionals with decades of combined experience
-              </p>
-           </div>
-           
-           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {MOCK_TEAM.slice(0,4).map((member) => (
-                 <Card key={member.id} className="text-center border-none shadow-sm hover:shadow-xl transition-shadow bg-white dark:bg-slate-950 p-6 rounded-3xl">
-                    <div className="w-32 h-32 mx-auto mb-4 rounded-full overflow-hidden border-4 border-slate-100 dark:border-slate-800">
-                       <img src={member.imageUrl} alt={member.name} className="w-full h-full object-cover" />
-                    </div>
-                    <h3 className="text-xl font-bold font-heading">{member.name}</h3>
-                    <p className="text-purple-600 font-medium mb-2">{member.role}</p>
-                    <div className="flex justify-center gap-1 text-yellow-500 text-sm items-center">
-                       <Trophy className="h-3 w-3" /> 10+ years experience
-                    </div>
-                 </Card>
-              ))}
-           </div>
-           
-           <div className="text-center mt-12">
-              <Link href="/experts">
-                <Button className="bg-purple-600 hover:bg-purple-700 text-white rounded-full px-8 h-12 text-lg">
-                   View Full Team
-                </Button>
-              </Link>
-           </div>
-        </div>
-      </section>
-
-      {/* SECTION 3: Upcoming Events */}
-      <section className="py-20 bg-white dark:bg-background">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-5xl font-bold font-heading mb-4">Upcoming Events</h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-               Join our workshops, summits, and training sessions to accelerate your HR career
+      {/* HERO SECTION */}
+      <section className="bg-slate-900 text-white py-24 px-6">
+        <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center">
+          <div>
+            <h1 className="text-5xl font-bold font-heading mb-6 leading-tight">
+              Elevate Your HR Career with Expert Mentorship
+            </h1>
+            <p className="text-lg text-slate-300 mb-8">
+              Connect with industry leaders, gain practical skills, and accelerate your professional growth.
             </p>
+            <div className="flex flex-wrap gap-4">
+              <Link href="/mentorship/apply" className="bg-white text-slate-900 px-8 py-3 rounded-full font-bold hover:bg-slate-100 transition">
+                Join Program
+              </Link>
+              <Link href="/jobs" className="border border-white px-8 py-3 rounded-full font-bold hover:bg-white/10 transition">
+                Browse Jobs
+              </Link>
+            </div>
+          </div>
+          <div className="hidden md:block bg-slate-800 rounded-2xl h-[400px] w-full animate-pulse">
+            {/* Placeholder for Hero Image */}
+          </div>
+        </div>
+      </section>
+
+      {/* STATS */}
+      <section className="py-12 bg-slate-50 border-b">
+        <div className="max-w-6xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+          {[
+            { label: "Active Mentors", value: "50+" },
+            { label: "Mentees Guided", value: "200+" },
+            { label: "Jobs Posted", value: "150+" },
+            { label: "Success Rate", value: "95%" },
+          ].map((stat, i) => (
+            <div key={i}>
+              <div className="text-3xl font-bold text-blue-600 mb-1">{stat.value}</div>
+              <div className="text-sm text-gray-600">{stat.label}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* LATEST NEWS (DYNAMIC) */}
+      <section className="py-20 px-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex justify-between items-end mb-12">
+            <div>
+              <h2 className="text-3xl font-bold mb-2">Latest Insights</h2>
+              <p className="text-gray-600">Trends and tips from HR experts</p>
+            </div>
+            <Link href="/blog" className="text-blue-600 flex items-center gap-2 hover:underline">
+              View all <ArrowRight size={16}/>
+            </Link>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-            {MOCK_EVENTS.map((event) => (
-              <Card key={event.id} className="flex flex-col md:flex-row overflow-hidden border-none shadow-lg rounded-3xl bg-white dark:bg-slate-900">
-                <div className="p-8 flex-1">
-                  <Badge className="bg-purple-100 text-purple-700 hover:bg-purple-100 mb-4 px-3 py-1">Workshop</Badge>
-                  <h3 className="text-2xl font-bold font-heading mb-2">{event.title}</h3>
-                  <div className="flex items-center gap-6 text-sm text-muted-foreground mb-6">
-                     <span className="flex items-center gap-2"><MapPin className="h-4 w-4" /> Virtual</span>
-                     <span className="flex items-center gap-2"><Users className="h-4 w-4" /> 127 attending</span>
-                  </div>
-                  <Button variant="outline" className="rounded-full">Register Now</Button>
+          <div className="grid md:grid-cols-3 gap-8">
+            {latestBlogs.map((blog) => (
+              <div key={blog.id} className="group cursor-pointer">
+                <div className="h-48 bg-gray-200 rounded-xl mb-4 overflow-hidden relative">
+                   {blog.image && <img src={blog.image} className="w-full h-full object-cover group-hover:scale-105 transition duration-500"/>}
                 </div>
-                <div className="bg-purple-50 dark:bg-purple-900/20 p-8 flex flex-col justify-center items-center text-center min-w-[150px]">
-                   <span className="text-purple-600 font-bold text-lg">Feb 15, 2024</span>
-                   <span className="text-sm text-muted-foreground">2:00 PM EST</span>
-                </div>
-              </Card>
+                <div className="text-sm text-gray-500 mb-2">{new Date(blog.createdAt).toLocaleDateString()}</div>
+                <h3 className="text-xl font-bold mb-2 group-hover:text-blue-600 transition">{blog.title}</h3>
+                <p className="text-gray-600 line-clamp-2">{blog.content}</p>
+              </div>
             ))}
           </div>
-          
-          <div className="text-center mt-12">
-             <Link href="/events">
-                <Button className="bg-purple-600 hover:bg-purple-700 text-white rounded-full px-8 h-12 text-lg">
-                   View All Events
-                </Button>
-             </Link>
-          </div>
         </div>
       </section>
 
-      {/* SECTION 4: Community In Action */}
-      <section className="py-20 bg-slate-50 dark:bg-slate-900">
-         <div className="container mx-auto px-4">
-            <div className="text-center mb-12">
-               <h2 className="text-3xl md:text-5xl font-bold font-heading mb-4">Our Community in Action</h2>
-               <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-                  Experience the energy and collaboration of our HR professional community
-               </p>
+      {/* UPCOMING EVENTS (DYNAMIC) */}
+      <section className="py-20 px-6 bg-slate-50">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex justify-between items-end mb-12">
+            <div>
+              <h2 className="text-3xl font-bold mb-2">Upcoming Events</h2>
+              <p className="text-gray-600">Don't miss out on these sessions</p>
             </div>
-            
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 h-[400px]">
-               <div className="col-span-1 md:col-span-2 row-span-2 rounded-3xl overflow-hidden relative group">
-                  <img src="https://images.unsplash.com/photo-1544531586-fde5298cdd40?auto=format&fit=crop&w=800&q=80" className="w-full h-full object-cover" />
-                  <div className="absolute bottom-4 left-4 bg-purple-600 text-white px-3 py-1 rounded-full text-sm font-bold">Workshop</div>
-               </div>
-               <div className="col-span-1 rounded-3xl overflow-hidden relative">
-                  <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=400&q=80" className="w-full h-full object-cover" />
-                  <div className="absolute bottom-4 left-4 bg-purple-600 text-white px-3 py-1 rounded-full text-sm font-bold">Event</div>
-               </div>
-               <div className="col-span-1 rounded-3xl overflow-hidden relative">
-                  <img src="https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&w=400&q=80" className="w-full h-full object-cover" />
-                  <div className="absolute bottom-4 left-4 bg-purple-600 text-white px-3 py-1 rounded-full text-sm font-bold">Mentorship</div>
-               </div>
-               <div className="col-span-1 md:col-span-2 rounded-3xl overflow-hidden relative">
-                  <img src="https://images.unsplash.com/photo-1515187029135-18ee286d815b?auto=format&fit=crop&w=800&q=80" className="w-full h-full object-cover" />
-               </div>
-            </div>
-            
-            <div className="text-center mt-12">
-               <Link href="/gallery">
-                  <Button className="bg-purple-600 hover:bg-purple-700 text-white rounded-full px-8 h-12 text-lg">
-                     View Full Gallery
-                  </Button>
-               </Link>
-            </div>
-         </div>
-      </section>
+            <Link href="/events" className="text-blue-600 flex items-center gap-2 hover:underline">
+              See all events <ArrowRight size={16}/>
+            </Link>
+          </div>
 
-      {/* SECTION 5: Bottom CTA */}
-      <section className="py-24 bg-gradient-to-br from-purple-900 to-indigo-900 text-center text-white">
-        <div className="container mx-auto px-4">
-           <Badge className="bg-white/10 text-white hover:bg-white/20 mb-6 border-none px-4 py-1">Join Our Growing Community</Badge>
-           <h2 className="text-3xl md:text-5xl font-bold font-heading mb-6 leading-tight">
-             Ready to Take the Next Step in<br/> Your <span className="text-purple-300">HR Journey?</span>
-           </h2>
-           <p className="text-lg md:text-xl text-purple-100 max-w-3xl mx-auto mb-10 leading-relaxed">
-             Join thousands of HR professionals who are transforming their careers through expert mentorship, practical guidance, and an empowering network designed for your success.
-           </p>
-           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-             <Button size="lg" className="bg-white text-purple-900 hover:bg-gray-100 rounded-full px-8 h-14 text-lg font-bold">
-               Become a Mentee
-             </Button>
-             {/* FIXED: Added 'bg-transparent' so text isn't white-on-white */}
-             <Button size="lg" variant="outline" className="bg-transparent text-white border-white hover:bg-white hover:text-purple-900 rounded-full px-8 h-14 text-lg font-bold">
-               Join as Mentor
-             </Button>
-           </div>
+          <div className="grid md:grid-cols-3 gap-6">
+            {upcomingEvents.map((event) => (
+              <div key={event.id} className="bg-white p-6 rounded-xl border hover:shadow-md transition">
+                <div className="text-sm font-bold text-blue-600 mb-2 uppercase">{new Date(event.date).toLocaleDateString()}</div>
+                <h3 className="text-lg font-bold mb-1">{event.title}</h3>
+                <p className="text-gray-500 text-sm mb-4">{event.location}</p>
+                <Link href="/events" className="text-sm font-medium underline">Register &rarr;</Link>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
     </div>
