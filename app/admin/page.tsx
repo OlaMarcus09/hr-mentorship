@@ -3,7 +3,7 @@ import { Users, FileText, Calendar, Briefcase } from "lucide-react";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import LogoutButton from "./logout-button";
-import { cookies } from 'next/headers'; // We need this to read the login cookie
+import { cookies } from 'next/headers';
 
 export const dynamic = 'force-dynamic';
 
@@ -14,8 +14,8 @@ async function getData() {
   const eventCount = await prisma.event.count();
   const adminCount = await prisma.admin.count();
   
-  // 2. Identify Current User from Cookie
-  const cookieStore = cookies();
+  // 2. NEXT.JS 15 FIX: We must 'await' the cookies() call
+  const cookieStore = await cookies();
   const token = cookieStore.get('admin_token')?.value;
   let isSuperAdmin = false;
 
