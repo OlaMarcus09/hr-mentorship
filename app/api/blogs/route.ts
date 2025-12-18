@@ -1,15 +1,23 @@
 import { NextResponse } from 'next/server';
-
-const MOCK_BLOGS = [
-  { id: 1, title: 'Ace your Interview', author: 'Team' },
-  { id: 2, title: 'Remote Work Trends', author: 'Olawale' }
-];
+import { prisma } from '@/lib/prisma';
 
 export async function GET() {
-  return NextResponse.json(MOCK_BLOGS);
+  const blogs = await prisma.blog.findMany();
+  return NextResponse.json(blogs);
 }
 
 export async function POST(request: Request) {
-  const body = await request.json();
-  return NextResponse.json({ message: 'Blog created', data: body }, { status: 201 });
+  try {
+    const body = await request.json();
+    const newBlog = await prisma.blog.create({
+      data: {
+        title: body.title,
+        content: body.content || '',
+        author: body.author || 'Team',
+      }
+    });
+    return NextResponse.json(newBlog, { status: 201 });
+  } catch (error) {
+    return NextResponse.json({ error: 'Error creating blog' }, { status: 500 });
+  }
 }

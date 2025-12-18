@@ -1,14 +1,22 @@
 import { NextResponse } from 'next/server';
-
-const MOCK_EVENTS = [
-  { id: 1, title: 'HR Summit', date: '2025-12-15' }
-];
+import { prisma } from '@/lib/prisma';
 
 export async function GET() {
-  return NextResponse.json(MOCK_EVENTS);
+  const events = await prisma.event.findMany();
+  return NextResponse.json(events);
 }
 
 export async function POST(request: Request) {
-  const body = await request.json();
-  return NextResponse.json({ message: 'Event created', data: body }, { status: 201 });
+  try {
+    const body = await request.json();
+    const newEvent = await prisma.event.create({
+      data: {
+        title: body.title,
+        date: body.date
+      }
+    });
+    return NextResponse.json(newEvent, { status: 201 });
+  } catch (error) {
+    return NextResponse.json({ error: 'Error creating event' }, { status: 500 });
+  }
 }
