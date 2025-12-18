@@ -1,110 +1,148 @@
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent } from "@/components/ui/card";
+"use client";
+
+import { useState } from "react";
 import { Mail, Phone, MapPin, Send } from "lucide-react";
 
 export default function ContactPage() {
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+
+  async function handleSubmit(e: any) {
+    e.preventDefault();
+    setLoading(true);
+
+    const formData = {
+      name: e.target.name.value,
+      email: e.target.email.value,
+      message: e.target.message.value,
+    };
+
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        body: JSON.stringify(formData),
+        headers: { "Content-Type": "application/json" },
+      });
+
+      if (res.ok) {
+        setSuccess(true);
+        e.target.reset();
+      } else {
+        alert("Failed to send message. Please try again.");
+      }
+    } catch (err) {
+      alert("Something went wrong.");
+    }
+    setLoading(false);
+  }
+
   return (
-    <div className="flex flex-col min-h-screen bg-slate-50 dark:bg-slate-950">
-      
-      {/* Hero Banner */}
-      <section className="relative py-20 text-center text-white overflow-hidden">
-        <div 
-          className="absolute inset-0 z-0 bg-cover bg-center"
-          style={{ 
-             backgroundImage: 'url("https://images.unsplash.com/photo-1423666639041-f142fcb93370?auto=format&fit=crop&w=2000&q=80")',
-          }}
-        >
-          <div className="absolute inset-0 bg-primary/90 mix-blend-multiply" />
-        </div>
-        <div className="relative z-10 container mx-auto px-4">
-          <h1 className="text-3xl md:text-5xl font-bold font-heading mb-4">Contact Us</h1>
-          <p className="text-base md:text-xl text-white/90 max-w-xl mx-auto font-light">
-            Have questions about membership, events, or partnerships? We'd love to hear from you.
-          </p>
-        </div>
-      </section>
+    <div className="max-w-6xl mx-auto px-6 py-16">
+      <div className="text-center mb-16">
+        <h1 className="text-4xl font-bold mb-4">Get in Touch</h1>
+        <p className="text-gray-600">Have questions about our mentorship programs? We're here to help.</p>
+      </div>
 
-      {/* Contact Content */}
-      <section className="py-12 container mx-auto px-4 -mt-10 relative z-20">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          
-          {/* Info Cards */}
-          <div className="space-y-4 lg:col-span-1">
-            <Card className="border-none shadow-lg">
-              <CardContent className="p-6 flex items-start gap-4">
-                <div className="bg-cyan-100 dark:bg-cyan-900 p-3 rounded-full text-cyan-600 dark:text-cyan-400">
-                  <Mail className="h-6 w-6" />
-                </div>
-                <div>
-                  <h3 className="font-bold font-heading mb-1">Email Us</h3>
-                  <p className="text-sm text-muted-foreground">hello@hrmentorship.com</p>
-                  <p className="text-sm text-muted-foreground">support@hrmentorship.com</p>
-                </div>
-              </CardContent>
-            </Card>
+      <div className="grid md:grid-cols-2 gap-12 items-start">
+        
+        {/* Left Side: Contact Info */}
+        <div className="bg-slate-50 p-8 rounded-2xl">
+          <h3 className="text-2xl font-semibold mb-6">Contact Information</h3>
+          <div className="space-y-6">
+            <div className="flex items-center gap-4">
+              <div className="bg-blue-100 p-3 rounded-full text-blue-600">
+                <Mail size={24} />
+              </div>
+              <div>
+                <p className="text-sm text-gray-500">Email us</p>
+                <p className="font-medium">hello@hrmentorship.com</p>
+              </div>
+            </div>
 
-            <Card className="border-none shadow-lg">
-              <CardContent className="p-6 flex items-start gap-4">
-                <div className="bg-purple-100 dark:bg-purple-900 p-3 rounded-full text-purple-600 dark:text-purple-400">
-                  <Phone className="h-6 w-6" />
-                </div>
-                <div>
-                  <h3 className="font-bold font-heading mb-1">Call Us</h3>
-                  <p className="text-sm text-muted-foreground">+234 800 123 4567</p>
-                  <p className="text-sm text-muted-foreground">Mon-Fri, 9am - 5pm</p>
-                </div>
-              </CardContent>
-            </Card>
+            <div className="flex items-center gap-4">
+              <div className="bg-green-100 p-3 rounded-full text-green-600">
+                <Phone size={24} />
+              </div>
+              <div>
+                <p className="text-sm text-gray-500">Call us</p>
+                <p className="font-medium">+234 812 345 6789</p>
+              </div>
+            </div>
 
-            <Card className="border-none shadow-lg">
-              <CardContent className="p-6 flex items-start gap-4">
-                <div className="bg-orange-100 dark:bg-orange-900 p-3 rounded-full text-orange-600 dark:text-orange-400">
-                  <MapPin className="h-6 w-6" />
-                </div>
-                <div>
-                  <h3 className="font-bold font-heading mb-1">Visit Us</h3>
-                  <p className="text-sm text-muted-foreground">
-                    123 Innovation Drive,<br />
-                    Ikeja, Lagos, Nigeria.
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Form */}
-          <div className="lg:col-span-2">
-            <Card className="border-none shadow-xl h-full">
-              <CardContent className="p-8">
-                <h2 className="text-2xl font-bold font-heading mb-6">Send a Message</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">First Name</label>
-                    <Input placeholder="John" />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Last Name</label>
-                    <Input placeholder="Doe" />
-                  </div>
-                </div>
-                <div className="space-y-2 mb-6">
-                  <label className="text-sm font-medium">Email Address</label>
-                  <Input type="email" placeholder="john@company.com" />
-                </div>
-                <div className="space-y-2 mb-6">
-                  <label className="text-sm font-medium">Message</label>
-                  <Textarea placeholder="How can we help you?" className="min-h-[150px]" />
-                </div>
-                <Button className="w-full md:w-auto h-12 px-8">
-                  <Send className="mr-2 h-4 w-4" /> Send Message
-                </Button>
-              </CardContent>
-            </Card>
+            <div className="flex items-center gap-4">
+              <div className="bg-purple-100 p-3 rounded-full text-purple-600">
+                <MapPin size={24} />
+              </div>
+              <div>
+                <p className="text-sm text-gray-500">Visit us</p>
+                <p className="font-medium">Ibadan, Nigeria</p>
+              </div>
+            </div>
           </div>
         </div>
-      </section>
+
+        {/* Right Side: The Form */}
+        <div className="bg-white border p-8 rounded-2xl shadow-sm">
+          {success ? (
+            <div className="text-center py-10">
+              <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Send size={32} />
+              </div>
+              <h3 className="text-2xl font-bold mb-2">Message Sent!</h3>
+              <p className="text-gray-600 mb-6">Thank you for reaching out. We will get back to you shortly.</p>
+              <button 
+                onClick={() => setSuccess(false)}
+                className="text-blue-600 hover:underline"
+              >
+                Send another message
+              </button>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium mb-2">Full Name</label>
+                <input 
+                  name="name" 
+                  required 
+                  className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition"
+                  placeholder="John Doe"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2">Email Address</label>
+                <input 
+                  type="email" 
+                  name="email" 
+                  required 
+                  className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition"
+                  placeholder="john@example.com"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2">Message</label>
+                <textarea 
+                  name="message" 
+                  required 
+                  rows={5}
+                  className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition"
+                  placeholder="How can we help you?"
+                />
+              </div>
+
+              <button 
+                disabled={loading}
+                className="w-full bg-black text-white py-3 rounded-lg font-medium hover:bg-gray-800 transition disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {loading ? "Sending..." : "Send Message"}
+                {!loading && <Send size={18} />}
+              </button>
+            </form>
+          )}
+        </div>
+
+      </div>
     </div>
   );
 }
