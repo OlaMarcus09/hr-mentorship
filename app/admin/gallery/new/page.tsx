@@ -45,24 +45,24 @@ export default function NewGalleryPhoto() {
 
   return (
     <div className="max-w-xl mx-auto py-10 px-6">
-      <Link href="/admin" className="inline-flex items-center gap-2 text-gray-500 hover:text-black mb-6">
+      <Link href="/admin" className="inline-flex items-center gap-2 text-slate-500 dark:text-slate-400 hover:text-black dark:hover:text-white mb-6 transition">
         <ArrowLeft size={20} /> Back to Dashboard
       </Link>
-      <h1 className="text-3xl font-bold mb-6">Add to Gallery</h1>
+      <h1 className="text-3xl font-bold mb-6 text-slate-900 dark:text-white">Add to Gallery</h1>
       
-      <form onSubmit={handleSubmit} className="space-y-6 bg-white p-8 rounded-xl shadow-sm border">
+      <form onSubmit={handleSubmit} className="space-y-6 bg-white dark:bg-slate-900 p-8 rounded-xl shadow-sm border dark:border-slate-800">
         
         {/* Image Upload */}
         <div>
-          <label className="block text-sm font-bold text-gray-700 mb-2">Upload Photo</label>
-          <div className="flex flex-col items-center gap-4 border-2 border-dashed p-6 rounded-lg">
+          <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Upload Photo</label>
+          <div className="flex flex-col items-center gap-4 border-2 border-dashed border-slate-300 dark:border-slate-700 p-6 rounded-lg bg-slate-50 dark:bg-slate-950">
             {imageUrl ? (
                <img src={imageUrl} className="h-40 object-cover rounded-lg shadow-sm" />
             ) : (
-               <div className="h-40 w-full bg-gray-50 flex items-center justify-center text-gray-400">Preview</div>
+               <div className="h-40 w-full flex items-center justify-center text-slate-400 dark:text-slate-600">Preview</div>
             )}
             
-            <label className="cursor-pointer bg-black text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-gray-800 transition">
+            <label className="cursor-pointer bg-black dark:bg-white text-white dark:text-black px-4 py-2 rounded-lg flex items-center gap-2 hover:opacity-90 transition">
               <ImagePlus size={20} />
               <span>{uploading ? "Uploading..." : "Select Image"}</span>
               <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
@@ -72,8 +72,8 @@ export default function NewGalleryPhoto() {
 
         {/* Category Selector */}
         <div>
-           <label className="block text-sm font-bold text-gray-700 mb-2">Category</label>
-           <select name="category" className="w-full border p-3 rounded-lg bg-white">
+           <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Category</label>
+           <select name="category" className="w-full border dark:border-slate-700 p-3 rounded-lg bg-white dark:bg-slate-950 text-slate-900 dark:text-white">
              <option value="Workshop">Workshop</option>
              <option value="Event">Event</option>
              <option value="Networking">Networking</option>
@@ -82,11 +82,11 @@ export default function NewGalleryPhoto() {
         </div>
 
         <div>
-           <label className="block text-sm font-medium mb-1">Caption (Optional)</label>
-           <input name="caption" className="w-full border p-3 rounded-lg" placeholder="Short description..." />
+           <label className="block text-sm font-medium mb-1 text-slate-700 dark:text-slate-300">Caption (Optional)</label>
+           <input name="caption" className="w-full border dark:border-slate-700 p-3 rounded-lg bg-white dark:bg-slate-950 text-slate-900 dark:text-white placeholder:text-slate-400" placeholder="Short description..." />
         </div>
 
-        <button disabled={loading || uploading || !imageUrl} className="w-full bg-purple-600 text-white py-3 rounded-lg font-bold hover:bg-purple-700 disabled:opacity-50">
+        <button disabled={loading || uploading || !imageUrl} className="w-full bg-purple-600 text-white py-3 rounded-lg font-bold hover:bg-purple-700 disabled:opacity-50 transition">
           {loading ? "Saving..." : "Add to Gallery"}
         </button>
       </form>
