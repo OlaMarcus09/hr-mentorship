@@ -41,7 +41,6 @@ export default async function Home() {
               </Link>
             </div>
 
-            {/* FIXED STATS GRID FOR MOBILE */}
             <div className="mt-12 grid grid-cols-2 md:flex md:gap-12 gap-y-8 gap-x-4">
                <div>
                   <div className="text-3xl font-bold text-slate-900 dark:text-white">7k+</div>
@@ -58,7 +57,6 @@ export default async function Home() {
             </div>
           </div>
           
-          {/* HERO IMAGE - Restrained height on mobile */}
           <div className="relative mt-8 lg:mt-0">
             <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-slate-100 dark:border-slate-800 aspect-[4/3] md:aspect-auto">
                <img 
@@ -126,21 +124,29 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* 4. GALLERY PREVIEW */}
+      {/* 4. GALLERY PREVIEW (RESTORED TO 4 ITEMS) */}
       <section className="py-16 bg-white dark:bg-slate-950">
         <div className="max-w-7xl mx-auto px-6">
            <div className="text-center mb-10">
               <h2 className="text-3xl font-bold mb-4 font-heading">Community in Action</h2>
            </div>
            
-           <div className="grid grid-cols-2 gap-4">
+           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="relative rounded-2xl overflow-hidden h-40 md:h-64">
                  <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=600" className="w-full h-full object-cover"/>
                  <div className="absolute bottom-2 left-2 bg-black/60 text-white text-[10px] md:text-xs font-bold px-2 py-1 rounded">Workshop</div>
               </div>
               <div className="relative rounded-2xl overflow-hidden h-40 md:h-64">
+                 <img src="https://images.unsplash.com/photo-1543269865-cbf427effbad?auto=format&fit=crop&w=600" className="w-full h-full object-cover"/>
+                 <div className="absolute bottom-2 left-2 bg-black/60 text-white text-[10px] md:text-xs font-bold px-2 py-1 rounded">Event</div>
+              </div>
+              <div className="relative rounded-2xl overflow-hidden h-40 md:h-64">
                  <img src="https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=600" className="w-full h-full object-cover"/>
                  <div className="absolute bottom-2 left-2 bg-black/60 text-white text-[10px] md:text-xs font-bold px-2 py-1 rounded">Networking</div>
+              </div>
+              <div className="relative rounded-2xl overflow-hidden h-40 md:h-64">
+                 <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=600" className="w-full h-full object-cover"/>
+                 <div className="absolute bottom-2 left-2 bg-black/60 text-white text-[10px] md:text-xs font-bold px-2 py-1 rounded">Mentorship</div>
               </div>
            </div>
            
