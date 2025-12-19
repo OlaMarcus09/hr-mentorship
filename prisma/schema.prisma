@@ -7,38 +7,43 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ... (Previous models: Admin, Job, Contact, Blog, Event, Application remain unchanged)
 model Admin {
   id        Int      @id @default(autoincrement())
   name      String
   email     String   @unique
   password  String
-  role      String   @default("ADMIN")
+  role      String   @default("ADMIN") // SUPER_ADMIN or ADMIN
+  createdAt DateTime @default(now())
+}
+
+model TeamMember {
+  id        Int      @id @default(autoincrement())
+  name      String
+  role      String
+  bio       String
+  image     String?
+  linkedin  String?
   createdAt DateTime @default(now())
 }
 
 model Job {
-  id        Int      @id @default(autoincrement())
-  title     String
-  company   String
-  type      String
-  location  String
-  salary    String?
-  postedAt  DateTime @default(now())
-}
-
-model Contact {
-  id        Int      @id @default(autoincrement())
-  name      String
-  email     String
-  message   String
-  createdAt DateTime @default(now())
+  id           Int      @id @default(autoincrement())
+  title        String
+  company      String
+  type         String   // Remote, Hybrid, On-site
+  location     String
+  salary       String?
+  description  String   // Full HTML or text description
+  requirements String?  // Optional requirements list
+  applyLink    String?  // Email or URL
+  postedAt     DateTime @default(now())
 }
 
 model Blog {
   id        Int      @id @default(autoincrement())
   title     String
-  content   String?
+  content   String
+  excerpt   String?  // Short summary for the list view
   author    String
   image     String?
   createdAt DateTime @default(now())
@@ -57,7 +62,7 @@ model Application {
   id        Int      @id @default(autoincrement())
   name      String
   email     String
-  type      String
+  type      String   // Mentor, Mentee
   linkedin  String?
   bio       String
   image     String?
@@ -65,11 +70,18 @@ model Application {
   createdAt DateTime @default(now())
 }
 
-// NEW MODEL FOR GALLERY
 model GalleryImage {
   id        Int      @id @default(autoincrement())
   image     String
-  category  String   // "Workshop", "Event", "Networking", "Mentorship"
+  category  String   // Workshop, Event, Networking, Mentorship
   caption   String?
+  createdAt DateTime @default(now())
+}
+
+model Contact {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String
+  message   String
   createdAt DateTime @default(now())
 }
