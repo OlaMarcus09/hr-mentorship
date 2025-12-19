@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, FileText, Calendar, Briefcase, Trash2, FileCheck, Shield } from "lucide-react";
+import { Users, FileText, Calendar, Briefcase, Trash2, FileCheck, Shield, Settings } from "lucide-react";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import LogoutButton from "./logout-button";
@@ -44,14 +44,18 @@ export default async function AdminDashboard() {
                {data.isSuperAdmin ? "Super Admin" : "Admin Panel"}
              </p>
            </div>
-           {/* Logout sits alone on the right */}
-           <LogoutButton />
+           
+           <div className="flex items-center gap-2">
+             <Link href="/admin/settings" className="p-2 text-gray-600 hover:bg-gray-100 rounded-full" title="Settings">
+               <Settings size={20} />
+             </Link>
+             <LogoutButton />
+           </div>
         </div>
         
-        {/* ACTION TOOLBAR - Mobile: Grid, Desktop: Flex */}
+        {/* ACTION TOOLBAR */}
         <div className="grid grid-cols-2 md:flex md:flex-wrap items-center gap-3">
            
-           {/* Content Creation - Full width on very small phones, 2-col on standard phones */}
            <Link href="/admin/blogs/new" className="bg-black text-white px-4 py-3 md:py-2 rounded-lg hover:bg-gray-800 text-sm font-medium text-center shadow-sm">
              + Blog
            </Link>
@@ -64,7 +68,6 @@ export default async function AdminDashboard() {
 
            <div className="hidden md:block h-6 w-px bg-gray-300 mx-1"></div>
 
-           {/* Management Tools */}
            <Link href="/admin/applications" className="bg-indigo-600 text-white px-4 py-3 md:py-2 rounded-lg hover:bg-indigo-700 text-sm font-medium text-center shadow-sm flex items-center justify-center gap-2">
              <FileCheck size={16} /> Applicants
            </Link>
@@ -72,7 +75,6 @@ export default async function AdminDashboard() {
              <Trash2 size={16} /> Delete
            </Link>
            
-           {/* Super Admin Only */}
            {data.isSuperAdmin && (
              <Link href="/admin/team" className="col-span-2 md:col-span-1 bg-purple-600 text-white px-4 py-3 md:py-2 rounded-lg hover:bg-purple-700 text-sm font-medium border border-purple-400 text-center flex items-center justify-center gap-2">
                <Shield size={16} /> Team
@@ -81,7 +83,7 @@ export default async function AdminDashboard() {
         </div>
       </div>
       
-      {/* Stats Grid - Already Responsive */}
+      {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
