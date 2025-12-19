@@ -1,10 +1,9 @@
 import Link from "next/link";
-import { ArrowRight, CheckCircle, Users, Calendar, MapPin, Star, TrendingUp, Shield } from "lucide-react";
+import { ArrowRight, CheckCircle, MapPin, Calendar, Users, Star, Briefcase } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 
 export const dynamic = 'force-dynamic';
 
-// Fetch Data from Database
 async function getData() {
   const latestBlogs = await prisma.blog.findMany({
     take: 3,
@@ -23,194 +22,253 @@ export default async function Home() {
   const { latestBlogs, upcomingEvents } = await getData();
 
   return (
-    <div className="flex flex-col min-h-screen font-sans">
+    <div className="flex flex-col min-h-screen">
       
-      {/* 1. HERO SECTION (Restored Design) */}
-      <section className="relative bg-gradient-to-r from-slate-900 via-purple-900 to-slate-900 text-white py-24 px-6 overflow-hidden">
-        {/* Background Overlay Effect */}
-        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+      {/* 1. HERO SECTION (Matches Screenshot 3) */}
+      <section className="relative pt-20 pb-32 overflow-hidden bg-slate-50 dark:bg-slate-950">
+        {/* Purple Blob Background */}
+        <div className="absolute top-0 right-0 -mr-20 -mt-20 w-[600px] h-[600px] bg-primary/20 blur-[100px] rounded-full opacity-50 pointer-events-none"></div>
+        <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-[400px] h-[400px] bg-blue-500/10 blur-[100px] rounded-full opacity-50 pointer-events-none"></div>
 
-        <div className="relative max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 items-center">
-          <div className="space-y-8">
-            {/* Badge */}
-            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full border border-white/20">
-              <span className="flex h-2 w-2 rounded-full bg-green-400"></span>
-              <span className="text-sm font-medium">Trusted by 500+ HR Professionals</span>
+        <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-16 items-center relative z-10">
+          <div>
+            <div className="inline-block px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-bold mb-6">
+               Trusted by 500+ HR Professionals
             </div>
-
-            <h1 className="text-5xl md:text-6xl font-bold leading-tight">
-              Elevate Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">HR Career</span>
+            <h1 className="text-5xl md:text-6xl font-bold font-heading mb-6 leading-tight text-slate-900 dark:text-white">
+              Elevate Your <span className="text-primary">HR Career</span>
             </h1>
-            
-            <p className="text-lg text-slate-300 max-w-xl leading-relaxed">
+            <p className="text-lg text-slate-600 dark:text-slate-300 mb-8 leading-relaxed">
               Transform your expertise with personalized mentorship, cutting-edge resources, and a thriving community dedicated to career excellence.
             </p>
             
-            <div className="flex flex-wrap gap-4 pt-4">
-              <Link 
-                href="/mentorship/apply" 
-                className="bg-[#7C3AED] hover:bg-[#6D28D9] text-white px-8 py-4 rounded-lg font-bold transition shadow-lg shadow-purple-900/50 flex items-center gap-2"
-              >
-                Join Our Community
+            <div className="flex flex-wrap gap-4">
+              <Link href="/mentorship/apply" className="bg-primary hover:bg-primary/90 text-white px-8 py-4 rounded-lg font-bold transition shadow-lg shadow-primary/25">
+                Become a Mentee
               </Link>
-              <Link 
-                href="/about" 
-                className="bg-white/10 hover:bg-white/20 backdrop-blur-md text-white px-8 py-4 rounded-lg font-bold transition border border-white/10"
-              >
-                Learn More
+              <Link href="/mentorship/apply" className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-900 dark:text-white px-8 py-4 rounded-lg font-bold transition">
+                Join as Mentor
               </Link>
             </div>
 
-            {/* Mini Stats */}
-            <div className="grid grid-cols-3 gap-8 pt-8 border-t border-white/10">
-              <div>
-                <div className="text-3xl font-bold">98%</div>
-                <div className="text-sm text-slate-400">Career Growth</div>
-              </div>
-              <div>
-                <div className="text-3xl font-bold">10K+</div>
-                <div className="text-sm text-slate-400">Professionals</div>
-              </div>
-              <div>
-                <div className="text-3xl font-bold">7k+</div>
-                <div className="text-sm text-slate-400">Mentees</div>
-              </div>
-            </div>
-          </div>
-
-          {/* Hero Image / Visual */}
-          <div className="relative hidden lg:block">
-            {/* Abstract Cards Visual */}
-            <div className="relative z-10 bg-white/10 backdrop-blur-xl border border-white/20 p-8 rounded-2xl shadow-2xl transform rotate-2 hover:rotate-0 transition duration-500">
-               <div className="bg-gradient-to-br from-blue-500 to-purple-600 p-6 rounded-xl mb-6 text-white">
-                 <h3 className="text-lg font-semibold opacity-90">Current Mentees</h3>
-                 <div className="text-4xl font-bold mt-2">1,247</div>
-                 <div className="text-sm opacity-75">Active in programs</div>
+            <div className="mt-12 flex gap-12">
+               <div>
+                  <div className="text-3xl font-bold text-slate-900 dark:text-white">98%</div>
+                  <div className="text-sm text-slate-500">Career Growth</div>
                </div>
-               <div className="space-y-4">
-                 <div>
-                   <div className="flex justify-between text-sm text-slate-300 mb-1"><span>Career Growth</span><span>94%</span></div>
-                   <div className="h-2 bg-slate-700 rounded-full overflow-hidden"><div className="h-full w-[94%] bg-purple-500"></div></div>
-                 </div>
-                 <div>
-                   <div className="flex justify-between text-sm text-slate-300 mb-1"><span>Skill Development</span><span>89%</span></div>
-                   <div className="h-2 bg-slate-700 rounded-full overflow-hidden"><div className="h-full w-[89%] bg-blue-500"></div></div>
-                 </div>
+               <div>
+                  <div className="text-3xl font-bold text-slate-900 dark:text-white">10K+</div>
+                  <div className="text-sm text-slate-500">Professionals</div>
+               </div>
+               <div>
+                  <div className="text-3xl font-bold text-slate-900 dark:text-white">7K+</div>
+                  <div className="text-sm text-slate-500">Mentees</div>
                </div>
             </div>
-            {/* Background Blob */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-purple-600/30 blur-[100px] -z-10 rounded-full"></div>
+          </div>
+          
+          {/* Hero Image / Dashboard Visual */}
+          <div className="relative">
+            <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-slate-100 dark:border-slate-800">
+               <img 
+                 src="https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&q=80&w=1000" 
+                 alt="HR Professionals collaborating" 
+                 className="w-full h-auto object-cover"
+               />
+               
+               {/* Floating Card: Current Mentees (Matches Screenshot 3) */}
+               <div className="absolute bottom-8 left-8 right-8 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md p-6 rounded-xl border border-white/20 shadow-xl">
+                  <div className="flex justify-between items-start mb-4">
+                     <div>
+                        <p className="text-sm text-slate-500 mb-1">Current Mentees</p>
+                        <h3 className="text-3xl font-bold text-slate-900 dark:text-white">1,247</h3>
+                        <p className="text-xs text-primary font-medium">Active in programs</p>
+                     </div>
+                  </div>
+                  {/* Progress Bars */}
+                  <div className="space-y-3">
+                     <div>
+                        <div className="flex justify-between text-xs mb-1 font-medium"><span>Career Growth</span><span>94%</span></div>
+                        <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+                           <div className="h-full bg-primary w-[94%]"></div>
+                        </div>
+                     </div>
+                     <div>
+                        <div className="flex justify-between text-xs mb-1 font-medium"><span>Skill Development</span><span>89%</span></div>
+                        <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+                           <div className="h-full bg-cyan-400 w-[89%]"></div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* 2. ABOUT SECTION */}
-      <section className="py-24 px-6 bg-slate-50 text-center">
-        <div className="max-w-4xl mx-auto space-y-6">
-          <div className="inline-block px-4 py-1.5 rounded-full bg-purple-100 text-purple-700 text-sm font-bold mb-4">
-            About HR Mentorship
-          </div>
-          <h2 className="text-4xl md:text-5xl font-bold text-slate-900">
-            Empowering the Next Generation of HR Professionals
-          </h2>
-          <p className="text-xl text-slate-600 leading-relaxed">
-            We foster growth through structured mentorship, knowledge-sharing, and real-world exposure — creating a community where every HR professional can thrive with purpose, clarity, and confidence.
-          </p>
-          <Link href="/about" className="inline-flex items-center text-purple-700 font-bold hover:underline mt-4">
-            Explore More <ArrowRight size={16} className="ml-2"/>
-          </Link>
-        </div>
+      {/* 2. ABOUT SECTION (Matches Screenshot 4) */}
+      <section className="py-20 bg-white dark:bg-slate-950">
+         <div className="max-w-4xl mx-auto px-6 text-center">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-50 dark:bg-purple-900/20 text-primary text-sm font-medium mb-6">
+               <Star size={16} fill="currentColor" /> About HR Mentorship
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold mb-6 font-heading">
+               Empowering the Next Generation of <br/> HR Professionals
+            </h2>
+            <p className="text-slate-600 dark:text-slate-300 text-lg leading-relaxed mb-8">
+               HR Mentorship is a global platform dedicated to bridging the gap between aspiring HR professionals and experienced leaders. We foster growth through structured mentorship, knowledge-sharing, and real-world exposure — creating a community where every HR professional can thrive with purpose, clarity, and confidence.
+            </p>
+            <Link href="/about" className="text-primary font-bold hover:underline flex items-center justify-center gap-2">
+               Explore More <ArrowRight size={18} />
+            </Link>
+         </div>
       </section>
 
-      {/* 3. DARK STATS SECTION */}
-      <section className="py-20 bg-[#1e1b4b] text-white relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-purple-900/50 to-blue-900/50"></div>
-        <div className="relative max-w-7xl mx-auto px-6 grid md:grid-cols-3 gap-8 text-center">
-           <div className="p-8 bg-white/5 backdrop-blur rounded-2xl border border-white/10 hover:bg-white/10 transition">
-             <div className="w-12 h-12 bg-blue-500 rounded-lg mx-auto flex items-center justify-center mb-4"><Users size={24}/></div>
-             <div className="text-4xl font-bold mb-2">10,000+</div>
-             <div className="text-slate-300">Active Professionals</div>
-           </div>
-           <div className="p-8 bg-white/5 backdrop-blur rounded-2xl border border-white/10 hover:bg-white/10 transition">
-             <div className="w-12 h-12 bg-purple-500 rounded-lg mx-auto flex items-center justify-center mb-4"><TrendingUp size={24}/></div>
-             <div className="text-4xl font-bold mb-2">98%</div>
-             <div className="text-slate-300">Career Growth Rate</div>
-           </div>
-           <div className="p-8 bg-white/5 backdrop-blur rounded-2xl border border-white/10 hover:bg-white/10 transition">
-             <div className="w-12 h-12 bg-pink-500 rounded-lg mx-auto flex items-center justify-center mb-4"><Shield size={24}/></div>
-             <div className="text-4xl font-bold mb-2">500+</div>
-             <div className="text-slate-300">Expert Mentors</div>
-           </div>
-        </div>
-      </section>
-
-      {/* 4. UPCOMING EVENTS (Dynamic Data, Original Design) */}
-      <section className="py-24 px-6 bg-slate-50">
-        <div className="max-w-7xl mx-auto">
+      {/* 3. UPCOMING EVENTS (Matches Screenshot 5 - Dynamic) */}
+      <section className="py-24 bg-slate-50 dark:bg-slate-900/50">
+        <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-4 text-slate-900">Upcoming Events</h2>
-            <p className="text-xl text-slate-600">Join our workshops, summits, and training sessions.</p>
+             <h2 className="text-3xl md:text-4xl font-bold mb-4 font-heading">Upcoming Events</h2>
+             <p className="text-slate-500 text-lg">Join our workshops, summits, and training sessions</p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
             {upcomingEvents.length === 0 ? (
-               <p className="col-span-3 text-center py-10 bg-white border rounded-lg text-gray-500">No upcoming events scheduled.</p>
+               <div className="col-span-3 text-center py-12 bg-white dark:bg-slate-900 rounded-xl border border-dashed border-slate-300 dark:border-slate-700">
+                  <p className="text-slate-500">No upcoming events scheduled.</p>
+               </div>
             ) : (
               upcomingEvents.map((event) => (
-                <div key={event.id} className="bg-white p-8 rounded-2xl shadow-sm hover:shadow-xl transition border border-slate-100 flex flex-col">
+                <div key={event.id} className="bg-white dark:bg-slate-950 p-6 rounded-2xl shadow-sm hover:shadow-xl transition border border-slate-100 dark:border-slate-800">
                   <div className="flex justify-between items-start mb-6">
-                    <span className="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide">
-                      Event
-                    </span>
-                    <div className="text-right">
-                      <div className="font-bold text-slate-900">{new Date(event.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</div>
-                      <div className="text-xs text-slate-500">{new Date(event.date).getFullYear()}</div>
-                    </div>
+                     <span className="bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide">
+                        Event
+                     </span>
+                     <div className="text-right">
+                        <div className="font-bold text-slate-900 dark:text-white">{new Date(event.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
+                        <div className="text-xs text-slate-500">09:00 AM EST</div>
+                     </div>
                   </div>
                   
-                  <h3 className="text-xl font-bold text-slate-900 mb-2 line-clamp-2">{event.title}</h3>
+                  <h3 className="text-xl font-bold mb-2 line-clamp-2 min-h-[3.5rem]">{event.title}</h3>
                   
-                  <div className="mt-auto pt-6 flex items-center gap-2 text-slate-500 text-sm">
-                    <MapPin size={16} className="text-purple-600"/>
-                    <span>{event.location}</span>
+                  <div className="flex items-center gap-4 text-sm text-slate-500 mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+                     <div className="flex items-center gap-1">
+                        <MapPin size={14} className="text-primary"/> 
+                        {event.location}
+                     </div>
+                     <div className="flex items-center gap-1">
+                        <Users size={14} className="text-primary"/> 
+                        100+ attending
+                     </div>
                   </div>
                 </div>
               ))
             )}
           </div>
-          
+
           <div className="text-center mt-12">
-            <Link href="/events" className="inline-block bg-[#7C3AED] hover:bg-[#6D28D9] text-white px-8 py-3 rounded-lg font-bold transition">
-              View All Events
-            </Link>
+             <Link href="/events" className="bg-primary text-white px-8 py-3 rounded-lg font-bold hover:bg-primary/90 transition">
+                View All Events
+             </Link>
           </div>
         </div>
       </section>
 
-      {/* 5. CTA SECTION (Dark Gradient) */}
-      <section className="py-24 px-6 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-center text-white">
-        <div className="max-w-4xl mx-auto space-y-8">
-          <div className="inline-block px-4 py-1.5 rounded-full bg-white/10 border border-white/20 text-sm backdrop-blur-sm">
-             Join Our Growing Community
-          </div>
-          <h2 className="text-4xl md:text-5xl font-bold">
-            Ready to Take the Next Step in Your <br/>
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">HR Journey?</span>
-          </h2>
-          <p className="text-xl text-slate-300 leading-relaxed max-w-2xl mx-auto">
-            Join thousands of HR professionals who are transforming their careers through expert mentorship.
-          </p>
-          <div className="flex flex-wrap justify-center gap-6 pt-4">
-            <Link href="/mentorship/apply" className="bg-[#7C3AED] hover:bg-[#6D28D9] text-white px-8 py-4 rounded-lg font-bold transition flex items-center gap-2">
-              Become a Mentee <ArrowRight size={18}/>
-            </Link>
-            <Link href="/mentorship/apply" className="bg-transparent border border-white/30 hover:bg-white/10 text-white px-8 py-4 rounded-lg font-bold transition flex items-center gap-2">
-              Join as Mentor <ArrowRight size={18}/>
-            </Link>
-          </div>
+      {/* 4. EXPERT TEAM (Matches Screenshot 6) */}
+      <section className="py-24 bg-white dark:bg-slate-950">
+        <div className="max-w-7xl mx-auto px-6">
+           <div className="text-center mb-16">
+              <h2 className="text-3xl md:text-4xl font-bold mb-4 font-heading">Meet Our Expert Team</h2>
+              <p className="text-slate-500 text-lg">Learn from industry-leading HR professionals</p>
+           </div>
+           
+           {/* Static Team Placeholders (since we don't have Team DB yet) */}
+           <div className="grid md:grid-cols-3 gap-8">
+              {[
+                 { name: "Sarah Chen", role: "HR Transformation Lead", img: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&h=400" },
+                 { name: "Michael Rodriguez", role: "Talent Development Expert", img: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=400&h=400" },
+                 { name: "Emily Watson", role: "DEI Strategy Director", img: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=400&h=400" }
+              ].map((member, i) => (
+                 <div key={i} className="bg-slate-50 dark:bg-slate-900 rounded-3xl p-8 text-center hover:-translate-y-2 transition duration-300">
+                    <div className="w-24 h-24 mx-auto rounded-full overflow-hidden mb-6 border-4 border-white dark:border-slate-800 shadow-lg">
+                       <img src={member.img} alt={member.name} className="w-full h-full object-cover"/>
+                    </div>
+                    <h3 className="text-xl font-bold mb-1">{member.name}</h3>
+                    <p className="text-primary font-medium text-sm mb-4">{member.role}</p>
+                    <div className="flex justify-center gap-1 text-yellow-400 text-sm font-medium">
+                       <Star size={14} fill="currentColor"/> 15+ years experience
+                    </div>
+                 </div>
+              ))}
+           </div>
+           
+           <div className="text-center mt-12">
+              <Link href="/about" className="text-primary font-bold hover:underline">View Full Team &rarr;</Link>
+           </div>
         </div>
       </section>
 
+      {/* 5. GALLERY SECTION (Matches Screenshot 1 - YOU REQUESTED THIS) */}
+      <section className="py-24 bg-slate-50 dark:bg-slate-900/30">
+        <div className="max-w-7xl mx-auto px-6">
+           <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-bold mb-4 font-heading">Our Community in Action</h2>
+              <p className="text-slate-500 text-lg">Experience the energy and collaboration</p>
+           </div>
+           
+           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="relative group overflow-hidden rounded-2xl h-64">
+                 <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=600" className="w-full h-full object-cover transition duration-500 group-hover:scale-110"/>
+                 <div className="absolute bottom-4 left-4 bg-primary/90 text-white text-xs font-bold px-3 py-1 rounded-full">Workshop</div>
+              </div>
+              <div className="relative group overflow-hidden rounded-2xl h-64">
+                 <img src="https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=600" className="w-full h-full object-cover transition duration-500 group-hover:scale-110"/>
+                 <div className="absolute bottom-4 left-4 bg-primary/90 text-white text-xs font-bold px-3 py-1 rounded-full">Event</div>
+              </div>
+              <div className="relative group overflow-hidden rounded-2xl h-64">
+                 <img src="https://images.unsplash.com/photo-1543269865-cbf427effbad?auto=format&fit=crop&w=600" className="w-full h-full object-cover transition duration-500 group-hover:scale-110"/>
+                 <div className="absolute bottom-4 left-4 bg-primary/90 text-white text-xs font-bold px-3 py-1 rounded-full">Networking</div>
+              </div>
+              <div className="relative group overflow-hidden rounded-2xl h-64">
+                 <img src="https://images.unsplash.com/photo-1559223607-a43c990ed9bb?auto=format&fit=crop&w=600" className="w-full h-full object-cover transition duration-500 group-hover:scale-110"/>
+                 <div className="absolute bottom-4 left-4 bg-primary/90 text-white text-xs font-bold px-3 py-1 rounded-full">Mentorship</div>
+              </div>
+           </div>
+           
+           <div className="text-center mt-10">
+              <Link href="/gallery" className="bg-primary text-white px-8 py-3 rounded-lg font-bold hover:bg-primary/90 transition">
+                 View Full Gallery
+              </Link>
+           </div>
+        </div>
+      </section>
+
+      {/* 6. CTA SECTION (Matches Screenshot 2 - Gradient Background) */}
+      <section className="py-24 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-[#240b36] to-[#c31432] dark:from-[#2e0249] dark:to-[#580a6b]"></div>
+        <div className="absolute inset-0 bg-primary/80 mix-blend-multiply"></div>
+        
+        <div className="relative z-10 max-w-4xl mx-auto px-6 text-center text-white">
+           <div className="inline-block px-4 py-1 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-sm mb-6">
+              Join Our Growing Community
+           </div>
+           <h2 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">
+              Ready to Take the Next Step in Your <br/><span className="text-purple-300">HR Journey?</span>
+           </h2>
+           <p className="text-white/80 text-lg mb-10 max-w-2xl mx-auto">
+              Join thousands of HR professionals who are transforming their careers through expert mentorship, practical guidance, and an empowering network.
+           </p>
+           <div className="flex flex-wrap justify-center gap-6">
+              <Link href="/mentorship/apply" className="bg-white text-primary px-8 py-4 rounded-lg font-bold hover:bg-white/90 transition">
+                 Become a Mentee &rarr;
+              </Link>
+              <Link href="/mentorship/apply" className="bg-transparent border-2 border-white text-white px-8 py-4 rounded-lg font-bold hover:bg-white/10 transition">
+                 Join as Mentor &rarr;
+              </Link>
+           </div>
+        </div>
+      </section>
     </div>
   );
 }
