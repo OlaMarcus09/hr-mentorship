@@ -3,11 +3,23 @@ import { prisma } from '@/lib/prisma';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET() {
+// READ (Get all)
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const id = searchParams.get('id');
+
+  // If ID is provided, fetch single blog (for editing)
+  if (id) {
+    const blog = await prisma.blog.findUnique({ where: { id: parseInt(id) } });
+    return NextResponse.json(blog);
+  }
+
+  // Otherwise fetch all
   const blogs = await prisma.blog.findMany({ orderBy: { createdAt: 'desc' } });
   return NextResponse.json(blogs);
 }
 
+// CREATE
 export async function POST(request: Request) {
   try {
     const body = await request.json();
@@ -25,6 +37,26 @@ export async function POST(request: Request) {
   }
 }
 
+// UPDATE (New!)
+export async function PUT(request: Request) {
+  try {
+    const body = await request.json();
+    const { id, title, author, content, image } = body;
+
+    if (!id) return NextResponse.json({ error: 'ID required' }, { status: 400 });
+
+    const updatedBlog = await prisma.blog.update({
+      where: { id: parseInt(id) },
+      data: { title, author, content, image }
+    });
+
+    return NextResponse.json(updatedBlog);
+  } catch (error) {
+    return NextResponse.json({ error: 'Failed to update blog' }, { status: 500 });
+  }
+}
+
+// DELETE
 export async function DELETE(request: Request) {
   try {
     const { searchParams } = new URL(request.url);

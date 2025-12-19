@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Trash2, FileText, Briefcase, Calendar, ArrowLeft } from "lucide-react";
+import { Trash2, FileText, Briefcase, Calendar, ArrowLeft, Pencil } from "lucide-react";
 import Link from "next/link";
 
 export default function ManageContent() {
@@ -53,15 +53,22 @@ export default function ManageContent() {
             {blogs.map((item: any) => (
               <div key={item.id} className="p-4 flex justify-between items-center gap-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
                 <span className="text-sm md:text-base font-medium truncate text-slate-700 dark:text-slate-300">{item.title}</span>
-                <button onClick={() => handleDelete('blogs', item.id)} className="shrink-0 text-red-500 p-2 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/40 rounded-lg transition">
-                   <Trash2 size={18}/>
-                </button>
+                <div className="flex items-center gap-2">
+                   {/* EDIT BUTTON */}
+                   <Link href={`/admin/blogs/edit/${item.id}`} className="shrink-0 text-blue-500 p-2 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/40 rounded-lg transition">
+                     <Pencil size={18} />
+                   </Link>
+                   {/* DELETE BUTTON */}
+                   <button onClick={() => handleDelete('blogs', item.id)} className="shrink-0 text-red-500 p-2 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/40 rounded-lg transition">
+                      <Trash2 size={18}/>
+                   </button>
+                </div>
               </div>
             ))}
           </div>
         </section>
 
-        {/* JOBS */}
+        {/* JOBS (Delete Only) */}
         <section>
           <h2 className="text-lg font-bold flex items-center gap-2 mb-3 bg-slate-200 dark:bg-slate-900 p-2 rounded text-slate-800 dark:text-slate-200">
             <Briefcase size={18}/> Jobs
@@ -82,7 +89,7 @@ export default function ManageContent() {
           </div>
         </section>
 
-        {/* EVENTS */}
+        {/* EVENTS (Delete Only) */}
         <section>
           <h2 className="text-lg font-bold flex items-center gap-2 mb-3 bg-slate-200 dark:bg-slate-900 p-2 rounded text-slate-800 dark:text-slate-200">
             <Calendar size={18}/> Events
