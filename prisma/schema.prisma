@@ -43,13 +43,12 @@ model Blog {
   createdAt DateTime @default(now())
 }
 
-// Updated Event Model (includes location)
 model Event {
   id        Int      @id @default(autoincrement())
   title     String
   date      String
   image     String?
-  location  String   @default("Online") 
+  location  String   @default("Online")
   createdAt DateTime @default(now())
 }
 
@@ -60,6 +59,7 @@ model Application {
   type      String
   linkedin  String?
   bio       String
+  image     String?  // NEW: Profile Picture
   status    String   @default("PENDING")
   createdAt DateTime @default(now())
 }

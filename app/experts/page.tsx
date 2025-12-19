@@ -1,73 +1,79 @@
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { MOCK_EXPERTS } from "@/data/mock";
-import { Linkedin, ArrowRight } from "lucide-react";
+import { prisma } from '@/lib/prisma';
+import { User, Linkedin, ArrowRight } from "lucide-react";
 import Link from "next/link";
 
-export default function ExpertsPage() {
-  return (
-    <div className="flex flex-col min-h-screen">
-      {/* Hero Section with Image Banner */}
-      <section className="relative py-24 flex items-center justify-center text-center text-white overflow-hidden">
-        <div 
-          className="absolute inset-0 z-0 bg-cover bg-center"
-          style={{ 
-            backgroundImage: 'url("https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=2000&q=80")',
-          }}
-        >
-          <div className="absolute inset-0 bg-slate-900/80" />
-        </div>
-        
-        <div className="relative z-10 container mx-auto px-4">
-          <h1 className="text-4xl md:text-6xl font-bold font-heading mb-4">The Experts Council</h1>
-          <p className="text-xl text-gray-200 max-w-2xl mx-auto font-light font-body">
-            A collective of the most seasoned HR veterans in the industry.
-          </p>
-        </div>
-      </section>
+export const dynamic = 'force-dynamic';
 
-      {/* Experts Grid (Square Cards) */}
-      <section className="py-20 bg-slate-50 dark:bg-slate-950">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {MOCK_EXPERTS.map((expert) => (
-              <Link key={expert.id} href={"/experts/" + expert.id} className="group">
-                <Card className="overflow-hidden border-none shadow-md hover:shadow-2xl transition-all duration-300 h-full flex flex-col">
-                  {/* Square Image container */}
-                  <div className="aspect-square w-full overflow-hidden relative bg-slate-200">
-                    <img 
-                      src={expert.imageUrl} 
-                      alt={expert.name} 
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
-                    />
-                    <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/80 to-transparent p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-                      <p className="text-white text-sm font-medium">View Full Profile</p>
-                    </div>
-                  </div>
-                  
-                  <CardContent className="p-6 flex-1 flex flex-col">
-                    <h3 className="text-xl font-bold font-heading mb-1 group-hover:text-primary transition-colors">{expert.name}</h3>
-                    <p className="text-cyan-600 dark:text-cyan-400 font-medium text-sm mb-4">{expert.role}</p>
-                    
-                    <div className="mt-auto flex items-center justify-between">
-                      <span className="text-sm text-muted-foreground">{expert.company}</span>
-                      <Linkedin className="h-5 w-5 text-slate-400 hover:text-blue-600 transition-colors" />
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
+async function getExperts() {
+  // Fetch only APPROVED Mentors
+  const experts = await prisma.application.findMany({
+    where: { 
+      type: 'Mentor',
+      status: 'APPROVED'
+    },
+    orderBy: { createdAt: 'desc' }
+  });
+  return experts;
+}
+
+export default async function ExpertsPage() {
+  const experts = await getExperts();
+
+  return (
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 py-16 px-6">
       
-      {/* CTA */}
-      <section className="py-20 bg-primary text-white text-center">
-         <div className="container mx-auto px-4">
-            <h2 className="text-3xl font-bold font-heading mb-4">Are you an HR Veteran?</h2>
-            <Button size="lg" className="bg-white text-primary hover:bg-gray-100 mt-4 rounded-full px-8">Apply to Join Council</Button>
-         </div>
-      </section>
+      {/* Header */}
+      <div className="max-w-4xl mx-auto text-center mb-16">
+        <h1 className="text-4xl md:text-5xl font-bold font-heading mb-6 text-slate-900 dark:text-white">
+          Meet Our Experts Council
+        </h1>
+        <p className="text-lg text-slate-600 dark:text-slate-300 mb-8">
+          Industry-leading HR professionals dedicated to guiding the next generation.
+        </p>
+        
+        {/* FIXED: The 'Apply' button now links to the application form */}
+        <Link href="/mentorship/apply" className="inline-flex items-center gap-2 bg-primary text-white px-8 py-4 rounded-full font-bold hover:bg-primary/90 transition shadow-lg">
+          Apply to Join Council <ArrowRight size={18} />
+        </Link>
+      </div>
+
+      {/* Experts Grid */}
+      <div className="max-w-7xl mx-auto grid md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {experts.length === 0 ? (
+          <div className="col-span-full text-center py-12 bg-white dark:bg-slate-900 rounded-xl border border-dashed">
+            <p className="text-slate-500">Our council is growing. Be the first to join!</p>
+          </div>
+        ) : (
+          experts.map((expert) => (
+            <div key={expert.id} className="bg-white dark:bg-slate-900 rounded-2xl p-6 text-center shadow-sm hover:shadow-xl transition border border-slate-100 dark:border-slate-800 group">
+              
+              {/* Profile Image */}
+              <div className="w-32 h-32 mx-auto rounded-full overflow-hidden mb-4 border-4 border-slate-50 dark:border-slate-800 shadow-md group-hover:border-primary transition duration-300">
+                 {expert.image ? (
+                   <img src={expert.image} alt={expert.name} className="w-full h-full object-cover"/>
+                 ) : (
+                   <div className="w-full h-full bg-slate-100 flex items-center justify-center text-slate-300">
+                     <User size={48} />
+                   </div>
+                 )}
+              </div>
+
+              <h3 className="text-xl font-bold mb-1 text-slate-900 dark:text-white">{expert.name}</h3>
+              <div className="text-sm text-primary font-medium mb-4">Council Member</div>
+
+              <div className="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-lg text-sm text-slate-500 dark:text-slate-400 mb-4 line-clamp-3 h-20 text-left">
+                 {expert.bio}
+              </div>
+
+              {expert.linkedin && (
+                <a href={expert.linkedin} target="_blank" className="inline-flex items-center gap-1 text-slate-400 hover:text-blue-600 transition">
+                  <Linkedin size={16} /> LinkedIn
+                </a>
+              )}
+            </div>
+          ))
+        )}
+      </div>
     </div>
   );
 }
