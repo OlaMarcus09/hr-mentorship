@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { createJobSchema } from '@/lib/validations';
 
 export const dynamic = 'force-dynamic';
 
@@ -12,31 +11,30 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    
-    // SECURITY: Validate inputs
-    const validation = createJobSchema.safeParse(body);
-    
-    if (!validation.success) {
-      return NextResponse.json(
-        // FIX: Use 'issues' instead of 'errors'
-        { error: validation.error.issues[0].message }, 
-        { status: 400 }
-      );
-    }
-
-    const { title, company, type, location } = validation.data;
-
     const newJob = await prisma.job.create({
       data: {
-        title, 
-        company, 
-        type, 
-        location,
-        salary: 'Competitive',
+        title: body.title,
+        company: body.company,
+        type: body.type,
+        location: body.location,
+        salary: body.salary || null
       }
     });
-    return NextResponse.json({ message: 'Job created', job: newJob }, { status: 201 });
+    return NextResponse.json(newJob, { status: 201 });
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to create job' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to post job' }, { status: 500 });
+  }
+}
+
+export async function DELETE(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+    if (!id) return NextResponse.json({ error: 'ID required' }, { status: 400 });
+
+    await prisma.job.delete({ where: { id: parseInt(id) } });
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    return NextResponse.json({ error: 'Failed to delete job' }, { status: 500 });
   }
 }
