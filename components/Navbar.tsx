@@ -1,201 +1,103 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import Link from "next/link"
-import { Menu, Search, ChevronDown, ChevronUp, Home, Users, BookOpen, Image as ImageIcon, Briefcase, Mail, Newspaper } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet"
-import { ModeToggle } from "@/components/mode-toggle"
-import { cn } from "@/lib/utils"
-
-// Menu Structure
-const menuItems = [
-  { name: "Home", href: "/", icon: Home },
-  {
-    name: "About",
-    icon: Users,
-    href: "/about",
-    children: [
-      { name: "Who We Are", href: "/about" },
-      { name: "Core Team", href: "/about#team" },
-      { name: "Experts", href: "/experts" },
-    ],
-  },
-  {
-    name: "Learning",
-    icon: BookOpen,
-    href: "/learning",
-    children: [
-      { name: "Courses", href: "/learning" },
-      { name: "Webinars", href: "/learning" },
-      { name: "Events", href: "/events" },
-      { name: "Resources", href: "/learning" },
-    ],
-  },
-  { name: "Blog", href: "/blog", icon: Newspaper },
-  { name: "Contact", href: "/contact", icon: Mail },
-  {
-    name: "Gallery",
-    icon: ImageIcon,
-    href: "/gallery",
-    children: [
-      { name: "Members", href: "/gallery" },
-      { name: "Events", href: "/gallery" },
-    ],
-  },
-  {
-    name: "More",
-    icon: Briefcase,
-    href: "/remote-hr",
-    children: [
-      { name: "Remote HR", href: "/remote-hr" },
-      { name: "Jobs", href: "/remote-hr" },
-    ],
-  },
-]
+import Link from "next/link";
+import { Menu, X, ChevronDown, Sun, Moon } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useTheme } from "next-themes";
 
 export default function Navbar() {
-  const [isOpen, setIsOpen] = React.useState(false);
-  const [expandedItem, setExpandedItem] = React.useState<string | null>(null);
+  const [isOpen, setIsOpen] = useState(false);
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
 
-  const toggleExpand = (name: string) => {
-    setExpandedItem(expandedItem === name ? null : name);
-  };
+  useEffect(() => setMounted(true), []);
+
+  // Close menu when a link is clicked
+  const closeMenu = () => setIsOpen(false);
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container mx-auto flex h-16 items-center justify-between px-4">
+    <nav className="fixed w-full z-50 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 transition-all duration-300">
+      <div className="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
         
-        {/* Logo */}
-        <Link href="/" className="flex items-center space-x-2">
-          <div className="h-8 w-8 overflow-hidden rounded-md border border-slate-200 dark:border-slate-800">
-             <img 
+        {/* LOGO */}
+        <Link href="/" className="flex items-center gap-2" onClick={closeMenu}>
+          <div className="h-10 w-10 overflow-hidden rounded-lg bg-white shadow-sm border border-slate-100">
+            <img 
                src="https://res.cloudinary.com/dmqjicpcc/image/upload/v1765218297/1001440111_dztflg.jpg" 
                alt="Logo" 
                className="h-full w-full object-cover"
-             />
+            />
           </div>
-          <span className="text-lg font-bold text-primary hidden sm:block font-heading">HR Mentorship</span>
+          <span className="text-xl font-bold font-heading text-slate-900 dark:text-white hidden md:block">
+            HR Mentorship
+          </span>
         </Link>
 
-        {/* Desktop Navigation */}
-        <div className="hidden xl:flex items-center gap-6 h-full">
-          {menuItems.map((item) => (
-            <div key={item.name} className="relative group h-full flex items-center">
-              <Link 
-                href={item.href} 
-                className="flex items-center gap-1 text-sm font-medium text-slate-700 dark:text-slate-200 hover:text-primary transition-colors py-2"
-              >
-                {item.name}
-                {item.children && <ChevronDown className="h-4 w-4 opacity-50 group-hover:rotate-180 transition-transform duration-200" />}
-              </Link>
-              {item.children && (
-                <div className="absolute top-[calc(100%-10px)] left-0 pt-4 w-48 hidden group-hover:block hover:block z-50">
-                  <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-lg rounded-lg p-1.5 overflow-hidden">
-                    <div className="flex flex-col">
-                      {item.children.map((child) => (
-                        <Link 
-                          key={child.name} 
-                          href={child.href} 
-                          className="px-3 py-2 text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-primary rounded-md transition-colors"
-                        >
-                          {child.name}
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
+        {/* DESKTOP MENU */}
+        <div className="hidden md:flex items-center gap-8">
+          <Link href="/" className="text-sm font-medium hover:text-primary transition">Home</Link>
+          <div className="relative group">
+            <button className="flex items-center gap-1 text-sm font-medium hover:text-primary transition">
+              About <ChevronDown size={14}/>
+            </button>
+            <div className="absolute top-full left-0 w-48 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform translate-y-2 group-hover:translate-y-0 p-2">
+              <Link href="/about" className="block px-4 py-2 text-sm rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800">Our Story</Link>
+              <Link href="/experts" className="block px-4 py-2 text-sm rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800">Experts Council</Link>
             </div>
-          ))}
+          </div>
+          <Link href="/blog" className="text-sm font-medium hover:text-primary transition">Blog</Link>
+          <Link href="/remote-hr" className="text-sm font-medium hover:text-primary transition">Jobs</Link>
+          <Link href="/gallery" className="text-sm font-medium hover:text-primary transition">Gallery</Link>
+          <Link href="/contact" className="text-sm font-medium hover:text-primary transition">Contact</Link>
         </div>
 
-        {/* Right Side */}
-        <div className="hidden md:flex items-center gap-2">
-          <ModeToggle />
-          <Button variant="ghost" size="icon" className="h-9 w-9">
-            <Search className="h-4 w-4 text-muted-foreground" />
-          </Button>
-          <Button className="bg-primary hover:bg-primary/90 text-white shadow-sm px-5 h-9 text-sm rounded-full font-bold">
-            Join Now
-          </Button>
+        {/* ACTIONS */}
+        <div className="hidden md:flex items-center gap-4">
+          <button 
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition text-slate-600 dark:text-slate-400"
+          >
+            {mounted && theme === "dark" ? <Sun size={20}/> : <Moon size={20}/>}
+          </button>
+          <Link href="/mentorship/apply" className="bg-primary text-white px-6 py-2.5 rounded-full font-bold text-sm hover:bg-primary/90 transition shadow-lg shadow-primary/25">
+            Join Community
+          </Link>
         </div>
 
-        {/* Mobile Menu (Compact Grid) */}
-        <div className="flex xl:hidden items-center gap-2">
-          <ModeToggle />
-          
-          <Sheet open={isOpen} onOpenChange={setIsOpen}>
-            <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="-mr-2 h-9 w-9">
-                <Menu className="h-5 w-5 text-foreground" />
-              </Button>
-            </SheetTrigger>
-            
-            {/* COMPACT BOTTOM SHEET */}
-            <SheetContent side="bottom" className="max-h-[85vh] rounded-t-[1.5rem] px-4 pt-6 pb-8 bg-white dark:bg-slate-950 overflow-y-auto">
-              
-              <SheetHeader className="text-left mb-6 px-1">
-                <SheetTitle className="text-lg font-bold text-slate-900 dark:text-white flex justify-between items-center">
-                  <span>Menu</span>
-                  <span className="text-xs font-normal text-muted-foreground">v1.0</span>
-                </SheetTitle>
-              </SheetHeader>
-
-              {/* COMPACT GRID */}
-              <div className="grid grid-cols-2 gap-3 pb-20">
-                {menuItems.map((item) => (
-                  <div key={item.name} className="flex flex-col">
-                    {/* Compact Card */}
-                    <div 
-                      onClick={() => item.children ? toggleExpand(item.name) : setIsOpen(false)}
-                      className={cn(
-                        "flex flex-row items-center gap-3 p-3 rounded-xl cursor-pointer transition-all border",
-                        "bg-slate-50 dark:bg-slate-900/50 border-slate-100 dark:border-slate-800", // Light theme style
-                        item.children && expandedItem === item.name ? "border-primary/50 bg-primary/5 dark:bg-primary/10" : "hover:bg-slate-100 dark:hover:bg-slate-800"
-                      )}
-                    >
-                      <div className="h-8 w-8 rounded-full bg-white dark:bg-slate-800 flex items-center justify-center shadow-sm text-primary shrink-0">
-                         <item.icon className="h-4 w-4" />
-                      </div>
-                      <div className="flex-1 flex items-center justify-between min-w-0">
-                        <span className="font-semibold text-sm truncate text-slate-700 dark:text-slate-200">{item.name}</span>
-                        {item.children && (
-                          expandedItem === item.name ? <ChevronUp className="h-3 w-3 text-muted-foreground" /> : <ChevronDown className="h-3 w-3 text-muted-foreground" />
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Sub-Menu */}
-                    {item.children && expandedItem === item.name && (
-                      <div className="col-span-2 mt-2 ml-4 space-y-1 border-l-2 border-slate-100 dark:border-slate-800 pl-3 animate-in slide-in-from-top-1">
-                         {item.children.map((child) => (
-                           <Link 
-                             key={child.name} 
-                             href={child.href} 
-                             onClick={() => setIsOpen(false)}
-                             className="block py-2 text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-primary transition-colors"
-                           >
-                             {child.name}
-                           </Link>
-                         ))}
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-
-              {/* Compact Fixed Button */}
-              <div className="fixed bottom-6 left-6 right-6">
-                 <Button className="w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 h-12 text-sm rounded-xl font-bold shadow-lg">
-                   Join HR Mentorship
-                 </Button>
-              </div>
-
-            </SheetContent>
-          </Sheet>
+        {/* MOBILE TOGGLE */}
+        <div className="md:hidden flex items-center gap-4">
+          <button 
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+          >
+            {mounted && theme === "dark" ? <Sun size={20}/> : <Moon size={20}/>}
+          </button>
+          <button onClick={() => setIsOpen(!isOpen)} className="text-slate-900 dark:text-white">
+            {isOpen ? <X size={28} /> : <Menu size={28} />}
+          </button>
         </div>
       </div>
+
+      {/* MOBILE GLASS MENU */}
+      {isOpen && (
+        <div className="md:hidden absolute top-20 left-0 w-full h-[calc(100vh-80px)] bg-white/95 dark:bg-slate-950/95 backdrop-blur-xl border-t border-slate-100 dark:border-slate-800 p-6 flex flex-col gap-6 overflow-y-auto z-40 animate-in slide-in-from-top-5">
+          <div className="grid gap-2">
+            <Link href="/" onClick={closeMenu} className="p-4 rounded-xl bg-slate-50 dark:bg-slate-900 font-bold text-lg">Home</Link>
+            <Link href="/about" onClick={closeMenu} className="p-4 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-900 font-medium text-slate-600 dark:text-slate-300">About Us</Link>
+            <Link href="/blog" onClick={closeMenu} className="p-4 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-900 font-medium text-slate-600 dark:text-slate-300">Blog</Link>
+            <Link href="/remote-hr" onClick={closeMenu} className="p-4 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-900 font-medium text-slate-600 dark:text-slate-300">Job Board</Link>
+            <Link href="/gallery" onClick={closeMenu} className="p-4 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-900 font-medium text-slate-600 dark:text-slate-300">Gallery</Link>
+            <Link href="/contact" onClick={closeMenu} className="p-4 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-900 font-medium text-slate-600 dark:text-slate-300">Contact</Link>
+          </div>
+          
+          <div className="mt-auto">
+            <Link href="/mentorship/apply" onClick={closeMenu} className="block w-full bg-primary text-white text-center py-4 rounded-xl font-bold text-lg shadow-lg">
+              Join Community
+            </Link>
+            <p className="text-center text-xs text-slate-400 mt-6">© 2025 HR Mentorship</p>
+          </div>
+        </div>
+      )}
     </nav>
   );
 }
