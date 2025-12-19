@@ -7,6 +7,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// ... (Previous models: Admin, Job, Contact, Blog, Event, Application remain unchanged)
 model Admin {
   id        Int      @id @default(autoincrement())
   name      String
@@ -59,7 +60,16 @@ model Application {
   type      String
   linkedin  String?
   bio       String
-  image     String?  // NEW: Profile Picture
+  image     String?
   status    String   @default("PENDING")
+  createdAt DateTime @default(now())
+}
+
+// NEW MODEL FOR GALLERY
+model GalleryImage {
+  id        Int      @id @default(autoincrement())
+  image     String
+  category  String   // "Workshop", "Event", "Networking", "Mentorship"
+  caption   String?
   createdAt DateTime @default(now())
 }
