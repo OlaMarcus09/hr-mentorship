@@ -4,22 +4,26 @@ import { prisma } from '@/lib/prisma';
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
-  const events = await prisma.event.findMany({ orderBy: { date: 'asc' } });
-  return NextResponse.json(events);
+  try {
+    const events = await prisma.event.findMany({ orderBy: { date: 'asc' } });
+    return NextResponse.json(events);
+  } catch (error) {
+    return NextResponse.json({ error: 'Failed to fetch events' }, { status: 500 });
+  }
 }
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const newEvent = await prisma.event.create({
+    const event = await prisma.event.create({
       data: {
         title: body.title,
         date: body.date,
         location: body.location,
-        image: body.image || null
+        image: body.image
       }
     });
-    return NextResponse.json(newEvent, { status: 201 });
+    return NextResponse.json(event);
   } catch (error) {
     return NextResponse.json({ error: 'Failed to create event' }, { status: 500 });
   }
@@ -30,10 +34,9 @@ export async function DELETE(request: Request) {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
     if (!id) return NextResponse.json({ error: 'ID required' }, { status: 400 });
-
     await prisma.event.delete({ where: { id: parseInt(id) } });
     return NextResponse.json({ success: true });
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to delete event' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to delete' }, { status: 500 });
   }
 }

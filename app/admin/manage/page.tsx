@@ -11,16 +11,27 @@ export default function ManageContent() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    Promise.all([
-      fetch("/api/blogs").then(res => res.json()),
-      fetch("/api/jobs").then(res => res.json()),
-      fetch("/api/events").then(res => res.json())
-    ]).then(([blogsData, jobsData, eventsData]) => {
-      setBlogs(blogsData);
-      setJobs(jobsData);
-      setEvents(eventsData);
-      setLoading(false);
-    });
+    async function fetchAll() {
+      try {
+        // We use safely fetch each one. If one fails, it returns an empty array instead of crashing.
+        const [blogsRes, jobsRes, eventsRes] = await Promise.all([
+          fetch("/api/blogs").then(r => r.ok ? r.json() : []),
+          fetch("/api/jobs").then(r => r.ok ? r.json() : []),
+          fetch("/api/events").then(r => r.ok ? r.json() : [])
+        ]);
+
+        // Ensure data is actually an array before setting state
+        setBlogs(Array.isArray(blogsRes.blogs) ? blogsRes.blogs : (Array.isArray(blogsRes) ? blogsRes : []));
+        setJobs(Array.isArray(jobsRes) ? jobsRes : []);
+        setEvents(Array.isArray(eventsRes) ? eventsRes : []);
+        
+      } catch (error) {
+        console.error("Failed to load content", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchAll();
   }, []);
 
   async function handleDelete(type: string, id: number) {
@@ -32,7 +43,7 @@ export default function ManageContent() {
   if (loading) return <div className="p-10 text-center text-slate-500 dark:text-slate-400">Loading content...</div>;
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 py-10 px-4 md:px-8">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 pb-20 px-4 md:px-8">
       <div className="max-w-4xl mx-auto space-y-8">
         
         {/* Header */}
@@ -54,11 +65,9 @@ export default function ManageContent() {
               <div key={item.id} className="p-4 flex justify-between items-center gap-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
                 <span className="text-sm md:text-base font-medium truncate text-slate-700 dark:text-slate-300">{item.title}</span>
                 <div className="flex items-center gap-2">
-                   {/* EDIT BUTTON */}
                    <Link href={`/admin/blogs/edit/${item.id}`} className="shrink-0 text-blue-500 p-2 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/40 rounded-lg transition">
                      <Pencil size={18} />
                    </Link>
-                   {/* DELETE BUTTON */}
                    <button onClick={() => handleDelete('blogs', item.id)} className="shrink-0 text-red-500 p-2 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/40 rounded-lg transition">
                       <Trash2 size={18}/>
                    </button>
@@ -68,7 +77,7 @@ export default function ManageContent() {
           </div>
         </section>
 
-        {/* JOBS (Delete Only) */}
+        {/* JOBS */}
         <section>
           <h2 className="text-lg font-bold flex items-center gap-2 mb-3 bg-slate-200 dark:bg-slate-900 p-2 rounded text-slate-800 dark:text-slate-200">
             <Briefcase size={18}/> Jobs
@@ -89,7 +98,7 @@ export default function ManageContent() {
           </div>
         </section>
 
-        {/* EVENTS (Delete Only) */}
+        {/* EVENTS */}
         <section>
           <h2 className="text-lg font-bold flex items-center gap-2 mb-3 bg-slate-200 dark:bg-slate-900 p-2 rounded text-slate-800 dark:text-slate-200">
             <Calendar size={18}/> Events
