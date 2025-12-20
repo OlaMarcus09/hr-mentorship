@@ -1,4 +1,4 @@
-import { FileText, Download, PlayCircle, Book } from "lucide-react";
+import { FileText, Download, PlayCircle, Book, ArrowRight } from "lucide-react";
 
 export default function ResourceCentrePage() {
   return (
