@@ -13,7 +13,7 @@ export async function GET() {
       where: { email: 'admin@hrmentorship.com' },
       update: { 
         password: hashedPassword,
-        role: 'SUPER_ADMIN' // Ensure rights are restored
+        role: 'SUPER_ADMIN' 
       },
       create: {
         name: 'Super Admin',
@@ -25,6 +25,7 @@ export async function GET() {
 
     return NextResponse.json({ success: true, message: 'Password FORCE RESET to: password123' });
   } catch (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    // FIX: Type casting the error safely
+    return NextResponse.json({ error: (error as Error).message }, { status: 500 });
   }
 }
