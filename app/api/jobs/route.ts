@@ -11,13 +11,22 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
+    
+    // Validate required fields
+    if (!body.title || !body.company || !body.description) {
+       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    }
+
     const newJob = await prisma.job.create({
       data: {
         title: body.title,
         company: body.company,
         type: body.type,
         location: body.location,
-        salary: body.salary || null
+        salary: body.salary || null,
+        description: body.description,
+        requirements: body.requirements || null,
+        applyLink: body.applyLink || null
       }
     });
     return NextResponse.json(newJob, { status: 201 });
