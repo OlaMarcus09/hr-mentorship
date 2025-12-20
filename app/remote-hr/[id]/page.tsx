@@ -5,31 +5,47 @@ import { notFound } from "next/navigation";
 
 export const dynamic = 'force-dynamic';
 
-export default async function SingleJobPage({ params }: { params: { id: string } }) {
-  const job = await prisma.job.findUnique({ where: { id: parseInt(params.id) } });
-  if (!job) notFound();
+export default async function SingleJobPage(props: { params: Promise<{ id: string }> }) {
+  // 1. Await params (Fixes Next.js 15 error)
+  const params = await props.params;
+  const jobId = parseInt(params.id);
+
+  // 2. Safety check: If ID is not a number, show 404
+  if (isNaN(jobId)) {
+    notFound();
+  }
+
+  // 3. Fetch Job
+  const job = await prisma.job.findUnique({ where: { id: jobId } });
+
+  // 4. If no job found, show 404
+  if (!job) {
+    notFound();
+  }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 py-20 px-6">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 py-32 px-6">
       <div className="max-w-3xl mx-auto">
         <Link href="/remote-hr" className="inline-flex items-center gap-2 text-slate-500 hover:text-black dark:hover:text-white mb-8 transition">
           <ArrowLeft size={18} /> Back to Jobs
         </Link>
         
         <div className="bg-white dark:bg-slate-900 p-8 md:p-12 rounded-2xl shadow-sm border dark:border-slate-800">
-           <h1 className="text-3xl font-bold mb-2 text-slate-900 dark:text-white">{job.title}</h1>
-           <div className="flex items-center gap-2 text-xl text-slate-600 dark:text-slate-400 mb-8">
-              <Building size={20} /> {job.company}
+           <div className="mb-6">
+             <h1 className="text-3xl font-bold mb-2 text-slate-900 dark:text-white">{job.title}</h1>
+             <div className="flex items-center gap-2 text-xl text-slate-600 dark:text-slate-400">
+                <Building size={20} /> {job.company}
+             </div>
            </div>
 
            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-10 border-y border-slate-100 dark:border-slate-800 py-6">
               <div>
                  <p className="text-xs text-slate-400 uppercase font-bold mb-1">Location</p>
-                 <p className="font-medium flex items-center gap-2"><MapPin size={16}/> {job.location}</p>
+                 <p className="font-medium flex items-center gap-2 text-slate-700 dark:text-slate-300"><MapPin size={16}/> {job.location}</p>
               </div>
               <div>
                  <p className="text-xs text-slate-400 uppercase font-bold mb-1">Type</p>
-                 <p className="font-medium flex items-center gap-2"><Clock size={16}/> {job.type}</p>
+                 <p className="font-medium flex items-center gap-2 text-slate-700 dark:text-slate-300"><Clock size={16}/> {job.type}</p>
               </div>
               <div>
                  <p className="text-xs text-slate-400 uppercase font-bold mb-1">Salary</p>
@@ -37,19 +53,19 @@ export default async function SingleJobPage({ params }: { params: { id: string }
               </div>
            </div>
 
-           <div className="prose dark:prose-invert max-w-none text-slate-700 dark:text-slate-300 mb-10 whitespace-pre-wrap">
-              <h3 className="font-bold text-lg mb-2">Job Description</h3>
-              {job.description || "No description provided."}
+           <div className="prose dark:prose-invert max-w-none text-slate-700 dark:text-slate-300 mb-10 whitespace-pre-wrap leading-relaxed">
+              <h3 className="font-bold text-lg mb-2 text-slate-900 dark:text-white">Job Description</h3>
+              <div dangerouslySetInnerHTML={{ __html: job.description || "No description provided." }} />
               
               {job.requirements && (
                 <>
-                  <h3 className="font-bold text-lg mt-6 mb-2">Requirements</h3>
-                  {job.requirements}
+                  <h3 className="font-bold text-lg mt-6 mb-2 text-slate-900 dark:text-white">Requirements</h3>
+                  <div dangerouslySetInnerHTML={{ __html: job.requirements }} />
                 </>
               )}
            </div>
 
-           <div className="text-center">
+           <div className="text-center pt-6 border-t border-slate-100 dark:border-slate-800">
               <a 
                 href={job.applyLink && job.applyLink.includes('@') ? `mailto:${job.applyLink}` : job.applyLink || '#'}
                 target="_blank"
