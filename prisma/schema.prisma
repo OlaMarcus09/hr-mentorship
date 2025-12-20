@@ -85,3 +85,12 @@ model Contact {
   message   String
   createdAt DateTime @default(now())
 }
+
+model Resource {
+  id          Int      @id @default(autoincrement())
+  title       String
+  type        String   // PDF, DOCX, VIDEO, LINK
+  description String?
+  fileUrl     String
+  createdAt   DateTime @default(now())
+}

@@ -3,7 +3,7 @@ import { cookies } from 'next/headers';
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import LogoutButton from "./logout-button";
-import { PenTool, Briefcase, Calendar, Plus, FileCheck, Trash2, Shield, Settings } from "lucide-react";
+import { PenTool, Briefcase, Calendar, Plus, FileCheck, Trash2, Shield, Settings, FileText } from "lucide-react";
 
 export const dynamic = 'force-dynamic';
 
@@ -12,20 +12,12 @@ async function getData() {
   const jobCount = await prisma.job.count();
   const eventCount = await prisma.event.count();
   const adminCount = await prisma.admin.count();
-  
+  const resourceCount = await prisma.resource.count();
   const cookieStore = await cookies();
   const token = cookieStore.get('admin_token')?.value;
-  
-  // REDIRECT LOGIC
-  if (!token) {
-    redirect('/admin/login');
-  }
-
-  let isSuperAdmin = false;
-  // Decode token simply (in a real app, verify signature)
-  // We assume if token exists via cookie, middleware or login set it.
-  
-  return { blogCount, jobCount, eventCount, adminCount, isSuperAdmin: true }; // Simplified for now
+  if (!token) redirect('/admin/login');
+  let isSuperAdmin = true; 
+  return { blogCount, jobCount, eventCount, adminCount, resourceCount, isSuperAdmin };
 }
 
 export default async function AdminDashboard() {
@@ -34,46 +26,26 @@ export default async function AdminDashboard() {
   return (
     <div className="space-y-6 pb-20">
       <div className="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-6">
-         <div>
-           <h1 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white">Dashboard</h1>
-           <p className="text-sm text-slate-500">Welcome back, Admin</p>
-         </div>
-         <div className="flex items-center gap-2">
-           <Link href="/admin/settings" className="p-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full">
-             <Settings size={20} />
-           </Link>
-           <LogoutButton />
-         </div>
+         <div><h1 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white">Dashboard</h1><p className="text-sm text-slate-500">Welcome back, Admin</p></div>
+         <div className="flex items-center gap-2"><Link href="/admin/settings" className="p-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full"><Settings size={20} /></Link><LogoutButton /></div>
       </div>
       
       <div className="grid grid-cols-2 md:flex md:flex-wrap gap-3">
-         <Link href="/admin/blogs/new" className="bg-black text-white px-4 py-4 rounded-lg hover:bg-gray-800 text-sm font-bold text-center shadow-sm flex flex-col items-center justify-center gap-2 md:w-auto w-full">
-           <PenTool size={20} /> + Blog
-         </Link>
-         <Link href="/admin/jobs/new" className="bg-blue-600 text-white px-4 py-4 rounded-lg hover:bg-blue-700 text-sm font-bold text-center shadow-sm flex flex-col items-center justify-center gap-2 md:w-auto w-full">
-           <Briefcase size={20} /> + Job
-         </Link>
-         <Link href="/admin/events/new" className="bg-green-600 text-white px-4 py-4 rounded-lg hover:bg-green-700 text-sm font-bold text-center shadow-sm flex flex-col items-center justify-center gap-2 md:w-auto w-full">
-           <Calendar size={20} /> + Event
-         </Link>
-         <Link href="/admin/gallery/new" className="bg-pink-600 text-white px-4 py-4 rounded-lg hover:bg-pink-700 text-sm font-bold text-center shadow-sm flex flex-col items-center justify-center gap-2 md:w-auto w-full">
-            <Plus size={20} /> + Photo
-         </Link>
-         <Link href="/admin/applications" className="bg-indigo-600 text-white px-4 py-4 rounded-lg hover:bg-indigo-700 text-sm font-bold text-center shadow-sm flex flex-col items-center justify-center gap-2 md:w-auto w-full">
-           <FileCheck size={20} /> Applicants
-         </Link>
-         <Link href="/admin/manage" className="bg-red-600 text-white px-4 py-4 rounded-lg hover:bg-red-700 text-sm font-bold text-center shadow-sm flex flex-col items-center justify-center gap-2 md:w-auto w-full">
-           <Trash2 size={20} /> Delete
-         </Link>
-         <Link href="/admin/team" className="col-span-2 md:col-span-1 bg-purple-600 text-white px-4 py-4 rounded-lg hover:bg-purple-700 text-sm font-bold text-center shadow-sm flex flex-col items-center justify-center gap-2 md:w-auto w-full">
-            <Shield size={20} /> Team
-         </Link>
+         <Link href="/admin/blogs/new" className="bg-black text-white px-4 py-4 rounded-lg hover:bg-gray-800 text-sm font-bold text-center shadow-sm flex flex-col items-center justify-center gap-2 md:w-auto w-full"><PenTool size={20} /> + Blog</Link>
+         <Link href="/admin/jobs/new" className="bg-blue-600 text-white px-4 py-4 rounded-lg hover:bg-blue-700 text-sm font-bold text-center shadow-sm flex flex-col items-center justify-center gap-2 md:w-auto w-full"><Briefcase size={20} /> + Job</Link>
+         <Link href="/admin/events/new" className="bg-green-600 text-white px-4 py-4 rounded-lg hover:bg-green-700 text-sm font-bold text-center shadow-sm flex flex-col items-center justify-center gap-2 md:w-auto w-full"><Calendar size={20} /> + Event</Link>
+         <Link href="/admin/resources/new" className="bg-teal-600 text-white px-4 py-4 rounded-lg hover:bg-teal-700 text-sm font-bold text-center shadow-sm flex flex-col items-center justify-center gap-2 md:w-auto w-full"><FileText size={20} /> + Resource</Link>
+         <Link href="/admin/gallery/new" className="bg-pink-600 text-white px-4 py-4 rounded-lg hover:bg-pink-700 text-sm font-bold text-center shadow-sm flex flex-col items-center justify-center gap-2 md:w-auto w-full"><Plus size={20} /> + Photo</Link>
+         <Link href="/admin/applications" className="bg-indigo-600 text-white px-4 py-4 rounded-lg hover:bg-indigo-700 text-sm font-bold text-center shadow-sm flex flex-col items-center justify-center gap-2 md:w-auto w-full"><FileCheck size={20} /> Applicants</Link>
+         <Link href="/admin/manage" className="bg-red-600 text-white px-4 py-4 rounded-lg hover:bg-red-700 text-sm font-bold text-center shadow-sm flex flex-col items-center justify-center gap-2 md:w-auto w-full"><Trash2 size={20} /> Delete</Link>
+         {data.isSuperAdmin && <Link href="/admin/team" className="col-span-2 md:col-span-1 bg-purple-600 text-white px-4 py-4 rounded-lg hover:bg-purple-700 text-sm font-bold text-center shadow-sm flex flex-col items-center justify-center gap-2 md:w-auto w-full"><Shield size={20} /> Team</Link>}
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mt-8">
         <div className="p-4 bg-white dark:bg-slate-900 rounded-xl border dark:border-slate-800"><p className="text-xs text-slate-500 uppercase font-bold">Blogs</p><p className="text-2xl font-bold">{data.blogCount}</p></div>
         <div className="p-4 bg-white dark:bg-slate-900 rounded-xl border dark:border-slate-800"><p className="text-xs text-slate-500 uppercase font-bold">Jobs</p><p className="text-2xl font-bold">{data.jobCount}</p></div>
         <div className="p-4 bg-white dark:bg-slate-900 rounded-xl border dark:border-slate-800"><p className="text-xs text-slate-500 uppercase font-bold">Events</p><p className="text-2xl font-bold">{data.eventCount}</p></div>
+        <div className="p-4 bg-white dark:bg-slate-900 rounded-xl border dark:border-slate-800"><p className="text-xs text-slate-500 uppercase font-bold">Resources</p><p className="text-2xl font-bold">{data.resourceCount}</p></div>
         <div className="p-4 bg-white dark:bg-slate-900 rounded-xl border dark:border-slate-800"><p className="text-xs text-slate-500 uppercase font-bold">Admins</p><p className="text-2xl font-bold">{data.adminCount}</p></div>
       </div>
     </div>
