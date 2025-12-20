@@ -5,22 +5,22 @@ import { Trash2, FileText, Briefcase, Calendar, ArrowLeft, Pencil } from "lucide
 import Link from "next/link";
 
 export default function ManageContent() {
-  const [blogs, setBlogs] = useState([]);
-  const [jobs, setJobs] = useState([]);
-  const [events, setEvents] = useState([]);
+  // FIX: Added <any[]> so TypeScript knows these arrays will hold data
+  const [blogs, setBlogs] = useState<any[]>([]);
+  const [jobs, setJobs] = useState<any[]>([]);
+  const [events, setEvents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchAll() {
       try {
-        // We use safely fetch each one. If one fails, it returns an empty array instead of crashing.
         const [blogsRes, jobsRes, eventsRes] = await Promise.all([
           fetch("/api/blogs").then(r => r.ok ? r.json() : []),
           fetch("/api/jobs").then(r => r.ok ? r.json() : []),
           fetch("/api/events").then(r => r.ok ? r.json() : [])
         ]);
 
-        // Ensure data is actually an array before setting state
+        // Handle blogs pagination structure if present
         setBlogs(Array.isArray(blogsRes.blogs) ? blogsRes.blogs : (Array.isArray(blogsRes) ? blogsRes : []));
         setJobs(Array.isArray(jobsRes) ? jobsRes : []);
         setEvents(Array.isArray(eventsRes) ? eventsRes : []);
