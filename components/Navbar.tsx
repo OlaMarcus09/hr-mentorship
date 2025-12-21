@@ -12,10 +12,18 @@ export default function Navbar() {
   const closeMenu = () => setIsOpen(false);
 
   return (
-    <nav className="fixed w-full z-50 bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 transition-all duration-300">
+    <nav className="fixed w-full z-50 bg-white/95 dark:bg-slate-950/95 border-b border-slate-200 dark:border-slate-800 transition-all duration-300">
       <div className="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
-        <Link href="/" className="flex items-center gap-2" onClick={closeMenu}>
-          <div className="h-10 w-10 overflow-hidden rounded-lg bg-white shadow-sm border border-slate-100">
+        
+        {/* LOGO WITH SANTA HAT 🎅 */}
+        <Link href="/" className="flex items-center gap-2 relative group" onClick={closeMenu}>
+          
+          {/* The Santa Hat Image (Absolute Positioned) */}
+          <div className="absolute -top-4 -left-3 w-8 h-8 z-20 pointer-events-none rotate-[-15deg] drop-shadow-md">
+             <img src="https://cdn-icons-png.flaticon.com/512/744/744546.png" alt="Santa Hat" className="w-full h-full object-contain"/>
+          </div>
+
+          <div className="h-10 w-10 overflow-hidden rounded-lg bg-white shadow-sm border border-slate-100 relative z-10">
              <img src="https://res.cloudinary.com/dmqjicpcc/image/upload/v1765218297/1001440111_dztflg.jpg" alt="Logo" className="h-full w-full object-cover"/>
           </div>
           <span className="text-xl font-bold font-heading text-slate-900 dark:text-white hidden md:block">HR Mentorship</span>
