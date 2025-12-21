@@ -1,25 +1,17 @@
 import type { Metadata } from "next";
-import { Libre_Baskerville, Lato } from "next/font/google";
+import { Inter, Calistoga } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { ThemeProvider } from "@/components/theme-provider";
+import ChristmasSpirit from "@/components/ChristmasSpirit"; // IMPORT ADDED
 
-const libreBaskerville = Libre_Baskerville({
-  subsets: ["latin"],
-  weight: ["400", "700"],
-  variable: "--font-heading",
-});
-
-const lato = Lato({
-  subsets: ["latin"],
-  weight: ["400", "700"],
-  variable: "--font-body",
-});
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+const calistoga = Calistoga({ weight: "400", subsets: ["latin"], variable: "--font-calistoga" });
 
 export const metadata: Metadata = {
   title: "HR Mentorship",
-  description: "Elevate your HR Career with mentorship and courses.",
+  description: "Connecting HR Professionals",
 };
 
 export default function RootLayout({
@@ -29,15 +21,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${libreBaskerville.variable} ${lato.variable} font-body antialiased flex flex-col min-h-screen`}>
-        <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
+      <body className={`${inter.variable} ${calistoga.variable} font-sans antialiased bg-slate-50 dark:bg-slate-950 transition-colors duration-300`}>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <ChristmasSpirit /> {/* COMPONENT ADDED HERE */}
           <Navbar />
-          <main className="flex-1 bg-background">
+          <main className="min-h-screen">
             {children}
           </main>
           <Footer />
