@@ -52,7 +52,7 @@ model Application {
   id        Int      @id @default(autoincrement())
   name      String
   email     String
-  type      String   // Mentor or Mentee
+  type      String
   status    String   @default("PENDING")
   linkedin  String?
   cvUrl     String?
