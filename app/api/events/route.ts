@@ -15,16 +15,23 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
+    
+    // VALIDATION & CONVERSION
+    if (!body.title || !body.date || !body.location) {
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    }
+
     const event = await prisma.event.create({
       data: {
         title: body.title,
-        date: body.date,
+        date: new Date(body.date), // <--- FIX: Converts string to Date object
         location: body.location,
-        image: body.image
+        image: body.image || ""    // Optional image
       }
     });
     return NextResponse.json(event);
   } catch (error) {
+    console.error("Event Create Error:", error); // Logs actual error to terminal
     return NextResponse.json({ error: 'Failed to create event' }, { status: 500 });
   }
 }
