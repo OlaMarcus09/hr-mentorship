@@ -93,5 +93,6 @@ model GalleryImage {
   id        Int      @id @default(autoincrement())
   title     String?
   imageUrl  String
+  category  String   @default("General") // Added Category Back
   createdAt DateTime @default(now())
 }

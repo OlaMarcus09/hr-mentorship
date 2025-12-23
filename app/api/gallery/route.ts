@@ -18,14 +18,11 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     
-    // MAPPING FIX: Match the frontend data to the database schema
-    // Frontend sends 'image', Database wants 'imageUrl'
-    // Frontend sends 'caption', Database wants 'title'
-    
     const newImage = await prisma.galleryImage.create({
       data: { 
         imageUrl: body.image || body.imageUrl, 
-        title: body.caption || body.title || ""
+        title: body.caption || body.title || "",
+        category: body.category || "General"
       }
     });
     
