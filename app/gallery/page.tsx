@@ -1,84 +1,103 @@
 import { prisma } from '@/lib/prisma';
-import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 
 export const dynamic = 'force-dynamic';
 
 async function getGallery() {
-  const images = await prisma.galleryImage.findMany({
-    orderBy: { createdAt: 'desc' }
-  });
-  return images;
+  // Safe fetch - returns empty array if table doesn't exist yet
+  try {
+    const images = await prisma.galleryImage.findMany({ orderBy: { createdAt: 'desc' } });
+    return images;
+  } catch (e) {
+    return [];
+  }
 }
 
 export default async function GalleryPage() {
   const images = await getGallery();
 
-  // Categories to display
-  const categories = ['Workshop', 'Event', 'Networking', 'Mentorship'];
-
   // Helper to find latest image for a category
   const getLatestImg = (cat: string) => {
+    // FIX: We use 'imageUrl' here because that is what is in the database now
     const found = images.find((img) => img.category === cat);
+    
     // Default fallbacks if no image uploaded
     if (!found) {
        if(cat === 'Workshop') return "https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=800";
-       if(cat === 'Event') return "https://images.unsplash.com/photo-1543269865-cbf427effbad?auto=format&fit=crop&w=800";
-       if(cat === 'Networking') return "https://images.unsplash.com/photo-1515187029135-18ee286d815b?auto=format&fit=crop&w=800";
+       if(cat === 'Retreat') return "https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=800";
+       if(cat === 'Summit') return "https://images.unsplash.com/photo-1544531586-fde5298cdd40?auto=format&fit=crop&w=800";
        return "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=800";
     }
-    return found.image;
+    return found.imageUrl; // FIX: Correct property name
   };
 
+  const categories = [
+    { name: "Annual Summit", id: "Summit", count: images.filter(i => i.category === 'Summit').length },
+    { name: "HR Workshops", id: "Workshop", count: images.filter(i => i.category === 'Workshop').length },
+    { name: "Executive Retreats", id: "Retreat", count: images.filter(i => i.category === 'Retreat').length },
+    { name: "Community Meetups", id: "General", count: images.filter(i => i.category === 'General').length },
+  ];
+
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 py-20 px-6">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 py-32 px-6">
       <div className="max-w-7xl mx-auto">
         
-        {/* HEADER */}
-        <div className="text-center mb-16">
-          <h1 className="text-4xl md:text-5xl font-bold font-heading mb-4 text-slate-900 dark:text-white">
-            Our Community in Action
+        <div className="text-center mb-20">
+          <p className="text-primary font-bold tracking-widest uppercase mb-2">Our Memories</p>
+          <h1 className="text-4xl md:text-5xl font-heading text-slate-900 dark:text-white mb-6">
+            Captured Moments
           </h1>
           <p className="text-xl text-slate-500 max-w-2xl mx-auto">
-            Experience the energy and collaboration of our HR professional community.
+            A glimpse into the vibrant life of the HR Mentorship community.
           </p>
         </div>
 
-        {/* MAIN CATEGORY GRID (Big Thumbs) */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+        {/* Categories Grid */}
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-20">
            {categories.map((cat) => (
-             <div key={cat} className="relative h-64 md:h-80 rounded-3xl overflow-hidden shadow-lg group">
-               <img 
-                 src={getLatestImg(cat)} 
-                 className="w-full h-full object-cover transition duration-700 group-hover:scale-110" 
-                 alt={cat}
-               />
-               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-60"></div>
-               <div className="absolute bottom-6 left-6">
-                 <span className="bg-[#8B5CF6] text-white px-6 py-2 rounded-full text-sm font-bold shadow-md">
-                   {cat}
-                 </span>
-               </div>
+             <div key={cat.id} className="group relative h-80 rounded-2xl overflow-hidden cursor-pointer">
+                <Image 
+                  src={getLatestImg(cat.id)} 
+                  alt={cat.name} 
+                  fill 
+                  className="object-cover transition duration-700 group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition flex flex-col justify-end p-6">
+                   <h3 className="text-white text-xl font-bold mb-1">{cat.name}</h3>
+                   <div className="flex justify-between items-center">
+                     <span className="text-white/80 text-sm">{cat.count} Photos</span>
+                     <span className="bg-white/20 p-2 rounded-full backdrop-blur-sm text-white opacity-0 group-hover:opacity-100 transition transform translate-y-4 group-hover:translate-y-0">
+                       <ArrowRight size={16} />
+                     </span>
+                   </div>
+                </div>
              </div>
            ))}
         </div>
 
-        {/* ALL UPLOADS GRID (Masonry-ish) */}
-        {images.length > 0 && (
-          <div className="pt-12 border-t border-slate-200 dark:border-slate-800">
-            <h3 className="text-2xl font-bold mb-8 text-slate-900 dark:text-white">Recent Moments</h3>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-               {images.map((img) => (
-                 <div key={img.id} className="relative group rounded-xl overflow-hidden aspect-square bg-slate-100">
-                    <img src={img.image} className="w-full h-full object-cover transition duration-500 group-hover:scale-105" />
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
-                       <span className="text-white text-sm font-bold bg-black/50 px-3 py-1 rounded-full">{img.category}</span>
-                    </div>
-                 </div>
-               ))}
-            </div>
-          </div>
-        )}
+        {/* All Photos Grid */}
+        <h2 className="text-2xl font-bold mb-8 text-slate-900 dark:text-white">Recent Uploads</h2>
+        <div className="columns-1 md:columns-3 gap-6 space-y-6">
+           {images.map((img) => (
+             <div key={img.id} className="break-inside-avoid relative group rounded-xl overflow-hidden bg-slate-200">
+                <Image 
+                   src={img.imageUrl} // FIX: Correct property name here too
+                   alt={img.title || "Gallery Image"} 
+                   width={600} 
+                   height={800} 
+                   className="w-full h-auto"
+                />
+                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition duration-300 flex items-end p-6">
+                   <div>
+                     <p className="text-white font-bold">{img.title}</p>
+                     <p className="text-white/60 text-xs uppercase tracking-wider">{img.category}</p>
+                   </div>
+                </div>
+             </div>
+           ))}
+        </div>
+
       </div>
     </div>
   );
