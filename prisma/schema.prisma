@@ -12,17 +12,17 @@ model Admin {
   name      String
   email     String   @unique
   password  String
-  role      String   @default("ADMIN") // SUPER_ADMIN or ADMIN
+  role      String   @default("ADMIN")
   createdAt DateTime @default(now())
 }
 
-model TeamMember {
+model Blog {
   id        Int      @id @default(autoincrement())
-  name      String
-  role      String
-  bio       String
+  title     String
+  excerpt   String
+  content   String?
+  author    String
   image     String?
-  linkedin  String?
   createdAt DateTime @default(now())
 }
 
@@ -30,31 +30,21 @@ model Job {
   id           Int      @id @default(autoincrement())
   title        String
   company      String
-  type         String   // Remote, Hybrid, On-site
+  type         String
   location     String
   salary       String?
-  description  String   // Full HTML or text description
-  requirements String?  // Optional requirements list
-  applyLink    String?  // Email or URL
+  description  String
+  requirements String?
+  applyLink    String?
   postedAt     DateTime @default(now())
-}
-
-model Blog {
-  id        Int      @id @default(autoincrement())
-  title     String
-  content   String
-  excerpt   String?  // Short summary for the list view
-  author    String
-  image     String?
-  createdAt DateTime @default(now())
 }
 
 model Event {
   id        Int      @id @default(autoincrement())
   title     String
-  date      String
+  date      DateTime
+  location  String
   image     String?
-  location  String   @default("Online")
   createdAt DateTime @default(now())
 }
 
@@ -62,35 +52,30 @@ model Application {
   id        Int      @id @default(autoincrement())
   name      String
   email     String
-  type      String   // Mentor, Mentee
-  linkedin  String?
-  bio       String
-  image     String?
+  type      String   // Mentor or Mentee
   status    String   @default("PENDING")
-  createdAt DateTime @default(now())
-}
-
-model GalleryImage {
-  id        Int      @id @default(autoincrement())
-  image     String
-  category  String   // Workshop, Event, Networking, Mentorship
-  caption   String?
-  createdAt DateTime @default(now())
-}
-
-model Contact {
-  id        Int      @id @default(autoincrement())
-  name      String
-  email     String
-  message   String
+  linkedin  String?
+  cvUrl     String?
+  image     String?
   createdAt DateTime @default(now())
 }
 
 model Resource {
   id          Int      @id @default(autoincrement())
   title       String
-  type        String   // PDF, DOCX, VIDEO, LINK
+  type        String
   description String?
   fileUrl     String
   createdAt   DateTime @default(now())
+}
+
+model TeamMember {
+  id        Int      @id @default(autoincrement())
+  name      String
+  role      String
+  image     String
+  bio       String?
+  linkedin  String?
+  email     String?
+  createdAt DateTime @default(now())
 }
