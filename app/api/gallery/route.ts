@@ -4,36 +4,33 @@ import { prisma } from '@/lib/prisma';
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
-  const images = await prisma.galleryImage.findMany({
-    orderBy: { createdAt: 'desc' }
-  });
-  return NextResponse.json(images);
+  try {
+    const images = await prisma.galleryImage.findMany({
+      orderBy: { createdAt: 'desc' }
+    });
+    return NextResponse.json(images);
+  } catch (error) {
+    return NextResponse.json({ error: 'Failed to fetch images' }, { status: 500 });
+  }
 }
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { image, category, caption } = body;
-
+    
+    // MAPPING FIX: Match the frontend data to the database schema
+    // Frontend sends 'image', Database wants 'imageUrl'
+    // Frontend sends 'caption', Database wants 'title'
+    
     const newImage = await prisma.galleryImage.create({
-      data: { image, category, caption }
+      data: { 
+        imageUrl: body.image || body.imageUrl, 
+        title: body.caption || body.title || ""
+      }
     });
     
     return NextResponse.json(newImage, { status: 201 });
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to upload' }, { status: 500 });
-  }
-}
-
-export async function DELETE(request: Request) {
-  try {
-    const { searchParams } = new URL(request.url);
-    const id = searchParams.get('id');
-    if (!id) return NextResponse.json({ error: 'ID required' }, { status: 400 });
-
-    await prisma.galleryImage.delete({ where: { id: parseInt(id) } });
-    return NextResponse.json({ message: 'Deleted' });
-  } catch (error) {
-    return NextResponse.json({ error: 'Delete failed' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to save image' }, { status: 500 });
   }
 }
