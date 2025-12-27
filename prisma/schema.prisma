@@ -71,6 +71,7 @@ model Resource {
 
 model TeamMember {
   id        Int      @id @default(autoincrement())
+  slug      String   @unique  // <--- NEW: For clean URLs
   name      String
   role      String
   image     String
@@ -93,6 +94,6 @@ model GalleryImage {
   id        Int      @id @default(autoincrement())
   title     String?
   imageUrl  String
-  category  String   @default("General") // Added Category Back
+  category  String   @default("General")
   createdAt DateTime @default(now())
 }
