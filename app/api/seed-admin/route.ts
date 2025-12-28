@@ -1,32 +1,36 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { hash } from 'bcryptjs';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    const email = 'admin@hrmentorship.com';
-    const password = 'password123';
-    
-    // 1. Hash the password (security requirement)
-    const hashedPassword = await hash(password, 12);
-
-    // 2. Create or Update the Admin User
-    await prisma.admin.upsert({
-      where: { email },
-      update: { password: hashedPassword }, // If exists, update password
+    // Upsert: Updates if exists, Creates if not
+    const admin = await prisma.admin.upsert({
+      where: { email: 'admin@hrmentorship.com' },
+      update: {
+        password: 'password123', // Resets password to this
+        name: 'Super Admin'
+      },
       create: {
+        email: 'admin@hrmentorship.com',
+        password: 'password123',
         name: 'Super Admin',
-        email,
-        password: hashedPassword,
-        role: 'SUPER_ADMIN'
+        role: 'ADMIN'
       }
     });
 
-    return NextResponse.json({ success: true, message: "Admin account restored! You can login now." });
+    return NextResponse.json({ 
+      success: true, 
+      message: 'Admin account seeded successfully!',
+      credentials: {
+        email: 'admin@hrmentorship.com',
+        password: 'password123'
+      },
+      note: "If your app uses password hashing (like bcrypt), this plain text password might not work. Let me know if you need a hashed version."
+    });
   } catch (error) {
-    console.error(error);
-    return NextResponse.json({ error: 'Failed to seed admin.' }, { status: 500 });
+    console.error("Error seeding admin:", error);
+    return NextResponse.json({ error: 'Failed to seed admin' }, { status: 500 });
   }
 }
