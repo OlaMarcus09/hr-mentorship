@@ -1,28 +1,45 @@
 import Image from "next/image";
+import { Quote } from "lucide-react";
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
-      
-      {/* 1. HERO SECTION */}
-      <section className="pt-40 pb-20 px-6 text-center bg-white dark:bg-slate-950">
-         <span className="inline-block py-1 px-4 rounded-full bg-primary/10 text-primary font-bold text-sm mb-6">
-           About HR Mentorship
-         </span>
-         <h1 className="text-4xl md:text-6xl font-heading font-bold text-slate-900 dark:text-white mb-6 max-w-4xl mx-auto leading-tight">
-           Transforming HR Careers Through Community
-         </h1>
-         <p className="text-xl text-slate-500 dark:text-slate-400 max-w-2xl mx-auto">
-           Building Africa's most vibrant HR community where professionals learn, connect, and grow together.
-         </p>
+    <div className="min-h-screen bg-white dark:bg-slate-950">
+
+      {/* 1. NEW HERO IMAGE SECTION */}
+      <section className="relative pt-48 pb-32 px-6 flex items-center justify-center min-h-[60vh]">
+         {/* Background Image */}
+         <div className="absolute inset-0 z-0">
+           <Image
+             src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1200"
+             alt="HR Community"
+             fill
+             className="object-cover"
+             priority
+           />
+           {/* Overlay for text readability */}
+           <div className="absolute inset-0 bg-black/60 dark:bg-black/70"></div>
+         </div>
+
+         {/* Content */}
+         <div className="relative z-10 max-w-4xl mx-auto text-center text-white">
+            <span className="inline-block py-1 px-4 rounded-full bg-primary/20 text-white font-bold text-sm mb-6 backdrop-blur-md">
+              About Us
+            </span>
+            <h1 className="text-4xl md:text-6xl font-heading font-bold mb-6 leading-tight">
+              Transforming HR Careers Through Community
+            </h1>
+            <p className="text-xl text-white/90 max-w-2xl mx-auto leading-relaxed">
+              Building Africa's most vibrant HR community where professionals learn, connect, and grow together.
+            </p>
+         </div>
       </section>
 
       {/* 2. OUR STORY */}
-      <section className="py-20 px-6 bg-slate-50 dark:bg-slate-900">
+      <section className="py-24 px-6 bg-slate-50 dark:bg-slate-900">
         <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-16 items-center">
            <div>
               <h2 className="text-3xl font-heading font-bold text-slate-900 dark:text-white mb-6">Our Story</h2>
-              <div className="prose dark:prose-invert text-slate-600 dark:text-slate-300 leading-relaxed space-y-4">
+              <div className="prose dark:prose-invert text-lg text-slate-600 dark:text-slate-300 leading-relaxed space-y-6">
                 <p>
                   Every great movement begins with a vision — and for HR Mentorship, that vision was born on July 2, 2018, when Dr. Oluyemi Adeosun, a distinguished Human Resources leader, envisioned a safe space where HR professionals could learn, grow, and thrive together.
                 </p>
@@ -31,32 +48,32 @@ export default function AboutPage() {
                 </p>
               </div>
            </div>
-           <div className="relative h-[400px] rounded-2xl overflow-hidden shadow-2xl">
-              <Image src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1200" alt="Our Story" fill className="object-cover" />
+           <div className="relative h-[500px] rounded-2xl overflow-hidden shadow-xl">
+              <Image src="https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=800" alt="Our Story" fill className="object-cover" />
            </div>
         </div>
       </section>
 
       {/* 3. VISION & MISSION */}
-      <section className="py-20 px-6 bg-white dark:bg-slate-950">
+      <section className="py-24 px-6 bg-white dark:bg-slate-950">
          <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-8">
-            <div className="p-10 border border-primary/20 rounded-2xl bg-slate-50 dark:bg-slate-900 shadow-sm hover:shadow-md transition">
-               <h3 className="text-2xl font-bold mb-4 text-slate-900 dark:text-white">Our Vision</h3>
-               <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
+            <div className="p-12 border border-slate-100 dark:border-slate-800 rounded-2xl bg-slate-50 dark:bg-slate-900 shadow-sm hover:shadow-md transition group">
+               <h3 className="text-2xl font-bold mb-4 text-slate-900 dark:text-white group-hover:text-primary transition">Our Vision</h3>
+               <p className="text-lg text-slate-600 dark:text-slate-300 leading-relaxed">
                  To be a globally trusted community for nurturing exceptional HR leaders — where mentorship ignites growth, connection inspires possibility, and every professional flourishes to their fullest potential.
                </p>
             </div>
-            <div className="p-10 border border-primary/20 rounded-2xl bg-slate-50 dark:bg-slate-900 shadow-sm hover:shadow-md transition">
-               <h3 className="text-2xl font-bold mb-4 text-slate-900 dark:text-white">Our Mission</h3>
-               <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
+            <div className="p-12 border border-slate-100 dark:border-slate-800 rounded-2xl bg-slate-50 dark:bg-slate-900 shadow-sm hover:shadow-md transition group">
+               <h3 className="text-2xl font-bold mb-4 text-slate-900 dark:text-white group-hover:text-primary transition">Our Mission</h3>
+               <p className="text-lg text-slate-600 dark:text-slate-300 leading-relaxed">
                  To empower HR professionals through continuous learning, mentorship, and meaningful connections — building competence, confidence, and character for impactful leadership.
                </p>
             </div>
          </div>
       </section>
 
-      {/* 4. CORE VALUES (Grid) */}
-      <section className="py-20 px-6 bg-slate-50 dark:bg-slate-900">
+      {/* 4. CORE VALUES */}
+      <section className="py-24 px-6 bg-slate-50 dark:bg-slate-900">
          <div className="max-w-7xl mx-auto">
             <h2 className="text-3xl font-heading font-bold text-center mb-16 text-slate-900 dark:text-white">Our Core Values</h2>
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -82,10 +99,44 @@ export default function AboutPage() {
          </div>
       </section>
 
-      {/* 5. OUR IMPACT */}
-      <section className="py-24 px-6 bg-white dark:bg-slate-950 text-center">
-         <h2 className="text-3xl font-heading font-bold mb-16 text-slate-900 dark:text-white">Our Impact</h2>
-         <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8">
+      {/* 5. COMMUNITY VOICE (Testimonials - Added Back) */}
+      <section className="py-24 px-6 bg-white dark:bg-slate-950">
+        <div className="max-w-7xl mx-auto text-center mb-16">
+           <h2 className="text-3xl font-heading font-bold text-slate-900 dark:text-white mb-6">Community Voice</h2>
+           <p className="text-xl text-slate-600 dark:text-slate-400 max-w-3xl mx-auto">Hear from the professionals whose careers have been transformed.</p>
+        </div>
+
+        <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-8">
+           {/* Testimonial 1 */}
+           <div className="bg-slate-50 dark:bg-slate-900 p-10 rounded-2xl border border-slate-100 dark:border-slate-800 relative">
+              <Quote className="text-primary/20 absolute top-6 left-6" size={48} />
+              <div className="relative z-10 pt-8">
+                 <p className="text-lg text-slate-700 dark:text-slate-300 italic mb-8 leading-relaxed">"HR Mentorship gave me the confidence and strategic insight to step into a senior leadership role. The peer support and expert guidance are unmatched in the industry."</p>
+                 <div>
+                    <div className="font-bold text-xl text-slate-900 dark:text-white">Chioma N.</div>
+                    <div className="text-sm text-primary font-bold uppercase tracking-wider">Head of HR, FinTech Corp</div>
+                 </div>
+              </div>
+           </div>
+
+           {/* Testimonial 2 */}
+           <div className="bg-slate-50 dark:bg-slate-900 p-10 rounded-2xl border border-slate-100 dark:border-slate-800 relative">
+              <Quote className="text-primary/20 absolute top-6 left-6" size={48} />
+              <div className="relative z-10 pt-8">
+                 <p className="text-lg text-slate-700 dark:text-slate-300 italic mb-8 leading-relaxed">"I found my current job and my closest professional mentors through this community. It's more than just a network; it's a family dedicated to mutual growth."</p>
+                 <div>
+                    <div className="font-bold text-xl text-slate-900 dark:text-white">Emmanuel O.</div>
+                    <div className="text-sm text-primary font-bold uppercase tracking-wider">Talent Acquisition Lead</div>
+                 </div>
+              </div>
+           </div>
+        </div>
+      </section>
+
+      {/* 6. OUR IMPACT */}
+      <section className="py-24 px-6 bg-primary text-white text-center">
+         <h2 className="text-3xl font-heading font-bold mb-16 text-white">Our Impact</h2>
+         <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-12">
             {[
               { n: "10,000+", l: "Active Members" },
               { n: "60,000+", l: "Job Platform Members" },
@@ -93,8 +144,8 @@ export default function AboutPage() {
               { n: "5", l: "Regional Chapters" },
             ].map((stat, idx) => (
               <div key={idx} className="p-6">
-                 <div className="text-4xl md:text-5xl font-bold text-primary mb-2">{stat.n}</div>
-                 <div className="text-sm font-bold uppercase tracking-widest text-slate-500">{stat.l}</div>
+                 <div className="text-5xl md:text-6xl font-bold text-white mb-2">{stat.n}</div>
+                 <div className="text-sm font-bold uppercase tracking-widest text-white/80">{stat.l}</div>
               </div>
             ))}
          </div>

@@ -11,17 +11,11 @@ export default function TeamPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Fetch from our seeder/API
     async function fetchTeam() {
       try {
-        // We'll call the seeder to get the data list for now (or a real GET endpoint)
-        // For speed/demo, we use the seeder endpoint which returns the data if it exists or creates it
-        // Ideally this should be a GET /api/team, but we'll use the seed endpoint for data consistency in this demo
-        const res = await fetch('/api/seed-team'); 
-        // Note: In production we'd use a proper GET route, but the seed route returns JSON message. 
-        // Let's fallback to the hardcoded list if fetch fails or just use the list below for instant render speed
-        // The list below matches the DB seed perfectly.
-        
+        // Fetch from the seeder API for demo/speed
+        const res = await fetch('/api/seed-team');
+        // Fallback data matching the seed for instant render
         const data = [
           { name: "Abdulganiy Abdulganiy", role: "Associate", slug: "abdulganiy-abdulganiy", image: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=800&q=80" },
           { name: "Abdulkabir Olode", role: "Associate", slug: "abdulkabir-olode", image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=800&q=80" },
@@ -48,66 +42,91 @@ export default function TeamPage() {
   );
 
   return (
-    <div className="min-h-screen bg-white dark:bg-slate-950">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
       
-      {/* 1. HERO SECTION (PURE WHITE / CLEAN) */}
-      {/* Removed bg-primary and purple overlay as requested */}
-      <div className="relative pt-40 pb-16 px-6 text-center bg-white dark:bg-slate-950">
-         <h1 className="text-5xl md:text-7xl font-heading text-slate-900 dark:text-white italic mb-4">
-           Meet Our Team
-         </h1>
-         <p className="text-slate-500 dark:text-slate-400 text-lg md:text-xl max-w-2xl mx-auto font-light leading-relaxed">
-           The exceptional minds shaping the future of HR Mentorship.
-         </p>
-      </div>
-
-      {/* 2. SEARCH BAR (CLEAN - NO DROPDOWNS) */}
-      <div className="relative z-20 px-4 mb-16">
-        <div className="max-w-xl mx-auto bg-white dark:bg-slate-900 rounded-full shadow-xl border border-slate-200 dark:border-slate-800 p-2 flex items-center">
-           <Search className="ml-4 text-slate-400" size={20} />
-           <input 
-             type="text" 
-             value={search}
-             onChange={(e) => setSearch(e.target.value)}
-             placeholder="Search by name..." 
-             className="flex-1 pl-4 pr-6 py-2 bg-transparent outline-none text-slate-900 dark:text-white placeholder:text-slate-400 font-medium"
-           />
+      {/* 1. HERO SECTION WITH IMAGE */}
+      <section className="relative pt-48 pb-32 px-6 flex items-center justify-center min-h-[50vh]">
+        {/* Background Image */}
+        <div className="absolute inset-0 z-0">
+          <Image 
+            src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1200&q=80"
+            alt="HR Team"
+            fill
+            className="object-cover"
+            priority
+          />
+          {/* Dark Overlay for Text Readability */}
+          <div className="absolute inset-0 bg-black/60 dark:bg-black/70"></div>
         </div>
-      </div>
+        
+        <div className="relative z-10 max-w-4xl mx-auto text-center text-white">
+           <span className="inline-block py-1 px-4 rounded-full bg-primary/20 text-white font-bold text-sm mb-6 backdrop-blur-md">
+             Our People
+           </span>
+           <h1 className="text-4xl md:text-6xl font-heading font-bold mb-6 leading-tight">
+             Meet the Core Team
+           </h1>
+           <p className="text-xl text-white/90 max-w-2xl mx-auto leading-relaxed">
+             The dedicated professionals driving our vision and supporting the HR community.
+           </p>
+        </div>
+      </section>
+
+      {/* 2. SEARCH & INTRO CONTENT */}
+      <section className="py-16 px-6 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 relative z-20 -mt-8 rounded-t-3xl shadow-[0_-10px_20px_-5px_rgba(0,0,0,0.1)]">
+        <div className="max-w-3xl mx-auto text-center">
+           {/* Search Bar */}
+           <div className="relative mb-10">
+              <div className="bg-slate-100 dark:bg-slate-800 rounded-full shadow-inner border border-slate-200 dark:border-slate-700 p-2 flex items-center">
+                 <Search className="ml-4 text-slate-400" size={20} />
+                 <input 
+                   type="text" 
+                   value={search}
+                   onChange={(e) => setSearch(e.target.value)}
+                   placeholder="Search by name or role..." 
+                   className="flex-1 pl-4 pr-6 py-3 bg-transparent outline-none text-slate-900 dark:text-white placeholder:text-slate-500 font-medium text-lg"
+                 />
+              </div>
+           </div>
+           
+           {/* Content Beneath Search */}
+           <p className="text-lg text-slate-600 dark:text-slate-300 leading-relaxed">
+             Our team is composed of experienced HR practitioners, thought leaders, and community builders passionate about elevating the profession. Get to know the faces behind HR Mentorship.
+           </p>
+        </div>
+      </section>
 
       {/* 3. TEAM GRID */}
-      <div className="max-w-7xl mx-auto px-4 md:px-8 pb-24">
+      <div className="max-w-7xl mx-auto px-6 py-20">
         {loading ? (
-           <div className="text-center py-20 text-slate-500 animate-pulse">Loading...</div>
+           <div className="text-center py-20 text-slate-500 animate-pulse">Loading team...</div>
         ) : filteredTeam.length === 0 ? (
-           <div className="text-center py-20 text-slate-500">No team members found.</div>
+           <div className="text-center py-20 text-slate-500 text-lg">No team members found matching "{search}".</div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-12">
             {filteredTeam.map((member: any, index: number) => (
               <Link 
                 key={member.slug} 
                 href={`/team/${member.slug}`} 
-                className="group cursor-pointer"
+                className="group cursor-pointer block"
               >
-                {/* Clean Image Container */}
-                <div className="relative h-[420px] w-full overflow-hidden rounded-lg bg-slate-100 dark:bg-slate-900 mb-4 reveal-card" style={{ animationDelay: `${index * 100}ms` }}>
+                {/* Image Container - Sharp, fixed aspect ratio, subtle hover */}
+                <div className="relative aspect-[3/4] w-full overflow-hidden rounded-xl bg-slate-200 dark:bg-slate-800 mb-5 shadow-sm transition-shadow hover:shadow-md">
                   <Image 
                     src={member.image} 
                     alt={member.name}
                     fill
                     sizes="(max-width: 768px) 100vw, 25vw"
-                    className="object-cover transition-transform duration-700 group-hover:scale-105"
+                    className="object-cover transition-transform duration-500 group-hover:scale-105"
                   />
-                  {/* Subtle Gradient only at very bottom for text readability if needed */}
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300"></div>
                 </div>
 
-                {/* Text Content - Below Image (Clean Style) */}
-                <div className="text-left">
-                  <h3 className="text-slate-900 dark:text-white text-lg font-bold font-heading leading-tight group-hover:text-primary transition-colors">
+                {/* Text Content */}
+                <div className="text-center">
+                  <h3 className="text-xl font-bold text-slate-900 dark:text-white group-hover:text-primary transition-colors mb-1">
                     {member.name}
                   </h3>
-                  <p className="text-slate-500 dark:text-slate-400 text-sm tracking-wide font-medium mt-1">
+                  <p className="text-slate-500 dark:text-slate-400 font-medium text-sm uppercase tracking-wider">
                     {member.role}
                   </p>
                 </div>

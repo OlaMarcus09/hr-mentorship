@@ -23,11 +23,14 @@ export default function Navbar() {
     { name: "Contact", href: "/contact" },
   ];
 
+  // TELEGRAM LINK (Community)
+  const telegramLink = "https://t.me/+aZTvBGln2eY2OTI0";
+
   return (
-    <nav className="fixed w-full z-50 bg-white/95 dark:bg-slate-950/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 transition-all duration-300">
+    <nav className="fixed w-full z-40 bg-white/95 dark:bg-slate-950/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 transition-all duration-300">
       <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
         
-        {/* LOGO SECTION - Updated with Cloudinary URL */}
+        {/* LOGO */}
         <Link href="/" className="relative flex items-center gap-3 group">
            <div className="relative w-10 h-10 md:w-12 md:h-12 rounded-full overflow-hidden">
              <Image 
@@ -38,8 +41,6 @@ export default function Navbar() {
                priority
              />
            </div>
-           
-           {/* Text Logo */}
            <div className="flex flex-col">
              <span className="font-heading font-bold text-xl leading-none text-primary dark:text-white transition">
                HR Mentorship
@@ -62,23 +63,21 @@ export default function Navbar() {
             </Link>
           ))}
           
-          {/* Theme Toggle - Fixed Alignment */}
           <button 
             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} 
             className="relative w-10 h-10 flex items-center justify-center rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition"
-            aria-label="Toggle Theme"
           >
              <Sun className="h-5 w-5 absolute transition-all scale-100 rotate-0 dark:scale-0 dark:-rotate-90 text-slate-600" />
              <Moon className="h-5 w-5 absolute transition-all scale-0 rotate-90 dark:scale-100 dark:rotate-0 text-white" />
           </button>
 
-          <Link href="/mentorship/apply" className="px-5 py-2.5 bg-primary text-white text-sm font-bold rounded-lg hover:bg-primary/90 transition shadow-lg shadow-primary/20">
+          <a href={telegramLink} target="_blank" className="px-5 py-2.5 bg-primary text-white text-sm font-bold rounded-lg hover:bg-primary/90 transition shadow-lg shadow-primary/20">
             Join Community
-          </Link>
+          </a>
         </div>
 
         {/* Mobile Toggle */}
-        <button className="lg:hidden p-2 text-slate-900 dark:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition" onClick={() => setIsOpen(!isOpen)}>
+        <button className="lg:hidden p-2 text-slate-900 dark:text-white" onClick={() => setIsOpen(!isOpen)}>
           {isOpen ? <X size={28} /> : <Menu size={28} />}
         </button>
       </div>
@@ -96,9 +95,9 @@ export default function Navbar() {
               {link.name}
             </Link>
           ))}
-          <Link href="/mentorship/apply" onClick={() => setIsOpen(false)} className="w-full py-4 bg-primary text-white text-center font-bold rounded-xl mt-4 shadow-lg">
+          <a href={telegramLink} target="_blank" onClick={() => setIsOpen(false)} className="w-full py-4 bg-primary text-white text-center font-bold rounded-xl mt-4 shadow-lg">
             Join Community
-          </Link>
+          </a>
         </div>
       )}
     </nav>
