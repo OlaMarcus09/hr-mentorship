@@ -10,8 +10,6 @@ export default async function Home() {
   const events = await prisma.event.findMany({ take: 3, orderBy: { date: 'asc' } });
   const gallery = await prisma.galleryImage.findMany({ take: 4, orderBy: { createdAt: 'desc' } });
 
-  const telegramLink = "https://t.me/+aZTvBGln2eY2OTI0";
-
   return (
     <div className="min-h-screen bg-white dark:bg-slate-950">
       
@@ -153,9 +151,10 @@ export default async function Home() {
            <h2 className="text-4xl md:text-6xl font-heading font-bold text-primary dark:text-white mb-8">Ready to Take the Next Step?</h2>
            <div className="flex flex-col sm:flex-row gap-6 justify-center mb-20">
               <Link href="/mentorship/apply" className="px-10 py-5 bg-primary text-white font-bold text-lg rounded-xl hover:bg-primary/90 transition shadow-xl">Become a Mentee</Link>
-              <a href={telegramLink} target="_blank" className="px-10 py-5 bg-white border-2 border-slate-200 text-slate-900 font-bold text-lg rounded-xl hover:border-primary hover:text-primary transition">
-                Join Community
-              </a>
+              {/* FIX: Reverted to Join as Mentor -> Links to Apply Page */}
+              <Link href="/mentorship/apply" className="px-10 py-5 bg-white border-2 border-slate-200 text-slate-900 font-bold text-lg rounded-xl hover:border-primary hover:text-primary transition">
+                Join as Mentor
+              </Link>
            </div>
         </div>
       </section>
