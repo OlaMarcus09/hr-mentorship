@@ -6,12 +6,15 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-white dark:bg-slate-950">
       
-      {/* 1. HERO SECTION - FIXED: PURE WHITE (No Purple) */}
+      {/* 1. HERO SECTION - Clean White Background, but BRAND PURPLE Text */}
       <section className="relative pt-40 pb-20 px-6 bg-white dark:bg-slate-950">
         <div className="max-w-7xl mx-auto text-center relative z-10">
-          <h1 className="text-5xl md:text-7xl font-heading font-bold mb-6 leading-tight text-slate-900 dark:text-white">
+          
+          {/* Headline is now PRIMARY PURPLE to match the brand plan */}
+          <h1 className="text-5xl md:text-7xl font-heading font-bold mb-6 leading-tight text-primary dark:text-white">
             Trusted by 7,000+ HR Professionals <br/> Across Nigeria and Beyond
           </h1>
+          
           <p className="text-xl md:text-2xl text-slate-600 dark:text-slate-300 mb-10 max-w-3xl mx-auto leading-relaxed">
             Where HR Careers Grow, Leaders Emerge, and Community Thrives.
           </p>
@@ -29,15 +32,15 @@ export default function Home() {
           <div className="border-y border-slate-100 dark:border-slate-800 py-12">
              <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
                 <div>
-                   <div className="text-6xl font-bold text-slate-900 dark:text-white mb-2">7k+</div>
+                   <div className="text-6xl font-bold text-primary dark:text-white mb-2">7k+</div>
                    <div className="text-sm font-bold uppercase tracking-widest text-slate-500">Active Members</div>
                 </div>
                 <div className="md:border-l border-slate-200 dark:border-slate-800">
-                   <div className="text-6xl font-bold text-slate-900 dark:text-white mb-2">60k+</div>
+                   <div className="text-6xl font-bold text-primary dark:text-white mb-2">60k+</div>
                    <div className="text-sm font-bold uppercase tracking-widest text-slate-500">Applications Supported</div>
                 </div>
                 <div className="md:border-l border-slate-200 dark:border-slate-800">
-                   <div className="text-6xl font-bold text-slate-900 dark:text-white mb-2">98%</div>
+                   <div className="text-6xl font-bold text-primary dark:text-white mb-2">98%</div>
                    <div className="text-sm font-bold uppercase tracking-widest text-slate-500">Career Growth Rate</div>
                 </div>
              </div>
@@ -78,7 +81,7 @@ export default function Home() {
       {/* 3. EVENTS & LEARNING */}
       <section className="py-24 px-6 bg-white dark:bg-slate-950">
         <div className="max-w-4xl mx-auto text-center mb-16">
-           <h2 className="text-4xl md:text-5xl font-heading font-bold text-slate-900 dark:text-white mb-6">
+           <h2 className="text-4xl md:text-5xl font-heading font-bold text-primary dark:text-white mb-6">
              Workshops & Learning Experiences
            </h2>
            <p className="text-xl text-slate-600 dark:text-slate-400">
@@ -105,7 +108,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 4. BECOME A MENTOR / CTA SECTION - FIXED: PURE WHITE BACKGROUND */}
+      {/* 4. BECOME A MENTOR / CTA SECTION */}
       <section className="py-24 px-6 bg-white dark:bg-slate-950 border-t border-slate-100 dark:border-slate-800">
         <div className="max-w-5xl mx-auto text-center">
            
@@ -113,7 +116,7 @@ export default function Home() {
              Join Our Growing Community
            </span>
            
-           <h2 className="text-4xl md:text-6xl font-heading font-bold text-slate-900 dark:text-white mb-8">
+           <h2 className="text-4xl md:text-6xl font-heading font-bold text-primary dark:text-white mb-8">
              Ready to Take the Next Step <br/> in Your HR Journey?
            </h2>
            
@@ -130,13 +133,13 @@ export default function Home() {
               </Link>
            </div>
 
-           {/* IMPACT CARDS (Styled for White Background) */}
+           {/* IMPACT CARDS */}
            <div className="grid md:grid-cols-3 gap-6 text-left">
               <div className="p-8 bg-slate-50 dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm">
                  <div className="w-12 h-12 bg-white dark:bg-slate-800 rounded-lg flex items-center justify-center text-primary mb-6 shadow-sm">
                    <Users size={24} />
                  </div>
-                 <h3 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">10,000+</h3>
+                 <h3 className="text-3xl font-bold text-primary dark:text-white mb-2">10,000+</h3>
                  <p className="text-slate-500 font-medium">Active Professionals</p>
               </div>
               
@@ -144,7 +147,7 @@ export default function Home() {
                  <div className="w-12 h-12 bg-white dark:bg-slate-800 rounded-lg flex items-center justify-center text-primary mb-6 shadow-sm">
                    <TrendingUp size={24} />
                  </div>
-                 <h3 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">98%</h3>
+                 <h3 className="text-3xl font-bold text-primary dark:text-white mb-2">98%</h3>
                  <p className="text-slate-500 font-medium">Career Growth Rate</p>
               </div>
 
@@ -152,7 +155,7 @@ export default function Home() {
                  <div className="w-12 h-12 bg-white dark:bg-slate-800 rounded-lg flex items-center justify-center text-primary mb-6 shadow-sm">
                    <CheckCircle size={24} />
                  </div>
-                 <h3 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">500+</h3>
+                 <h3 className="text-3xl font-bold text-primary dark:text-white mb-2">500+</h3>
                  <p className="text-slate-500 font-medium">Expert Mentors</p>
               </div>
            </div>

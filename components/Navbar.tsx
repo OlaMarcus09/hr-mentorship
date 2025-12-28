@@ -18,7 +18,7 @@ export default function Navbar() {
     { name: "Team", href: "/team" },
     { name: "Learning Centre", href: "/learning/resources" },
     { name: "Jobs", href: "/jobs" },
-    { name: "Blog", href: "/blog" }, // <--- ADDED BLOG LINK HERE
+    { name: "Blog", href: "/blog" },
     { name: "Gallery", href: "/gallery" },
     { name: "Contact", href: "/contact" },
   ];
@@ -27,26 +27,21 @@ export default function Navbar() {
     <nav className="fixed w-full z-50 bg-white/95 dark:bg-slate-950/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 transition-all duration-300">
       <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
         
-        {/* LOGO SECTION */}
+        {/* LOGO SECTION - Updated with Cloudinary URL */}
         <Link href="/" className="relative flex items-center gap-3 group">
-           <div className="relative w-10 h-10 md:w-12 md:h-12">
-             {/* Ensure your file is named 'logo.png' in the public folder */}
+           <div className="relative w-10 h-10 md:w-12 md:h-12 rounded-full overflow-hidden">
              <Image 
-               src="/logo.png" 
-               alt="HR Logo" 
+               src="https://res.cloudinary.com/dmqjicpcc/image/upload/v1765218297/1001440111_dztflg.jpg" 
+               alt="HR Mentorship Logo" 
                fill
-               className="object-contain"
+               className="object-cover"
                priority
              />
-             {/* Santa Hat Overlay - Positioned carefully to not block logo */}
-             <div className="absolute -top-4 -left-3 w-8 h-8 pointer-events-none opacity-90">
-                <Image src="https://cdn-icons-png.flaticon.com/512/744/744546.png" alt="Santa Hat" width={32} height={32} />
-             </div>
            </div>
            
-           {/* Text Logo as Fallback/Complement */}
+           {/* Text Logo */}
            <div className="flex flex-col">
-             <span className="font-heading font-bold text-xl leading-none text-slate-900 dark:text-white group-hover:text-primary transition">
+             <span className="font-heading font-bold text-xl leading-none text-primary dark:text-white transition">
                HR Mentorship
              </span>
              <span className="text-[10px] uppercase tracking-widest text-slate-500 font-bold">
@@ -67,10 +62,14 @@ export default function Navbar() {
             </Link>
           ))}
           
-          {/* Theme Toggle */}
-          <button onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition">
-             <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-             <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100 top-2" />
+          {/* Theme Toggle - Fixed Alignment */}
+          <button 
+            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} 
+            className="relative w-10 h-10 flex items-center justify-center rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+            aria-label="Toggle Theme"
+          >
+             <Sun className="h-5 w-5 absolute transition-all scale-100 rotate-0 dark:scale-0 dark:-rotate-90 text-slate-600" />
+             <Moon className="h-5 w-5 absolute transition-all scale-0 rotate-90 dark:scale-100 dark:rotate-0 text-white" />
           </button>
 
           <Link href="/mentorship/apply" className="px-5 py-2.5 bg-primary text-white text-sm font-bold rounded-lg hover:bg-primary/90 transition shadow-lg shadow-primary/20">
