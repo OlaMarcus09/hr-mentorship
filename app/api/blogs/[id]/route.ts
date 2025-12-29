@@ -1,47 +1,39 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-// FIX: This prevents Next.js from trying to run this during 'npm run build'
-export const dynamic = 'force-dynamic';
-
-export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
+// PATCH: Updates a blog post
+export async function PATCH(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   try {
-    const { id } = await params;
-    const blog = await prisma.blog.findUnique({
-      where: { id: parseInt(id) }
-    });
-    return NextResponse.json(blog || { error: 'Not found' }, { status: blog ? 200 : 404 });
-  } catch (error) {
-    return NextResponse.json({ error: 'Invalid ID' }, { status: 400 });
-  }
-}
-
-export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
-  try {
-    const { id } = await params;
-    const body = await req.json();
-    const updated = await prisma.blog.update({
-      where: { id: parseInt(id) },
+    const id = parseInt(params.id);
+    const body = await request.json();
+    
+    const updatedBlog = await prisma.blog.update({
+      where: { id },
       data: {
         title: body.title,
+        excerpt: body.excerpt,
         content: body.content,
-        author: body.author
+        author: body.author,
+        image: body.image,
       }
     });
-    return NextResponse.json({ message: 'Updated', updatedData: updated });
+    
+    return NextResponse.json(updatedBlog);
   } catch (error) {
-    return NextResponse.json({ error: 'Update failed' }, { status: 500 });
+    console.error("Update error:", error);
+    return NextResponse.json({ error: 'Failed to update blog' }, { status: 500 });
   }
 }
 
-export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
+// DELETE: Removes a blog post
+export async function DELETE(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   try {
-    const { id } = await params;
-    await prisma.blog.delete({
-      where: { id: parseInt(id) }
-    });
-    return NextResponse.json({ message: 'Blog deleted successfully' });
+    const id = parseInt(params.id);
+    await prisma.blog.delete({ where: { id } });
+    return NextResponse.json({ success: true });
   } catch (error) {
-    return NextResponse.json({ error: 'Delete failed' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to delete blog' }, { status: 500 });
   }
 }
