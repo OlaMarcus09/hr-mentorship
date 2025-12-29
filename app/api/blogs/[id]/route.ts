@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-// PATCH: Updates a blog post
+// PATCH: Update Blog
 export async function PATCH(request: Request, props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
   try {
@@ -26,7 +26,7 @@ export async function PATCH(request: Request, props: { params: Promise<{ id: str
   }
 }
 
-// DELETE: Removes a blog post
+// DELETE: Delete Blog
 export async function DELETE(request: Request, props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
   try {
