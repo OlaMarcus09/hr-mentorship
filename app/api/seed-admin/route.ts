@@ -7,14 +7,13 @@ export const dynamic = 'force-dynamic';
 export async function GET() {
   try {
     // 1. Hash the password (encrypt it)
-    // The number 12 is the "salt rounds" - makes it secure
     const hashedPassword = await hash('password123', 12);
 
-    // 2. Upsert Admin User
+    // 2. Upsert Admin User (Create if new, Update if exists)
     const admin = await prisma.admin.upsert({
       where: { email: 'admin@hrmentorship.com' },
       update: {
-        password: hashedPassword, // Updates with ENCRYPTED password
+        password: hashedPassword, // Reset password
         name: 'Super Admin'
       },
       create: {
@@ -27,16 +26,16 @@ export async function GET() {
 
     return NextResponse.json({ 
       success: true, 
-      message: 'Admin account reset successfully (Hashed)!',
+      message: 'Admin password reset to: password123',
       credentials: {
         email: 'admin@hrmentorship.com',
         password: 'password123'
       }
     });
   } catch (error) {
-    console.error("Error seeding admin:", error);
+    console.error("Error resetting admin:", error);
     return NextResponse.json({ 
-      error: 'Failed to seed admin', 
+      error: 'Failed to reset admin', 
       details: String(error) 
     }, { status: 500 });
   }
