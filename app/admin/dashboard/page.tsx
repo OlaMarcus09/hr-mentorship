@@ -53,7 +53,7 @@ export default function AdminDashboard() {
   // --- DATA FETCHING ---
   const fetchData = async () => {
     setLoading(true);
-    setItems([]); // Clear previous items to avoid confusion
+    setItems([]); 
     try {
       let endpoint = `/api/${activeTab}`;
       
@@ -66,6 +66,7 @@ export default function AdminDashboard() {
       if (!res.ok) throw new Error("Failed to fetch");
       
       const data = await res.json();
+      // FAILSAFE: Ensure we always set an array
       setItems(Array.isArray(data) ? data : []);
       setCurrentPage(1);
     } catch (error) {
@@ -107,12 +108,11 @@ export default function AdminDashboard() {
       let url = '';
       let method = '';
       
-      // Determine URL based on Tab
       let endpointBase = activeTab;
       if (activeTab === 'mentors' || activeTab === 'mentees') endpointBase = 'applicants';
       
       if (activeTab === 'gallery') {
-         url = '/api/gallery'; method = 'POST'; // Gallery simple create
+         url = '/api/gallery'; method = 'POST'; 
       } else {
          url = editItem ? `/api/${endpointBase}/${editItem.id}` : `/api/${endpointBase}`;
          method = editItem ? 'PATCH' : 'POST';
@@ -187,7 +187,6 @@ export default function AdminDashboard() {
              <Link href="/" target="_blank" className="px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-bold hover:bg-slate-50 transition">
                View Live Site
              </Link>
-             {/* Hide Add button for Applicants/Settings */}
              {activeTab !== 'settings' && activeTab !== 'mentors' && activeTab !== 'mentees' && (
                <button 
                  onClick={() => { setEditItem(null); setIsEditing(true); }}
@@ -208,7 +207,7 @@ export default function AdminDashboard() {
              {/* DATA TABLE */}
              {items.length === 0 ? (
                 <div className="p-12 text-center text-slate-500">
-                  {activeTab === 'settings' ? 'Settings coming soon.' : `No records found in ${activeTab}.`}
+                  {activeTab === 'settings' ? 'Settings coming soon.' : `No ${activeTab} found.`}
                 </div>
              ) : (
                <div className="overflow-x-auto">
@@ -226,12 +225,10 @@ export default function AdminDashboard() {
                          <tr key={item.id} className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
                             <td className="p-4 text-slate-500 font-mono text-xs">#{item.id}</td>
                             
-                            {/* Primary Column */}
                             <td className="p-4 font-bold text-slate-900 dark:text-white">
                                {item.title || item.name || "Untitled"}
                             </td>
                             
-                            {/* Details Column */}
                             <td className="p-4 text-slate-600 dark:text-slate-400">
                                {activeTab === 'blogs' && <span className="text-xs bg-slate-100 px-2 py-1 rounded">By {item.author}</span>}
                                {activeTab === 'jobs' && <span className="flex items-center gap-2">{item.company} • {item.location}</span>}
@@ -241,14 +238,11 @@ export default function AdminDashboard() {
                                {(activeTab === 'mentors' || activeTab === 'mentees') && item.email}
                             </td>
 
-                            {/* Actions Column */}
                             <td className="p-4 flex justify-end gap-2">
-                               {/* Edit Button - Enabled for Blog, Jobs, Events, Team, Resources */}
                                {activeTab !== 'mentors' && activeTab !== 'mentees' && activeTab !== 'gallery' && (
                                  <button 
                                     onClick={() => { setEditItem(item); setIsEditing(true); }} 
                                     className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-md transition"
-                                    title="Edit"
                                  >
                                     <Edit size={16}/>
                                  </button>
@@ -257,7 +251,6 @@ export default function AdminDashboard() {
                                <button 
                                  onClick={() => handleDelete(item.id)} 
                                  className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition"
-                                 title="Delete"
                                >
                                  <Trash2 size={16}/>
                                </button>
@@ -294,7 +287,7 @@ export default function AdminDashboard() {
           </div>
         )}
 
-        {/* --- DYNAMIC CREATE/EDIT MODAL --- */}
+        {/* MODAL */}
         {isEditing && (
            <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm">
               <div className="bg-white dark:bg-slate-900 w-full max-w-2xl rounded-xl shadow-2xl p-8 max-h-[90vh] overflow-y-auto">
@@ -302,69 +295,51 @@ export default function AdminDashboard() {
                     <h3 className="text-xl font-bold">
                        {editItem ? `Edit ${activeTab.slice(0, -1)}` : `Create New ${activeTab.slice(0, -1)}`}
                     </h3>
-                    <button onClick={() => setIsEditing(false)}><X className="hover:text-red-500 transition"/></button>
+                    <button onClick={() => setIsEditing(false)}><X/></button>
                  </div>
                  
-                 {/* KEY PROP HERE FIXES THE "EDIT SHOWS AS NEW" BUG */}
                  <form key={editItem ? editItem.id : 'new'} onSubmit={handleSubmit} className="space-y-4">
-                    
-                    {/* BLOG FIELDS */}
+                    {/* BLOGS */}
                     {activeTab === 'blogs' && (
                        <>
-                          <input name="title" defaultValue={editItem?.title} placeholder="Post Title" required className="admin-input" />
-                          <input name="author" defaultValue={editItem?.author} placeholder="Author Name" required className="admin-input" />
-                          <textarea name="excerpt" defaultValue={editItem?.excerpt} placeholder="Short Summary" required className="admin-input" rows={2}/>
-                          <textarea name="content" defaultValue={editItem?.content} placeholder="Full Content" required className="admin-input" rows={6}/>
+                          <input name="title" defaultValue={editItem?.title} placeholder="Title" required className="admin-input" />
+                          <input name="author" defaultValue={editItem?.author} placeholder="Author" required className="admin-input" />
+                          <textarea name="excerpt" defaultValue={editItem?.excerpt} placeholder="Excerpt" required className="admin-input" rows={2}/>
+                          <textarea name="content" defaultValue={editItem?.content} placeholder="Content" required className="admin-input" rows={6}/>
                           <input name="image" defaultValue={editItem?.image} placeholder="Image URL" className="admin-input" />
                        </>
                     )}
-
-                    {/* JOB FIELDS */}
+                    {/* JOBS */}
                     {activeTab === 'jobs' && (
                        <>
                           <input name="title" defaultValue={editItem?.title} placeholder="Job Title" required className="admin-input" />
-                          <input name="company" defaultValue={editItem?.company} placeholder="Company Name" required className="admin-input" />
+                          <input name="company" defaultValue={editItem?.company} placeholder="Company" required className="admin-input" />
                           <input name="location" defaultValue={editItem?.location} placeholder="Location" required className="admin-input" />
                           <select name="type" defaultValue={editItem?.type || "Full Time"} className="admin-input">
                              <option>Full Time</option><option>Part Time</option><option>Contract</option>
                           </select>
-                          <textarea name="description" defaultValue={editItem?.description} placeholder="Job Description" required className="admin-input" rows={4}/>
-                          <input name="applyLink" defaultValue={editItem?.applyLink} placeholder="Application Link / Email" required className="admin-input" />
+                          <textarea name="description" defaultValue={editItem?.description} placeholder="Description" required className="admin-input" rows={4}/>
+                          <input name="applyLink" defaultValue={editItem?.applyLink} placeholder="Application Link/Email" required className="admin-input" />
                        </>
                     )}
-
-                    {/* EVENT FIELDS */}
+                    {/* EVENTS */}
                     {activeTab === 'events' && (
                        <>
                           <input name="title" defaultValue={editItem?.title} placeholder="Event Name" required className="admin-input" />
                           <input name="date" type="datetime-local" defaultValue={editItem?.date ? new Date(editItem.date).toISOString().slice(0, 16) : ''} required className="admin-input" />
                           <input name="location" defaultValue={editItem?.location} placeholder="Location" required className="admin-input" />
-                          <input name="image" defaultValue={editItem?.image} placeholder="Event Banner URL" className="admin-input" />
+                          <input name="image" defaultValue={editItem?.image} placeholder="Image URL" className="admin-input" />
                        </>
                     )}
-
-                    {/* TEAM FIELDS */}
-                    {activeTab === 'team' && (
-                       <>
-                          <input name="name" defaultValue={editItem?.name} placeholder="Full Name" required className="admin-input" />
-                          <input name="role" defaultValue={editItem?.role} placeholder="Role" required className="admin-input" />
-                          <input name="image" defaultValue={editItem?.image} placeholder="Photo URL" required className="admin-input" />
-                       </>
-                    )}
-
-                    {/* RESOURCES FIELDS */}
+                    {/* RESOURCES */}
                     {activeTab === 'resources' && (
                        <>
                           <input name="title" defaultValue={editItem?.title} placeholder="Title" required className="admin-input" />
-                          <select name="type" defaultValue={editItem?.type || "PDF"} className="admin-input">
-                             <option>PDF</option><option>Video</option><option>Link</option>
-                          </select>
-                          <input name="fileUrl" defaultValue={editItem?.fileUrl} placeholder="URL" required className="admin-input" />
-                          <textarea name="description" defaultValue={editItem?.description} placeholder="Description" className="admin-input" rows={2}/>
+                          <select name="type" defaultValue={editItem?.type || "PDF"} className="admin-input"><option>PDF</option><option>Video</option><option>Link</option></select>
+                          <input name="fileUrl" defaultValue={editItem?.fileUrl} placeholder="File URL" required className="admin-input" />
                        </>
                     )}
-
-                    {/* GALLERY FIELDS */}
+                    {/* GALLERY */}
                     {activeTab === 'gallery' && (
                        <>
                           <input name="title" placeholder="Caption" required className="admin-input" />
@@ -381,22 +356,9 @@ export default function AdminDashboard() {
            </div>
         )}
       </main>
-
       <style jsx global>{`
-        .admin-input {
-          width: 100%;
-          padding: 12px;
-          border-radius: 8px;
-          border: 1px solid #e2e8f0;
-          background-color: #f8fafc;
-          outline: none;
-          transition: all 0.2s;
-        }
-        .admin-input:focus {
-          border-color: #7c3aed;
-          background-color: white;
-          box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.1);
-        }
+        .admin-input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0; background-color: #f8fafc; outline: none; }
+        .admin-input:focus { border-color: #7c3aed; background-color: white; }
       `}</style>
     </div>
   );

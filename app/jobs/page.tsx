@@ -1,74 +1,92 @@
-"use client";
+import { prisma } from '@/lib/prisma';
+import Link from "next/link";
+import { MapPin, Clock, DollarSign, Briefcase, Search, Filter, ArrowRight } from "lucide-react";
 
-import { useState } from "react";
-import { MapPin, Briefcase, DollarSign, Search } from "lucide-react";
+export const dynamic = 'force-dynamic';
 
-export default function JobsPage() {
-  const [filter, setFilter] = useState("All");
-
-  // Dummy Data for visual fullness
-  const jobs = [
-    { id: 1, title: "HR Manager", company: "Tech Global", location: "Lagos (Remote)", type: "Full Time", salary: "₦400k - ₦600k" },
-    { id: 2, title: "Talent Acquisition Specialist", company: "Finance Corp", location: "Abuja", type: "Full Time", salary: "₦350k - ₦500k" },
-    { id: 3, title: "HR Intern", company: "StartUp Inc", location: "Lagos", type: "Internship", salary: "₦100k" },
-    { id: 4, title: "People Operations Lead", company: "Logistics Ltd", location: "Remote", type: "Contract", salary: "Negotiable" },
-    { id: 5, title: "Learning & Dev Manager", company: "EduTech", location: "Lagos", type: "Full Time", salary: "₦700k+" },
-  ];
-
-  const filteredJobs = filter === "All" ? jobs : jobs.filter(j => j.type === filter);
+export default async function JobsPage() {
+  // 1. Fetch Jobs from Database (Newest first)
+  const jobs = await prisma.job.findMany({
+    orderBy: { postedAt: 'desc' }
+  });
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
       
-      {/* 1. HERO SECTION (Clean White) */}
-      <section className="pt-40 pb-16 px-6 bg-white dark:bg-slate-950 text-center border-b border-slate-100 dark:border-slate-800">
-         <h1 className="text-4xl md:text-6xl font-heading font-bold text-slate-900 dark:text-white mb-4">
-           Find Your Next HR Role
-         </h1>
-         <p className="text-xl text-slate-500 dark:text-slate-400 max-w-2xl mx-auto mb-8">
-           Curated opportunities for HR professionals across Nigeria and beyond.
-         </p>
-         
-         {/* Search Bar */}
-         <div className="max-w-2xl mx-auto relative">
-            <input type="text" placeholder="Search job titles or companies..." className="w-full pl-12 pr-4 py-4 rounded-full border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 outline-none focus:ring-2 focus:ring-primary/50" />
-            <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+      {/* 1. HERO SECTION */}
+      <section className="relative pt-48 pb-20 px-6 bg-primary">
+         <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?auto=format&fit=crop&w=1200')] bg-cover bg-center opacity-10"></div>
+         <div className="relative z-10 max-w-4xl mx-auto text-center text-white">
+            <h1 className="text-4xl md:text-6xl font-heading font-bold mb-6">
+              Find Your Dream HR Role
+            </h1>
+            <p className="text-xl text-white/90 max-w-2xl mx-auto">
+              Browse the latest opportunities from top companies curated for the HR Mentorship community.
+            </p>
          </div>
       </section>
 
-      {/* 2. FILTERS */}
-      <div className="max-w-5xl mx-auto px-6 py-10 flex gap-4 overflow-x-auto">
-         {["All", "Full Time", "Contract", "Internship", "Remote"].map((f) => (
-           <button 
-             key={f}
-             onClick={() => setFilter(f)}
-             className={`px-6 py-2 rounded-full text-sm font-bold transition whitespace-nowrap ${filter === f ? 'bg-primary text-white shadow-lg shadow-primary/25' : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 hover:bg-slate-100'}`}
-           >
-             {f}
-           </button>
-         ))}
-      </div>
+      {/* 2. JOBS LIST */}
+      <section className="max-w-6xl mx-auto px-6 py-20 -mt-10 relative z-20">
+         
+         {/* Search Bar UI (Visual only for now) */}
+         <div className="bg-white dark:bg-slate-900 p-4 rounded-xl shadow-lg border border-slate-100 dark:border-slate-800 flex flex-col md:flex-row gap-4 mb-12">
+            <div className="flex-1 flex items-center px-4 bg-slate-50 dark:bg-slate-800 rounded-lg">
+               <Search className="text-slate-400" size={20}/>
+               <input type="text" placeholder="Search job title or keyword..." className="w-full bg-transparent p-3 outline-none" />
+            </div>
+            <div className="flex-1 flex items-center px-4 bg-slate-50 dark:bg-slate-800 rounded-lg">
+               <MapPin className="text-slate-400" size={20}/>
+               <input type="text" placeholder="Location..." className="w-full bg-transparent p-3 outline-none" />
+            </div>
+            <button className="bg-primary text-white font-bold px-8 py-3 rounded-lg hover:bg-primary/90 transition">
+               Search Jobs
+            </button>
+         </div>
 
-      {/* 3. JOB LIST */}
-      <div className="max-w-5xl mx-auto px-6 pb-20 space-y-4">
-         {filteredJobs.map((job) => (
-           <div key={job.id} className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-100 dark:border-slate-800 hover:shadow-md transition flex flex-col md:flex-row justify-between md:items-center gap-4 group">
-              <div>
-                 <h3 className="font-bold text-xl text-slate-900 dark:text-white group-hover:text-primary transition">{job.title}</h3>
-                 <p className="text-slate-500 dark:text-slate-400 font-medium mb-3">{job.company}</p>
-                 <div className="flex flex-wrap gap-4 text-sm text-slate-500 dark:text-slate-400">
-                    <span className="flex items-center gap-1"><MapPin size={14}/> {job.location}</span>
-                    <span className="flex items-center gap-1"><Briefcase size={14}/> {job.type}</span>
-                    <span className="flex items-center gap-1"><DollarSign size={14}/> {job.salary}</span>
-                 </div>
-              </div>
-              <button className="px-6 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition">
-                View Details
-              </button>
-           </div>
-         ))}
-      </div>
+         {/* Job Grid */}
+         {jobs.length === 0 ? (
+            <div className="text-center py-20">
+               <div className="bg-slate-100 dark:bg-slate-800 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                 <Briefcase className="text-slate-400" size={32} />
+               </div>
+               <h3 className="text-xl font-bold text-slate-900 dark:text-white">No jobs posted yet</h3>
+               <p className="text-slate-500">Check back later or join our Telegram for alerts.</p>
+            </div>
+         ) : (
+            <div className="grid gap-6">
+               {jobs.map((job) => (
+                  <div key={job.id} className="group bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-100 dark:border-slate-800 hover:shadow-xl transition flex flex-col md:flex-row gap-6 items-start md:items-center">
+                     
+                     {/* Company Logo Placeholder */}
+                     <div className="w-16 h-16 bg-primary/10 rounded-xl flex items-center justify-center text-primary font-bold text-2xl shrink-0 uppercase">
+                        {job.company.substring(0, 2)}
+                     </div>
 
+                     <div className="flex-1">
+                        <h3 className="text-xl font-bold text-slate-900 dark:text-white group-hover:text-primary transition mb-2">
+                           {job.title}
+                        </h3>
+                        <div className="flex flex-wrap gap-4 text-sm text-slate-500 dark:text-slate-400 font-medium">
+                           <span className="flex items-center gap-1"><Briefcase size={16}/> {job.company}</span>
+                           <span className="flex items-center gap-1"><MapPin size={16}/> {job.location}</span>
+                           <span className="flex items-center gap-1"><Clock size={16}/> {job.type}</span>
+                           {job.salary && <span className="flex items-center gap-1 text-green-600 dark:text-green-400"><DollarSign size={16}/> {job.salary}</span>}
+                        </div>
+                     </div>
+
+                     <Link 
+                        href={`/jobs/${job.id}`} 
+                        className="px-6 py-3 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white font-bold rounded-lg hover:bg-primary hover:text-white transition whitespace-nowrap"
+                     >
+                        View Details
+                     </Link>
+                  </div>
+               ))}
+            </div>
+         )}
+
+      </section>
     </div>
   );
 }
