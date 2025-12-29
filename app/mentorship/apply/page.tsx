@@ -1,14 +1,46 @@
 "use client";
 
 import { useState } from "react";
-import { Check, Upload } from "lucide-react";
-import Image from "next/image";
+import { Upload } from "lucide-react";
 
 export default function ApplyPage() {
   const [role, setRole] = useState<'mentee' | 'mentor'>('mentee');
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    const formData = new FormData(e.target as HTMLFormElement);
+    const data = {
+      role,
+      name: formData.get("name"),
+      email: formData.get("email"),
+      linkedin: formData.get("linkedin"),
+      goal: formData.get("goal"),
+    };
+
+    try {
+      const res = await fetch("/api/applicants/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+
+      if (res.ok) {
+        alert("Application submitted successfully! We will contact you soon.");
+        (e.target as HTMLFormElement).reset();
+      } else {
+        alert("Failed to submit. Please try again.");
+      }
+    } catch (err) {
+      alert("Error submitting form.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    // FIX: Increased top padding to pt-32 to clear the Navbar completely
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 pt-32 pb-20 px-6">
       <div className="max-w-3xl mx-auto text-center mb-10">
          <h1 className="text-4xl md:text-5xl font-heading font-bold text-slate-900 dark:text-white mb-4">
@@ -20,7 +52,6 @@ export default function ApplyPage() {
       </div>
 
       <div className="max-w-2xl mx-auto bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-800 overflow-hidden">
-         {/* Simple Role Toggle */}
          <div className="flex border-b border-slate-100 dark:border-slate-800">
             <button 
               onClick={() => setRole('mentee')}
@@ -36,44 +67,30 @@ export default function ApplyPage() {
             </button>
          </div>
 
-         <form className="p-8 space-y-6">
-            {/* Profile Photo Upload UI */}
-            <div className="flex flex-col items-center mb-6">
-               <div className="w-24 h-24 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center border-2 border-dashed border-slate-300 dark:border-slate-700 cursor-pointer hover:border-primary transition group relative overflow-hidden">
-                  <Upload className="text-slate-400 group-hover:text-primary" />
-                  <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" />
-               </div>
-               <span className="text-xs text-slate-500 mt-2">Upload Profile Photo</span>
-            </div>
-
+         <form onSubmit={handleSubmit} className="p-8 space-y-6">
             <div className="grid md:grid-cols-2 gap-6">
                <div>
                   <label className="block text-sm font-bold mb-2">Full Name</label>
-                  <input type="text" className="w-full p-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950" placeholder="Jane Doe" />
+                  <input name="name" required className="w-full p-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950" placeholder="Jane Doe" />
                </div>
                <div>
                   <label className="block text-sm font-bold mb-2">Email Address</label>
-                  <input type="email" className="w-full p-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950" placeholder="jane@example.com" />
+                  <input name="email" type="email" required className="w-full p-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950" placeholder="jane@example.com" />
                </div>
             </div>
 
             <div>
                <label className="block text-sm font-bold mb-2">LinkedIn Profile URL</label>
-               <input type="url" className="w-full p-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950" placeholder="https://linkedin.com/in/..." />
-            </div>
-
-            <div>
-               <label className="block text-sm font-bold mb-2">Current Role & Company</label>
-               <input type="text" className="w-full p-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950" placeholder="HR Manager at..." />
+               <input name="linkedin" type="url" className="w-full p-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950" placeholder="https://linkedin.com/in/..." />
             </div>
 
             <div>
                <label className="block text-sm font-bold mb-2">Why do you want to join?</label>
-               <textarea rows={4} className="w-full p-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950" placeholder="Tell us about your goals..."></textarea>
+               <textarea name="goal" rows={4} required className="w-full p-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950" placeholder="Tell us about your goals..."></textarea>
             </div>
 
-            <button type="button" className="w-full py-4 bg-primary text-white font-bold rounded-xl hover:bg-primary/90 transition shadow-lg mt-4">
-               Submit Application
+            <button disabled={loading} type="submit" className="w-full py-4 bg-primary text-white font-bold rounded-xl hover:bg-primary/90 transition shadow-lg mt-4 disabled:opacity-50">
+               {loading ? "Submitting..." : "Submit Application"}
             </button>
          </form>
       </div>

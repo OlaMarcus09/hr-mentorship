@@ -3,15 +3,15 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "postgresql" // or "sqlite" if you are using a local file
   url      = env("DATABASE_URL")
 }
 
 model Admin {
   id        Int      @id @default(autoincrement())
-  name      String
   email     String   @unique
   password  String
+  name      String?
   role      String   @default("ADMIN")
   createdAt DateTime @default(now())
 }
@@ -20,22 +20,23 @@ model Blog {
   id        Int      @id @default(autoincrement())
   title     String
   excerpt   String
-  content   String?
+  content   String
   author    String
   image     String?
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Job {
   id           Int      @id @default(autoincrement())
   title        String
   company      String
-  type         String
   location     String
+  type         String   // Full Time, Contract, etc.
   salary       String?
   description  String
   requirements String?
-  applyLink    String?
+  applyLink    String
   postedAt     DateTime @default(now())
 }
 
@@ -48,52 +49,39 @@ model Event {
   createdAt DateTime @default(now())
 }
 
-model Application {
-  id        Int      @id @default(autoincrement())
-  name      String
-  email     String
-  type      String
-  status    String   @default("PENDING")
-  linkedin  String?
-  cvUrl     String?
-  image     String?
-  createdAt DateTime @default(now())
-}
-
 model Resource {
   id          Int      @id @default(autoincrement())
   title       String
-  type        String
+  type        String   // PDF, Video, Link
   description String?
   fileUrl     String
   createdAt   DateTime @default(now())
 }
 
+model GalleryImage {
+  id        Int      @id @default(autoincrement())
+  title     String
+  category  String
+  imageUrl  String
+  createdAt DateTime @default(now())
+}
+
 model TeamMember {
   id        Int      @id @default(autoincrement())
-  slug      String   @unique  // <--- NEW: For clean URLs
   name      String
   role      String
   image     String
-  bio       String?
-  linkedin  String?
-  email     String?
+  slug      String   @unique
   createdAt DateTime @default(now())
 }
 
-model Contact {
+model MentorshipApplication {
   id        Int      @id @default(autoincrement())
+  role      String   // "mentor" or "mentee"
   name      String
   email     String
-  subject   String?
-  message   String
-  createdAt DateTime @default(now())
-}
-
-model GalleryImage {
-  id        Int      @id @default(autoincrement())
-  title     String?
-  imageUrl  String
-  category  String   @default("General")
+  linkedin  String?
+  goal      String?  // Why they want to join
+  status    String   @default("PENDING") // PENDING, APPROVED, REJECTED
   createdAt DateTime @default(now())
 }
