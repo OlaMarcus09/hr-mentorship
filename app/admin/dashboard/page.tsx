@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { 
   LayoutDashboard, FileText, Briefcase, Calendar, Image as ImageIcon, 
   Users, UserCheck, Settings, Plus, Trash2, Edit, RefreshCw, 
-  ChevronLeft, ChevronRight, Search 
+  ChevronLeft, ChevronRight 
 } from "lucide-react";
 import Link from "next/link";
 
@@ -25,7 +25,7 @@ export default function AdminDashboard() {
   // --- CONFIGURATION ---
   const menuGroups = [
     {
-      title: "Manage Content",
+      title: "Content",
       items: [
         { id: 'blogs', label: 'Blogs', icon: <FileText size={18}/> },
         { id: 'jobs', label: 'Jobs', icon: <Briefcase size={18}/> },
@@ -35,7 +35,7 @@ export default function AdminDashboard() {
       ]
     },
     {
-      title: "People & Community",
+      title: "Community",
       items: [
         { id: 'team', label: 'Manage Team', icon: <Users size={18}/> },
         { id: 'mentors', label: 'Mentor Applicants', icon: <UserCheck size={18}/> },
@@ -56,10 +56,10 @@ export default function AdminDashboard() {
     try {
       let endpoint = `/api/${activeTab}`;
       
-      // Handle special cases for 'mentors' and 'mentees' which share one API
+      // Fix API paths for Applicants
       if (activeTab === 'mentors') endpoint = `/api/applicants?role=mentor`;
       if (activeTab === 'mentees') endpoint = `/api/applicants?role=mentee`;
-      if (activeTab === 'settings') { setLoading(false); return; } // No API for settings yet
+      if (activeTab === 'settings') { setLoading(false); return; }
 
       const res = await fetch(endpoint);
       if (!res.ok) throw new Error("Failed");
@@ -82,8 +82,8 @@ export default function AdminDashboard() {
   const handleDelete = async (id: number) => {
     if (!confirm("Are you sure you want to delete this?")) return;
     try {
-      // Determine endpoint
       let endpoint = `/api/${activeTab}/${id}`;
+      // Special routing
       if (activeTab === 'gallery') endpoint = `/api/gallery?id=${id}`;
       if (activeTab === 'mentors' || activeTab === 'mentees') endpoint = `/api/applicants/${id}`;
 
@@ -106,7 +106,7 @@ export default function AdminDashboard() {
       let url = '';
       let method = '';
       
-      // Determine URL based on Tab
+      // Determine Endpoint
       let endpointBase = activeTab;
       if (activeTab === 'mentors' || activeTab === 'mentees') endpointBase = 'applicants';
       
@@ -134,7 +134,7 @@ export default function AdminDashboard() {
     } catch (err) { alert("Error submitting form"); }
   };
 
-  // --- PAGINATION CALCS ---
+  // --- PAGINATION ---
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = items.slice(indexOfFirstItem, indexOfLastItem);
@@ -147,7 +147,7 @@ export default function AdminDashboard() {
       <aside className="w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 fixed h-full overflow-y-auto hidden md:block">
         <div className="p-6">
            <h2 className="font-heading font-bold text-xl text-primary mb-1">Admin Panel</h2>
-           <p className="text-xs text-slate-500">v2.0 Command Center</p>
+           <p className="text-xs text-slate-500">Manage Content & People</p>
         </div>
         
         <nav className="px-4 space-y-8">
@@ -176,14 +176,18 @@ export default function AdminDashboard() {
         {/* TOP BAR */}
         <div className="flex justify-between items-center mb-8">
            <div>
-              <h1 className="text-2xl font-bold text-slate-900 dark:text-white capitalize">{activeTab.replace('-', ' ')}</h1>
-              <p className="text-sm text-slate-500">Manage your {activeTab} data here.</p>
+              <h1 className="text-2xl font-bold text-slate-900 dark:text-white capitalize">
+                {menuGroups.flatMap(g => g.items).find(i => i.id === activeTab)?.label || "Manage Content"}
+              </h1>
+              <p className="text-sm text-slate-500">Overview of your {activeTab}.</p>
            </div>
            
            <div className="flex gap-3">
              <Link href="/" target="_blank" className="px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-bold hover:bg-slate-50 transition">
                View Live Site
              </Link>
+             
+             {/* Only show "Add New" for content that can be created manually */}
              {activeTab !== 'settings' && activeTab !== 'mentors' && activeTab !== 'mentees' && (
                <button 
                  onClick={() => { setEditItem(null); setIsEditing(true); }}
@@ -195,23 +199,23 @@ export default function AdminDashboard() {
            </div>
         </div>
 
-        {/* CONTENT AREA */}
+        {/* LOADING */}
         {loading ? (
            <div className="h-64 flex items-center justify-center text-slate-400"><RefreshCw className="animate-spin"/></div>
         ) : (
           <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
              
-             {/* DATA TABLE */}
+             {/* EMPTY STATE */}
              {items.length === 0 ? (
-                <div className="p-12 text-center text-slate-500">No records found in {activeTab}.</div>
+                <div className="p-12 text-center text-slate-500">No records found.</div>
              ) : (
                <div className="overflow-x-auto">
                  <table className="w-full text-left text-sm">
                     <thead className="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
                        <tr>
                           <th className="p-4 font-bold text-slate-500">ID</th>
-                          <th className="p-4 font-bold text-slate-900 dark:text-white">Primary Info</th>
-                          <th className="p-4 font-bold text-slate-900 dark:text-white">Secondary Info</th>
+                          <th className="p-4 font-bold text-slate-900 dark:text-white">Main Info</th>
+                          <th className="p-4 font-bold text-slate-900 dark:text-white">Details</th>
                           <th className="p-4 font-bold text-right text-slate-900 dark:text-white">Actions</th>
                        </tr>
                     </thead>
@@ -227,14 +231,27 @@ export default function AdminDashboard() {
                                {activeTab === 'jobs' && item.company}
                                {activeTab === 'events' && new Date(item.date).toLocaleDateString()}
                                {activeTab === 'team' && item.role}
-                               {activeTab === 'resources' && item.type}
                                {(activeTab === 'mentors' || activeTab === 'mentees') && item.email}
                             </td>
                             <td className="p-4 flex justify-end gap-2">
+                               {/* SHOW EDIT BUTTON FOR: Blogs, Jobs, Events, Resources, Team */}
                                {activeTab !== 'mentors' && activeTab !== 'mentees' && (
-                                 <button onClick={() => { setEditItem(item); setIsEditing(true); }} className="p-2 text-blue-600 hover:bg-blue-50 rounded-md"><Edit size={16}/></button>
+                                 <button 
+                                   onClick={() => { setEditItem(item); setIsEditing(true); }} 
+                                   className="p-2 text-blue-600 hover:bg-blue-50 rounded-md"
+                                   title="Edit"
+                                 >
+                                   <Edit size={16}/>
+                                 </button>
                                )}
-                               <button onClick={() => handleDelete(item.id)} className="p-2 text-red-600 hover:bg-red-50 rounded-md"><Trash2 size={16}/></button>
+                               
+                               <button 
+                                 onClick={() => handleDelete(item.id)} 
+                                 className="p-2 text-red-600 hover:bg-red-50 rounded-md"
+                                 title="Delete"
+                               >
+                                 <Trash2 size={16}/>
+                               </button>
                             </td>
                          </tr>
                        ))}
@@ -243,7 +260,7 @@ export default function AdminDashboard() {
                </div>
              )}
 
-             {/* PAGINATION FOOTER */}
+             {/* PAGINATION */}
              {totalPages > 1 && (
                <div className="p-4 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center">
                   <span className="text-xs text-slate-500">Page {currentPage} of {totalPages}</span>
@@ -268,18 +285,21 @@ export default function AdminDashboard() {
           </div>
         )}
 
-        {/* --- DYNAMIC CREATE/EDIT MODAL --- */}
+        {/* --- EDIT / CREATE MODAL --- */}
         {isEditing && (
            <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm">
               <div className="bg-white dark:bg-slate-900 w-full max-w-2xl rounded-xl shadow-2xl p-8 max-h-[90vh] overflow-y-auto">
                  <div className="flex justify-between mb-6 border-b pb-4">
-                    <h3 className="text-xl font-bold">{editItem ? 'Edit Item' : 'Create New Item'}</h3>
+                    <h3 className="text-xl font-bold">
+                       {editItem ? `Edit ${activeTab.slice(0, -1)}` : `Create New ${activeTab.slice(0, -1)}`}
+                    </h3>
                     <button onClick={() => setIsEditing(false)}><RefreshCw className="rotate-45"/></button>
                  </div>
                  
-                 <form onSubmit={handleSubmit} className="space-y-4">
+                 {/* KEY PROP FIX: This forces the form to reset when switching between Edit/New */}
+                 <form key={editItem ? editItem.id : 'new'} onSubmit={handleSubmit} className="space-y-4">
                     
-                    {/* BLOG FIELDS */}
+                    {/* BLOGS */}
                     {activeTab === 'blogs' && (
                        <>
                           <input name="title" defaultValue={editItem?.title} placeholder="Post Title" required className="admin-input" />
@@ -290,12 +310,12 @@ export default function AdminDashboard() {
                        </>
                     )}
 
-                    {/* JOB FIELDS */}
+                    {/* JOBS */}
                     {activeTab === 'jobs' && (
                        <>
                           <input name="title" defaultValue={editItem?.title} placeholder="Job Title" required className="admin-input" />
                           <input name="company" defaultValue={editItem?.company} placeholder="Company Name" required className="admin-input" />
-                          <input name="location" defaultValue={editItem?.location} placeholder="Location (e.g. Remote, Lagos)" required className="admin-input" />
+                          <input name="location" defaultValue={editItem?.location} placeholder="Location" required className="admin-input" />
                           <select name="type" defaultValue={editItem?.type || "Full Time"} className="admin-input">
                              <option>Full Time</option><option>Part Time</option><option>Contract</option>
                           </select>
@@ -304,43 +324,42 @@ export default function AdminDashboard() {
                        </>
                     )}
 
-                    {/* EVENT FIELDS */}
+                    {/* EVENTS */}
                     {activeTab === 'events' && (
                        <>
                           <input name="title" defaultValue={editItem?.title} placeholder="Event Name" required className="admin-input" />
                           <input name="date" type="datetime-local" defaultValue={editItem?.date ? new Date(editItem.date).toISOString().slice(0, 16) : ''} required className="admin-input" />
-                          <input name="location" defaultValue={editItem?.location} placeholder="Location / Virtual Link" required className="admin-input" />
-                          <input name="image" defaultValue={editItem?.image} placeholder="Event Banner URL" className="admin-input" />
+                          <input name="location" defaultValue={editItem?.location} placeholder="Location" required className="admin-input" />
+                          <input name="image" defaultValue={editItem?.image} placeholder="Event Image URL" className="admin-input" />
                        </>
                     )}
 
-                    {/* TEAM FIELDS */}
+                    {/* TEAM */}
                     {activeTab === 'team' && (
                        <>
                           <input name="name" defaultValue={editItem?.name} placeholder="Full Name" required className="admin-input" />
-                          <input name="role" defaultValue={editItem?.role} placeholder="Role (e.g. CEO)" required className="admin-input" />
+                          <input name="role" defaultValue={editItem?.role} placeholder="Role" required className="admin-input" />
                           <input name="image" defaultValue={editItem?.image} placeholder="Photo URL" required className="admin-input" />
                        </>
                     )}
 
-                    {/* GALLERY FIELDS */}
-                    {activeTab === 'gallery' && (
-                       <>
-                          <input name="title" placeholder="Caption" required className="admin-input" />
-                          <input name="category" placeholder="Category (Event, Workshop)" required className="admin-input" />
-                          <input name="imageUrl" placeholder="Image URL" required className="admin-input" />
-                       </>
-                    )}
-
-                    {/* RESOURCE FIELDS */}
+                    {/* RESOURCES */}
                     {activeTab === 'resources' && (
                        <>
                           <input name="title" defaultValue={editItem?.title} placeholder="Resource Title" required className="admin-input" />
                           <select name="type" defaultValue={editItem?.type || "PDF"} className="admin-input">
                              <option>PDF</option><option>Video</option><option>Link</option>
                           </select>
-                          <input name="fileUrl" defaultValue={editItem?.fileUrl} placeholder="File/Video URL" required className="admin-input" />
-                          <textarea name="description" defaultValue={editItem?.description} placeholder="Description" className="admin-input" rows={3}/>
+                          <input name="fileUrl" defaultValue={editItem?.fileUrl} placeholder="File URL" required className="admin-input" />
+                       </>
+                    )}
+
+                    {/* GALLERY */}
+                    {activeTab === 'gallery' && (
+                       <>
+                          <input name="title" defaultValue={editItem?.title} placeholder="Caption" required className="admin-input" />
+                          <input name="category" defaultValue={editItem?.category} placeholder="Category" required className="admin-input" />
+                          <input name="imageUrl" defaultValue={editItem?.imageUrl} placeholder="Image URL" required className="admin-input" />
                        </>
                     )}
 
@@ -353,7 +372,6 @@ export default function AdminDashboard() {
         )}
       </main>
 
-      {/* GLOBAL STYLES FOR INPUTS */}
       <style jsx global>{`
         .admin-input {
           width: 100%;
