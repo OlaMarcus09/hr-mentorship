@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { 
   LayoutDashboard, FileText, Briefcase, Calendar, Image as ImageIcon, 
   Users, UserCheck, Settings, Plus, Trash2, Edit, RefreshCw, 
-  ChevronLeft, ChevronRight, X, Upload, Mail
+  ChevronLeft, ChevronRight, X, Upload, Mail, ShieldAlert
 } from "lucide-react";
 import Link from "next/link";
 
@@ -39,34 +39,52 @@ export default function AdminDashboard() {
     {
       title: "People",
       items: [
-        { id: 'team', label: 'Manage Team', icon: <Users size={18}/> },
+        { id: 'team', label: 'Website Team', icon: <Users size={18}/> }, // Frontend Team
         { id: 'mentors', label: 'Mentor Applicants', icon: <UserCheck size={18}/> },
         { id: 'mentees', label: 'Mentee Applicants', icon: <Users size={18}/> },
-        { id: 'messages', label: 'Messages', icon: <Mail size={18}/> }, // NEW TAB
+        { id: 'messages', label: 'Messages', icon: <Mail size={18}/> },
       ]
     },
     {
       title: "System",
       items: [
+        { id: 'admins', label: 'Manage Admins', icon: <ShieldAlert size={18}/> }, // NEW: Dashboard Admins
         { id: 'settings', label: 'Settings', icon: <Settings size={18}/> },
       ]
     }
   ];
 
-  // --- IMAGE UPLOAD HELPER ---
+  // --- IMAGE UPLOAD HELPER (FIXED) ---
   const uploadImage = async (file: File): Promise<string> => {
+    const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+    if (!cloudName) {
+      alert("Configuration Error: NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME is missing in .env file");
+      throw new Error("Missing Cloud Name");
+    }
+
     const formData = new FormData();
     formData.append('file', file);
+    // IMPORTANT: Make sure this "upload preset" exists in your Cloudinary Settings -> Upload
     formData.append('upload_preset', 'ml_default'); 
 
-    const res = await fetch(`https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`, {
-      method: 'POST',
-      body: formData,
-    });
+    try {
+      const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+        method: 'POST',
+        body: formData,
+      });
 
-    if (!res.ok) throw new Error('Failed to upload image');
-    const data = await res.json();
-    return data.secure_url;
+      if (!res.ok) {
+        const err = await res.json();
+        console.error("Cloudinary Error:", err);
+        throw new Error(err.error?.message || 'Failed to upload image');
+      }
+
+      const data = await res.json();
+      return data.secure_url;
+    } catch (error) {
+      console.error("Upload error details:", error);
+      throw error;
+    }
   };
 
   // --- DATA FETCHING ---
@@ -76,9 +94,9 @@ export default function AdminDashboard() {
     try {
       let endpoint = `/api/${activeTab}`;
       
-      // Handle special cases
       if (activeTab === 'mentors') endpoint = `/api/applicants?role=mentor`;
       if (activeTab === 'mentees') endpoint = `/api/applicants?role=mentee`;
+      if (activeTab === 'admins') endpoint = `/api/admins`;
       if (activeTab === 'settings') { setLoading(false); return; }
 
       const res = await fetch(endpoint);
@@ -106,14 +124,16 @@ export default function AdminDashboard() {
       let endpoint = `/api/${activeTab}/${id}`;
       if (activeTab === 'gallery') endpoint = `/api/gallery?id=${id}`;
       if (activeTab === 'mentors' || activeTab === 'mentees') endpoint = `/api/applicants/${id}`;
-      if (activeTab === 'messages') endpoint = `/api/messages?id=${id}`; // DELETE MESSAGE
+      if (activeTab === 'messages') endpoint = `/api/messages?id=${id}`;
+      if (activeTab === 'admins') endpoint = `/api/admins?id=${id}`;
 
       const res = await fetch(endpoint, { method: 'DELETE' });
       if (res.ok) {
         fetchData();
         alert("Deleted successfully");
       } else {
-        alert("Failed to delete");
+        const err = await res.json();
+        alert(err.error || "Failed to delete");
       }
     } catch (e) { alert("Error deleting"); }
   };
@@ -133,6 +153,8 @@ export default function AdminDashboard() {
       
       if (activeTab === 'gallery') {
          url = '/api/gallery'; method = 'POST'; 
+      } else if (activeTab === 'admins') {
+         url = '/api/admins'; method = 'POST'; // Admins only allow creation here for safety
       } else {
          url = editItem ? `/api/${endpointBase}/${editItem.id}` : `/api/${endpointBase}`;
          method = editItem ? 'PATCH' : 'POST';
@@ -140,11 +162,17 @@ export default function AdminDashboard() {
 
       // Handle image upload
       if ((activeTab === 'blogs' || activeTab === 'team' || activeTab === 'events' || activeTab === 'gallery') && fileInputRef.current?.files?.[0]) {
-        const imageUrl = await uploadImage(fileInputRef.current.files[0]);
-        if (activeTab === 'blogs') data.image = imageUrl;
-        if (activeTab === 'team') data.image = imageUrl;
-        if (activeTab === 'events') data.image = imageUrl;
-        if (activeTab === 'gallery') data.imageUrl = imageUrl;
+        try {
+          const imageUrl = await uploadImage(fileInputRef.current.files[0]);
+          if (activeTab === 'blogs') data.image = imageUrl;
+          if (activeTab === 'team') data.image = imageUrl;
+          if (activeTab === 'events') data.image = imageUrl;
+          if (activeTab === 'gallery') data.imageUrl = imageUrl;
+        } catch (uploadError) {
+          alert("Image Upload Failed. Check console for details.");
+          setIsUploading(false);
+          return;
+        }
       }
 
       const res = await fetch(url, {
@@ -159,9 +187,15 @@ export default function AdminDashboard() {
         fetchData();
         alert("Saved successfully!");
       } else {
-        alert("Operation failed. Ensure all fields are valid.");
+        const errorData = await res.json();
+        alert(`Failed: ${errorData.error || "Unknown error"}`);
       }
-    } catch (err) { alert("Error submitting form"); } finally { setIsUploading(false); }
+    } catch (err) { 
+      console.error(err);
+      alert("Error submitting form. See console."); 
+    } finally { 
+      setIsUploading(false); 
+    }
   };
 
   // --- PAGINATION CALCS ---
@@ -207,16 +241,18 @@ export default function AdminDashboard() {
         <div className="flex justify-between items-center mb-8">
            <div>
               <h1 className="text-2xl font-bold text-slate-900 dark:text-white capitalize">
-                {activeTab === 'mentors' ? 'Mentor Applicants' : activeTab === 'mentees' ? 'Mentee Applicants' : activeTab === 'messages' ? 'Inbox Messages' : `Manage ${activeTab}`}
+                {activeTab === 'mentors' ? 'Mentor Applicants' : activeTab === 'mentees' ? 'Mentee Applicants' : activeTab === 'messages' ? 'Inbox Messages' : activeTab === 'admins' ? 'Dashboard Admins' : `Manage ${activeTab}`}
               </h1>
-              <p className="text-sm text-slate-500 dark:text-slate-400">Add, Edit, or Remove entries.</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400">
+                 {activeTab === 'admins' ? 'Create users who can login to this dashboard.' : 'Add, Edit, or Remove entries.'}
+              </p>
            </div>
            
            <div className="flex gap-3">
              <Link href="/" target="_blank" className="px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-bold hover:bg-slate-50 dark:hover:bg-slate-700 transition text-slate-700 dark:text-slate-300">
                View Live Site
              </Link>
-             {/* Hide Add button for Applicants/Settings/Messages */}
+             
              {activeTab !== 'settings' && activeTab !== 'mentors' && activeTab !== 'mentees' && activeTab !== 'messages' && (
                <button 
                  onClick={() => { setEditItem(null); setIsEditing(true); }}
@@ -255,17 +291,16 @@ export default function AdminDashboard() {
                          <tr key={item.id} className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
                             <td className="p-4 text-slate-500 dark:text-slate-400 font-mono text-xs">#{item.id}</td>
                             
-                            {/* Primary Column */}
                             <td className="p-4 font-bold text-slate-900 dark:text-white">
                                {activeTab === 'messages' ? item.subject || "No Subject" : (item.title || item.name || "Untitled")}
                             </td>
                             
-                            {/* Details Column */}
                             <td className="p-4 text-slate-600 dark:text-slate-400">
                                {activeTab === 'blogs' && <span className="text-xs bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded">By {item.author}</span>}
                                {activeTab === 'jobs' && <span className="flex items-center gap-2">{item.company} • {item.location}</span>}
                                {activeTab === 'events' && <span>{new Date(item.date).toLocaleDateString()}</span>}
                                {activeTab === 'team' && item.role}
+                               {activeTab === 'admins' && <span className="text-xs font-mono">{item.email}</span>}
                                {activeTab === 'resources' && <span className="text-xs uppercase font-bold">{item.type}</span>}
                                {(activeTab === 'mentors' || activeTab === 'mentees') && item.email}
                                {activeTab === 'messages' && (
@@ -277,8 +312,7 @@ export default function AdminDashboard() {
                             </td>
 
                             <td className="p-4 flex justify-end gap-2">
-                               {/* Edit Button - Enabled for Blog, Jobs, Events, Team, Resources */}
-                               {activeTab !== 'mentors' && activeTab !== 'mentees' && activeTab !== 'gallery' && activeTab !== 'messages' && (
+                               {activeTab !== 'mentors' && activeTab !== 'mentees' && activeTab !== 'gallery' && activeTab !== 'messages' && activeTab !== 'admins' && (
                                  <button 
                                     onClick={() => { setEditItem(item); setIsEditing(true); }} 
                                     className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-md transition"
@@ -338,6 +372,7 @@ export default function AdminDashboard() {
                  </div>
                  
                  <form key={editItem ? editItem.id : 'new'} onSubmit={handleSubmit} className="space-y-4">
+                    
                     {/* BLOGS */}
                     {activeTab === 'blogs' && (
                        <>
@@ -358,6 +393,17 @@ export default function AdminDashboard() {
                           </div>
                        </>
                     )}
+
+                    {/* ADMINS (NEW) */}
+                    {activeTab === 'admins' && (
+                       <>
+                          <input name="name" placeholder="Admin Name" required className="admin-input" />
+                          <input name="email" type="email" placeholder="Admin Email" required className="admin-input" />
+                          <input name="password" type="password" placeholder="Password" required className="admin-input" />
+                          <p className="text-xs text-red-500">Note: New admins will have full access to this dashboard.</p>
+                       </>
+                    )}
+
                     {/* JOBS */}
                     {activeTab === 'jobs' && (
                        <>
@@ -371,6 +417,35 @@ export default function AdminDashboard() {
                           <input name="applyLink" defaultValue={editItem?.applyLink} placeholder="Application Link/Email" required className="admin-input" />
                        </>
                     )}
+
+                    {/* TEAM (WEBSITE) */}
+                    {activeTab === 'team' && (
+                       <>
+                          <input name="name" defaultValue={editItem?.name} placeholder="Full Name" required className="admin-input" />
+                          <input name="role" defaultValue={editItem?.role} placeholder="Role" required className="admin-input" />
+                          <div className="space-y-2">
+                            <label className="block text-sm font-bold text-slate-700 dark:text-slate-300">Profile Photo</label>
+                            <div className="flex items-center gap-4">
+                              <label htmlFor="file-upload" className="flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-700 transition">
+                                <Upload size={18} /> Choose File
+                              </label>
+                              <input id="file-upload" type="file" ref={fileInputRef} className="hidden" accept="image/*" />
+                              <span className="text-sm text-slate-500 dark:text-slate-400">Or paste URL below</span>
+                            </div>
+                            <input name="image" defaultValue={editItem?.image} placeholder="Image URL (optional)" className="admin-input" />
+                          </div>
+                       </>
+                    )}
+                    
+                    {/* RESOURCES */}
+                    {activeTab === 'resources' && (
+                       <>
+                          <input name="title" defaultValue={editItem?.title} placeholder="Title" required className="admin-input" />
+                          <select name="type" defaultValue={editItem?.type || "PDF"} className="admin-input"><option>PDF</option><option>Video</option><option>Link</option></select>
+                          <input name="fileUrl" defaultValue={editItem?.fileUrl} placeholder="File URL" required className="admin-input" />
+                       </>
+                    )}
+
                     {/* EVENTS */}
                     {activeTab === 'events' && (
                        <>
@@ -390,32 +465,7 @@ export default function AdminDashboard() {
                           </div>
                        </>
                     )}
-                    {/* TEAM */}
-                    {activeTab === 'team' && (
-                       <>
-                          <input name="name" defaultValue={editItem?.name} placeholder="Full Name" required className="admin-input" />
-                          <input name="role" defaultValue={editItem?.role} placeholder="Role" required className="admin-input" />
-                          <div className="space-y-2">
-                            <label className="block text-sm font-bold text-slate-700 dark:text-slate-300">Profile Photo</label>
-                            <div className="flex items-center gap-4">
-                              <label htmlFor="file-upload" className="flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-700 transition">
-                                <Upload size={18} /> Choose File
-                              </label>
-                              <input id="file-upload" type="file" ref={fileInputRef} className="hidden" accept="image/*" />
-                              <span className="text-sm text-slate-500 dark:text-slate-400">Or paste URL below</span>
-                            </div>
-                            <input name="image" defaultValue={editItem?.image} placeholder="Image URL (optional)" className="admin-input" />
-                          </div>
-                       </>
-                    )}
-                    {/* RESOURCES */}
-                    {activeTab === 'resources' && (
-                       <>
-                          <input name="title" defaultValue={editItem?.title} placeholder="Title" required className="admin-input" />
-                          <select name="type" defaultValue={editItem?.type || "PDF"} className="admin-input"><option>PDF</option><option>Video</option><option>Link</option></select>
-                          <input name="fileUrl" defaultValue={editItem?.fileUrl} placeholder="File URL" required className="admin-input" />
-                       </>
-                    )}
+                    
                     {/* GALLERY */}
                     {activeTab === 'gallery' && (
                        <>
