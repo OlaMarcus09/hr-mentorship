@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql" // or "sqlite" if you are using a local file
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -32,7 +32,7 @@ model Job {
   title        String
   company      String
   location     String
-  type         String   // Full Time, Contract, etc.
+  type         String
   salary       String?
   description  String
   requirements String?
@@ -52,7 +52,7 @@ model Event {
 model Resource {
   id          Int      @id @default(autoincrement())
   title       String
-  type        String   // PDF, Video, Link
+  type        String
   description String?
   fileUrl     String
   createdAt   DateTime @default(now())
@@ -77,11 +77,21 @@ model TeamMember {
 
 model MentorshipApplication {
   id        Int      @id @default(autoincrement())
-  role      String   // "mentor" or "mentee"
+  role      String
   name      String
   email     String
   linkedin  String?
-  goal      String?  // Why they want to join
-  status    String   @default("PENDING") // PENDING, APPROVED, REJECTED
+  goal      String?
+  status    String   @default("PENDING")
+  createdAt DateTime @default(now())
+}
+
+// THIS IS THE NEW MODEL FIXING YOUR ERROR
+model Contact {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String
+  subject   String?
+  message   String
   createdAt DateTime @default(now())
 }
