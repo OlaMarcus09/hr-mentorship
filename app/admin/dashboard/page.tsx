@@ -4,16 +4,12 @@ import { useState, useEffect, useRef } from "react";
 import { 
   LayoutDashboard, FileText, Briefcase, Calendar, Image as ImageIcon, 
   Users, UserCheck, Settings, Plus, Trash2, Edit, RefreshCw, 
-  ChevronLeft, ChevronRight, X, Upload, Mail, ShieldAlert
+  ChevronLeft, ChevronRight, X, Upload, Mail, ShieldAlert, Eye
 } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import Image from "next/image";
 
 export default function AdminDashboard() {
-  const router = useRouter();
-  
-  // --- STATE ---
   const [activeTab, setActiveTab] = useState('blogs');
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -25,8 +21,10 @@ export default function AdminDashboard() {
 
   // CRUD State
   const [isEditing, setIsEditing] = useState(false);
+  const [viewMessage, setViewMessage] = useState<any>(null); // For reading messages
   const [editItem, setEditItem] = useState<any>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(""); // For multiple uploads
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -64,30 +62,19 @@ export default function AdminDashboard() {
   ];
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const objectUrl = URL.createObjectURL(file);
-      setPreviewUrl(objectUrl);
+    if (e.target.files && e.target.files[0]) {
+      setPreviewUrl(URL.createObjectURL(e.target.files[0]));
     }
   };
 
-  const uploadImage = async (file: File): Promise<string> => {
+  const uploadOneImage = async (file: File) => {
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('upload_preset', 'ml_default'); 
-
-    try {
-      const res = await fetch(`https://api.cloudinary.com/v1_1/dmqjicpcc/image/upload`, {
-        method: 'POST', body: formData,
-      });
-
-      if (!res.ok) throw new Error('Failed to upload');
-      const data = await res.json();
-      return data.secure_url;
-    } catch (error) {
-      alert("Image Upload Failed.");
-      throw error;
-    }
+    formData.append('upload_preset', 'ml_default');
+    const res = await fetch(`https://api.cloudinary.com/v1_1/dmqjicpcc/image/upload`, { method: 'POST', body: formData });
+    if (!res.ok) throw new Error('Upload failed');
+    const data = await res.json();
+    return data.secure_url;
   };
 
   const fetchData = async () => {
@@ -127,22 +114,43 @@ export default function AdminDashboard() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsUploading(true);
+    setUploadProgress("");
+    
     const formData = new FormData(e.target as HTMLFormElement);
     const data: any = Object.fromEntries(formData.entries());
 
     try {
+      // SPECIAL HANDLE FOR GALLERY MULTIPLE UPLOAD
+      if (activeTab === 'gallery' && fileInputRef.current?.files?.length) {
+        const files = Array.from(fileInputRef.current.files);
+        const category = data.category;
+        const caption = data.title; // optional caption for all
+
+        for (let i = 0; i < files.length; i++) {
+          setUploadProgress(`Uploading ${i + 1} of ${files.length}...`);
+          const url = await uploadOneImage(files[i]);
+          // Post each image individually
+          await fetch('/api/gallery', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ title: caption || files[i].name, category, imageUrl: url })
+          });
+        }
+        setIsEditing(false); fetchData(); alert("All images uploaded!");
+        return;
+      }
+
+      // NORMAL SINGLE ITEM CRUD
       let url = ''; let method = ''; let endpointBase = activeTab;
       if (activeTab === 'mentors' || activeTab === 'mentees') endpointBase = 'applicants';
-      if (activeTab === 'gallery' || activeTab === 'admins') {
-         url = activeTab === 'gallery' ? '/api/gallery' : '/api/admins'; method = 'POST'; 
-      } else {
+      if (activeTab === 'admins') { url = '/api/admins'; method = 'POST'; }
+      else {
          url = editItem ? `/api/${endpointBase}/${editItem.id}` : `/api/${endpointBase}`; method = editItem ? 'PATCH' : 'POST';
       }
 
       if (fileInputRef.current?.files?.[0]) {
-        const imageUrl = await uploadImage(fileInputRef.current.files[0]);
+        const imageUrl = await uploadOneImage(fileInputRef.current.files[0]);
         if (activeTab === 'blogs' || activeTab === 'events') data.image = imageUrl;
-        if (activeTab === 'gallery') data.imageUrl = imageUrl;
       }
 
       const res = await fetch(url, { method: method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
@@ -150,7 +158,7 @@ export default function AdminDashboard() {
       if (res.ok) {
         setIsEditing(false); setEditItem(null); setPreviewUrl(null); fetchData(); alert("Saved successfully!");
       } else { alert("Operation failed."); }
-    } catch (err) { alert("Error submitting"); } finally { setIsUploading(false); }
+    } catch (err) { alert("Error submitting"); } finally { setIsUploading(false); setUploadProgress(""); }
   };
 
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -200,11 +208,15 @@ export default function AdminDashboard() {
                             <td className="p-4">#{item.id}</td>
                             <td className="p-4 font-bold">{item.title || item.name || item.subject}</td>
                             <td className="p-4 text-slate-600">
-                               {activeTab === 'jobs' && `${item.company} • ${item.salary || 'N/A'}`}
+                               {activeTab === 'messages' && <span className="text-xs truncate block max-w-xs">{item.message}</span>}
+                               {activeTab === 'jobs' && `${item.company}`}
                                {activeTab === 'gallery' && item.category}
                                {activeTab === 'resources' && item.type}
                             </td>
                             <td className="p-4 flex justify-end gap-2">
+                               {activeTab === 'messages' && (
+                                 <button onClick={() => setViewMessage(item)} className="p-2 text-green-600 bg-green-50 rounded hover:bg-green-100"><Eye size={16} /></button>
+                               )}
                                {activeTab !== 'mentors' && activeTab !== 'messages' && <button onClick={() => { setEditItem(item); setPreviewUrl(item.image || item.imageUrl); setIsEditing(true); }}><Edit size={16}/></button>}
                                <button onClick={() => handleDelete(item.id)} className="text-red-600"><Trash2 size={16}/></button>
                             </td>
@@ -216,13 +228,29 @@ export default function AdminDashboard() {
           </div>
         )}
 
+        {/* MESSAGE VIEWER MODAL */}
+        {viewMessage && (
+          <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm">
+             <div className="bg-white dark:bg-slate-900 w-full max-w-lg rounded-xl shadow-2xl p-8 border border-slate-200 dark:border-slate-800">
+                <div className="flex justify-between items-center mb-6">
+                   <h3 className="text-xl font-bold">Message Details</h3>
+                   <button onClick={() => setViewMessage(null)}><X/></button>
+                </div>
+                <div className="space-y-4">
+                   <div><label className="text-xs font-bold text-slate-500">FROM</label><p className="font-bold">{viewMessage.name} ({viewMessage.email})</p></div>
+                   <div><label className="text-xs font-bold text-slate-500">SUBJECT</label><p className="font-bold">{viewMessage.subject}</p></div>
+                   <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-lg"><p className="whitespace-pre-wrap">{viewMessage.message}</p></div>
+                </div>
+             </div>
+          </div>
+        )}
+
         {isEditing && (
            <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm">
               <div className="bg-white dark:bg-slate-900 w-full max-w-2xl rounded-xl shadow-2xl p-8 max-h-[90vh] overflow-y-auto">
                  <div className="flex justify-between mb-6 pb-4 border-b"><h3 className="text-xl font-bold">{editItem ? 'Edit' : 'Create'}</h3><button onClick={() => setIsEditing(false)}><X/></button></div>
                  <form onSubmit={handleSubmit} className="space-y-4">
                     
-                    {/* JOBS WITH SALARY */}
                     {activeTab === 'jobs' && (
                        <>
                           <input name="title" defaultValue={editItem?.title} placeholder="Job Title" required className="admin-input" />
@@ -235,35 +263,30 @@ export default function AdminDashboard() {
                        </>
                     )}
 
-                    {/* GALLERY WITH DROPDOWN */}
                     {activeTab === 'gallery' && (
                        <>
-                          <input name="title" placeholder="Caption" required className="admin-input" />
+                          <input name="title" placeholder="Caption (Optional for bulk upload)" className="admin-input" />
                           <select name="category" className="admin-input">
                              <option value="Events">Events</option>
                              <option value="Workshops">Workshops</option>
                              <option value="Meetups">Meetups</option>
                           </select>
                           <div className="space-y-3">
-                            <label className="block text-sm font-bold">Image</label>
-                            {previewUrl && <div className="h-40 w-full relative"><Image src={previewUrl} alt="Preview" fill className="object-cover rounded"/></div>}
-                            <input type="file" ref={fileInputRef} onChange={handleFileSelect} accept="image/*" />
+                            <label className="block text-sm font-bold">Images (Select Multiple)</label>
+                            <input type="file" ref={fileInputRef} multiple accept="image/*" />
                           </div>
+                          {uploadProgress && <p className="text-primary font-bold animate-pulse">{uploadProgress}</p>}
                        </>
                     )}
 
-                    {/* RESOURCES WITH BOOK */}
                     {activeTab === 'resources' && (
                        <>
                           <input name="title" defaultValue={editItem?.title} placeholder="Title" required className="admin-input" />
-                          <select name="type" defaultValue={editItem?.type || "PDF"} className="admin-input">
-                             <option>PDF</option><option>Video</option><option>Link</option><option>Book</option>
-                          </select>
+                          <select name="type" defaultValue={editItem?.type || "PDF"} className="admin-input"><option>PDF</option><option>Video</option><option>Link</option><option>Book</option></select>
                           <input name="fileUrl" defaultValue={editItem?.fileUrl} placeholder="File URL / Video Link" required className="admin-input" />
                        </>
                     )}
 
-                    {/* BLOGS/EVENTS (Standard) */}
                     {(activeTab === 'blogs' || activeTab === 'events') && (
                        <>
                           <input name="title" defaultValue={editItem?.title} placeholder="Title" required className="admin-input" />
@@ -279,8 +302,16 @@ export default function AdminDashboard() {
                        </>
                     )}
 
+                    {activeTab === 'admins' && (
+                       <>
+                          <input name="name" placeholder="Name" required className="admin-input" />
+                          <input name="email" placeholder="Email" required className="admin-input" />
+                          <input name="password" type="password" placeholder="Password" required className="admin-input" />
+                       </>
+                    )}
+
                     <button disabled={isUploading} type="submit" className="w-full py-3 bg-primary text-white font-bold rounded-lg mt-4 disabled:opacity-50">
-                       {isUploading ? "Uploading..." : "Save Changes"}
+                       {isUploading ? "Processing..." : "Save Changes"}
                     </button>
                  </form>
               </div>
