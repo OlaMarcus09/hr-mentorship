@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { Menu, X, Moon, Sun, ChevronDown } from "lucide-react";
 import { useTheme } from "next-themes";
 import Image from "next/image";
@@ -18,7 +17,6 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // UPDATED LIST AS REQUESTED
   const learningLinks = [
     { label: "Webinars", href: "/webinars" },
     { label: "Events", href: "/events" },
@@ -27,24 +25,33 @@ export default function Navbar() {
   ];
 
   return (
-    <nav className={`fixed w-full z-50 transition-all duration-300 ${scrolled ? "bg-white/90 dark:bg-slate-950/90 backdrop-blur-md shadow-sm py-4" : "bg-transparent py-6"}`}>
+    <nav className={`fixed w-full z-50 transition-all duration-300 ${scrolled ? "bg-white/95 dark:bg-slate-950/95 backdrop-blur-md shadow-sm py-3" : "bg-transparent py-5"}`}>
       <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
         
-        <Link href="/" className="flex items-center gap-2">
-           <div className="relative w-10 h-10 bg-white rounded-full flex items-center justify-center overflow-hidden">
-             <Image src="/logo.png" alt="HR Logo" width={40} height={40} className="object-cover"/>
+        {/* LOGO FIX */}
+        <Link href="/" className="flex items-center gap-2 group">
+           <div className="relative w-10 h-10 bg-white rounded-full flex items-center justify-center overflow-hidden shadow-sm group-hover:scale-105 transition">
+             {/* Ensure you have logo.png in your public folder. If not, this acts as a placeholder */}
+             <Image 
+               src="/logo.png" 
+               alt="HR Logo" 
+               width={40} 
+               height={40} 
+               className="object-cover"
+               onError={(e) => { e.currentTarget.style.display = 'none'; }} // Hides image if missing, falling back to text
+             />
            </div>
-           <span className={`text-xl font-heading font-bold ${scrolled ? 'text-slate-900 dark:text-white' : 'text-white'}`}>
+           <span className={`text-xl font-heading font-bold ${scrolled ? 'text-slate-900 dark:text-white' : 'text-white'} group-hover:opacity-80 transition`}>
              HR Mentorship
            </span>
         </Link>
 
-        <div className="hidden md:flex items-center gap-8">
+        {/* DESKTOP MENU */}
+        <div className="hidden lg:flex items-center gap-8">
            <Link href="/" className={`text-sm font-bold hover:text-primary transition ${scrolled ? 'text-slate-700 dark:text-slate-300' : 'text-white/90'}`}>Home</Link>
            <Link href="/about" className={`text-sm font-bold hover:text-primary transition ${scrolled ? 'text-slate-700 dark:text-slate-300' : 'text-white/90'}`}>About Us</Link>
            <Link href="/team" className={`text-sm font-bold hover:text-primary transition ${scrolled ? 'text-slate-700 dark:text-slate-300' : 'text-white/90'}`}>Team</Link>
            
-           {/* Dropdown */}
            <div className="relative group">
               <button className={`flex items-center gap-1 text-sm font-bold hover:text-primary transition ${scrolled ? 'text-slate-700 dark:text-slate-300' : 'text-white/90'}`}>
                  Learning Centre <ChevronDown size={14}/>
@@ -74,10 +81,36 @@ export default function Navbar() {
            </Link>
         </div>
 
-        <button onClick={() => setIsOpen(!isOpen)} className={`md:hidden p-2 ${scrolled ? 'text-slate-900 dark:text-white' : 'text-white'}`}>
+        {/* MOBILE TOGGLE */}
+        <button onClick={() => setIsOpen(!isOpen)} className={`lg:hidden p-2 ${scrolled ? 'text-slate-900 dark:text-white' : 'text-white'}`}>
            {isOpen ? <X size={24}/> : <Menu size={24}/>}
         </button>
       </div>
+
+      {/* MOBILE MENU (Full Screen Overlay) */}
+      {isOpen && (
+         <div className="lg:hidden fixed inset-0 top-16 bg-white dark:bg-slate-950 p-6 flex flex-col gap-6 overflow-y-auto pb-20 z-40">
+            <Link href="/" className="text-xl font-bold text-slate-900 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-2" onClick={() => setIsOpen(false)}>Home</Link>
+            <Link href="/about" className="text-xl font-bold text-slate-900 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-2" onClick={() => setIsOpen(false)}>About Us</Link>
+            <Link href="/team" className="text-xl font-bold text-slate-900 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-2" onClick={() => setIsOpen(false)}>Team</Link>
+            
+            <div className="space-y-2">
+               <p className="text-sm font-bold text-slate-400 uppercase">Learning Centre</p>
+               {learningLinks.map((link) => (
+                  <Link key={link.href} href={link.href} className="block text-lg font-bold text-slate-700 dark:text-slate-300 pl-4" onClick={() => setIsOpen(false)}>
+                     {link.label}
+                  </Link>
+               ))}
+            </div>
+
+            <Link href="/jobs" className="text-xl font-bold text-slate-900 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-2" onClick={() => setIsOpen(false)}>Jobs</Link>
+            <Link href="/blog" className="text-xl font-bold text-slate-900 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-2" onClick={() => setIsOpen(false)}>Blog</Link>
+            <Link href="/gallery" className="text-xl font-bold text-slate-900 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-2" onClick={() => setIsOpen(false)}>Gallery</Link>
+            <Link href="/contact" className="text-xl font-bold text-slate-900 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-2" onClick={() => setIsOpen(false)}>Contact</Link>
+            
+            <Link href="/join" className="w-full py-4 bg-primary text-white text-center font-bold rounded-xl mt-4" onClick={() => setIsOpen(false)}>Join Community</Link>
+         </div>
+      )}
     </nav>
   );
 }
