@@ -12,7 +12,7 @@ model Admin {
   email     String   @unique
   password  String
   name      String?
-  role      String   @default("ADMIN")
+  role      String   @default("ADMIN") // SUPER_ADMIN or ADMIN
   createdAt DateTime @default(now())
 }
 
@@ -33,7 +33,7 @@ model Job {
   company      String
   location     String
   type         String
-  salary       String?
+  salary       String?  // <--- NEW FIELD
   description  String
   requirements String?
   applyLink    String
@@ -52,7 +52,7 @@ model Event {
 model Resource {
   id          Int      @id @default(autoincrement())
   title       String
-  type        String
+  type        String   // PDF, Video, Link, Book
   description String?
   fileUrl     String
   createdAt   DateTime @default(now())
@@ -61,7 +61,7 @@ model Resource {
 model GalleryImage {
   id        Int      @id @default(autoincrement())
   title     String
-  category  String
+  category  String   // Events, Workshops, Meetups
   imageUrl  String
   createdAt DateTime @default(now())
 }
@@ -86,7 +86,6 @@ model MentorshipApplication {
   createdAt DateTime @default(now())
 }
 
-// THIS IS THE NEW MODEL FIXING YOUR ERROR
 model Contact {
   id        Int      @id @default(autoincrement())
   name      String

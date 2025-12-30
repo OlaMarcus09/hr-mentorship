@@ -27,16 +27,14 @@ export default function AdminDashboard() {
   const [isEditing, setIsEditing] = useState(false);
   const [editItem, setEditItem] = useState<any>(null);
   const [isUploading, setIsUploading] = useState(false);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null); // NEW: Visual Preview
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // --- CHECK PERMISSIONS ON LOAD ---
   useEffect(() => {
     const storedRole = localStorage.getItem("adminRole");
     if (storedRole) setRole(storedRole);
   }, []);
 
-  // --- CONFIGURATION ---
   const menuGroups = [
     {
       title: "Content",
@@ -51,7 +49,6 @@ export default function AdminDashboard() {
     {
       title: "People",
       items: [
-        // REMOVED "Website Team" as requested
         { id: 'mentors', label: 'Mentor Applicants', icon: <UserCheck size={18}/> },
         { id: 'mentees', label: 'Mentee Applicants', icon: <Users size={18}/> },
         { id: 'messages', label: 'Messages', icon: <Mail size={18}/> },
@@ -66,16 +63,14 @@ export default function AdminDashboard() {
     }
   ];
 
-  // --- IMAGE PREVIEW HELPER ---
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       const objectUrl = URL.createObjectURL(file);
-      setPreviewUrl(objectUrl); // Show image immediately
+      setPreviewUrl(objectUrl);
     }
   };
 
-  // --- IMAGE UPLOAD HELPER ---
   const uploadImage = async (file: File): Promise<string> => {
     const formData = new FormData();
     formData.append('file', file);
@@ -83,25 +78,18 @@ export default function AdminDashboard() {
 
     try {
       const res = await fetch(`https://api.cloudinary.com/v1_1/dmqjicpcc/image/upload`, {
-        method: 'POST',
-        body: formData,
+        method: 'POST', body: formData,
       });
 
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.error?.message || 'Failed to upload');
-      }
-
+      if (!res.ok) throw new Error('Failed to upload');
       const data = await res.json();
       return data.secure_url;
     } catch (error) {
-      console.error("Upload error:", error);
-      alert("Image Upload Failed. Please check your internet connection.");
+      alert("Image Upload Failed.");
       throw error;
     }
   };
 
-  // --- DATA FETCHING ---
   const fetchData = async () => {
     setLoading(true);
     setItems([]); 
@@ -113,24 +101,15 @@ export default function AdminDashboard() {
       if (activeTab === 'settings') { setLoading(false); return; }
 
       const res = await fetch(endpoint);
-      if (!res.ok) throw new Error("Failed to fetch");
-      
+      if (!res.ok) throw new Error("Failed");
       const data = await res.json();
       setItems(Array.isArray(data) ? data : []);
       setCurrentPage(1);
-    } catch (error) {
-      console.error(error);
-      setItems([]);
-    } finally {
-      setLoading(false);
-    }
+    } catch (error) { setItems([]); } finally { setLoading(false); }
   };
 
-  useEffect(() => {
-    fetchData();
-  }, [activeTab]);
+  useEffect(() => { fetchData(); }, [activeTab]);
 
-  // --- HANDLERS ---
   const handleDelete = async (id: number) => {
     if (!confirm("Are you sure?")) return;
     try {
@@ -141,12 +120,7 @@ export default function AdminDashboard() {
       if (activeTab === 'admins') endpoint = `/api/admins?id=${id}`;
 
       const res = await fetch(endpoint, { method: 'DELETE' });
-      if (res.ok) {
-        fetchData();
-        alert("Deleted successfully");
-      } else {
-        alert("Failed to delete");
-      }
+      if (res.ok) { fetchData(); alert("Deleted successfully"); }
     } catch (e) { alert("Error deleting"); }
   };
 
@@ -157,56 +131,28 @@ export default function AdminDashboard() {
     const data: any = Object.fromEntries(formData.entries());
 
     try {
-      let url = '';
-      let method = '';
-      let endpointBase = activeTab;
-      
+      let url = ''; let method = ''; let endpointBase = activeTab;
       if (activeTab === 'mentors' || activeTab === 'mentees') endpointBase = 'applicants';
-      
       if (activeTab === 'gallery' || activeTab === 'admins') {
-         url = activeTab === 'gallery' ? '/api/gallery' : '/api/admins';
-         method = 'POST'; 
+         url = activeTab === 'gallery' ? '/api/gallery' : '/api/admins'; method = 'POST'; 
       } else {
-         url = editItem ? `/api/${endpointBase}/${editItem.id}` : `/api/${endpointBase}`;
-         method = editItem ? 'PATCH' : 'POST';
+         url = editItem ? `/api/${endpointBase}/${editItem.id}` : `/api/${endpointBase}`; method = editItem ? 'PATCH' : 'POST';
       }
 
-      // Handle image upload
       if (fileInputRef.current?.files?.[0]) {
-        try {
-          const imageUrl = await uploadImage(fileInputRef.current.files[0]);
-          if (activeTab === 'blogs' || activeTab === 'events') data.image = imageUrl;
-          if (activeTab === 'gallery') data.imageUrl = imageUrl;
-        } catch (uploadError) {
-          setIsUploading(false);
-          return; 
-        }
+        const imageUrl = await uploadImage(fileInputRef.current.files[0]);
+        if (activeTab === 'blogs' || activeTab === 'events') data.image = imageUrl;
+        if (activeTab === 'gallery') data.imageUrl = imageUrl;
       }
 
-      const res = await fetch(url, {
-        method: method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
+      const res = await fetch(url, { method: method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
 
       if (res.ok) {
-        setIsEditing(false);
-        setEditItem(null);
-        setPreviewUrl(null); // Clear preview
-        fetchData();
-        alert("Saved successfully!");
-      } else {
-        const errorData = await res.json();
-        alert(`Failed: ${errorData.error || "Unknown error"}`);
-      }
-    } catch (err) { 
-      alert("Error submitting form"); 
-    } finally { 
-      setIsUploading(false); 
-    }
+        setIsEditing(false); setEditItem(null); setPreviewUrl(null); fetchData(); alert("Saved successfully!");
+      } else { alert("Operation failed."); }
+    } catch (err) { alert("Error submitting"); } finally { setIsUploading(false); }
   };
 
-  // --- PAGINATION CALCS ---
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = items.slice(indexOfFirstItem, indexOfLastItem);
@@ -214,29 +160,18 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col md:flex-row pt-20">
-      
-      {/* SIDEBAR - MOVABLE (Removed 'fixed', added flex sizing) */}
       <aside className="w-full md:w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 shrink-0">
         <div className="p-6">
            <h2 className="font-heading font-bold text-xl text-primary mb-1">Admin Panel</h2>
-           <p className="text-xs text-slate-500 dark:text-slate-400">
-             Logged in as: <span className="font-bold text-slate-900 dark:text-white">{role === 'SUPER_ADMIN' ? 'Super Admin' : 'Admin'}</span>
-           </p>
+           <p className="text-xs text-slate-500">Logged in as: {role}</p>
         </div>
-        
         <nav className="px-4 space-y-8 mb-8">
            {menuGroups.map((group) => (
              <div key={group.title}>
-                <h3 className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-3 px-2">{group.title}</h3>
+                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 px-2">{group.title}</h3>
                 <div className="space-y-1">
                    {group.items.map((item) => (
-                     <button
-                       key={item.id}
-                       onClick={() => setActiveTab(item.id)}
-                       className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition ${activeTab === item.id ? 'bg-primary/10 text-primary dark:bg-primary/20' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'}`}
-                     >
-                       {item.icon} {item.label}
-                     </button>
+                     <button key={item.id} onClick={() => setActiveTab(item.id)} className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition ${activeTab === item.id ? 'bg-primary/10 text-primary' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'}`}>{item.icon} {item.label}</button>
                    ))}
                 </div>
              </div>
@@ -244,259 +179,115 @@ export default function AdminDashboard() {
         </nav>
       </aside>
 
-      {/* MAIN CONTENT */}
       <main className="flex-1 p-8 overflow-x-hidden">
-        
-        {/* TOP BAR */}
         <div className="flex justify-between items-center mb-8">
-           <div>
-              <h1 className="text-2xl font-bold text-slate-900 dark:text-white capitalize">
-                {activeTab === 'mentors' ? 'Mentor Applicants' : activeTab === 'mentees' ? 'Mentee Applicants' : activeTab === 'messages' ? 'Inbox Messages' : activeTab === 'admins' ? 'Dashboard Admins' : `Manage ${activeTab}`}
-              </h1>
-           </div>
-           
-           <div className="flex gap-3">
-             <Link href="/" target="_blank" className="px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-bold hover:bg-slate-50 dark:hover:bg-slate-700 transition text-slate-700 dark:text-slate-300">
-               View Live Site
-             </Link>
-             
-             {activeTab !== 'settings' && activeTab !== 'mentors' && activeTab !== 'mentees' && activeTab !== 'messages' && (
-               <button 
-                 onClick={() => { setEditItem(null); setIsEditing(true); setPreviewUrl(null); }}
-                 className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg text-sm font-bold hover:bg-primary/90 shadow-lg shadow-primary/20 transition"
-               >
-                 <Plus size={16} /> Add New
-               </button>
-             )}
-           </div>
+           <h1 className="text-2xl font-bold text-slate-900 dark:text-white capitalize">{activeTab}</h1>
+           {activeTab !== 'settings' && activeTab !== 'mentors' && activeTab !== 'mentees' && activeTab !== 'messages' && (
+             <button onClick={() => { setEditItem(null); setIsEditing(true); setPreviewUrl(null); }} className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg text-sm font-bold hover:bg-primary/90 shadow-lg"><Plus size={16} /> Add New</button>
+           )}
         </div>
 
-        {/* CONTENT AREA */}
-        {loading ? (
-           <div className="h-64 flex items-center justify-center text-slate-400 dark:text-slate-500"><RefreshCw className="animate-spin"/></div>
-        ) : (
+        {loading ? <div className="h-64 flex items-center justify-center"><RefreshCw className="animate-spin"/></div> : (
           <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
-             
-             {/* DATA TABLE */}
-             {items.length === 0 ? (
-                <div className="p-12 text-center text-slate-500 dark:text-slate-400">
-                  {activeTab === 'settings' ? 'Settings coming soon.' : `No ${activeTab} found.`}
-                </div>
-             ) : (
-               <div className="overflow-x-auto">
+             <div className="overflow-x-auto">
                  <table className="w-full text-left text-sm">
                     <thead className="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
-                       <tr>
-                          <th className="p-4 font-bold text-slate-500 dark:text-slate-400 w-16">ID</th>
-                          <th className="p-4 font-bold text-slate-900 dark:text-white">Primary Info</th>
-                          <th className="p-4 font-bold text-slate-900 dark:text-white">Details</th>
-                          <th className="p-4 font-bold text-right text-slate-900 dark:text-white w-32">Actions</th>
-                       </tr>
+                       <tr><th className="p-4 w-16">ID</th><th className="p-4">Title/Name</th><th className="p-4">Details</th><th className="p-4 w-32 text-right">Actions</th></tr>
                     </thead>
                     <tbody>
                        {currentItems.map((item) => (
-                         <tr key={item.id} className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
-                            <td className="p-4 text-slate-500 dark:text-slate-400 font-mono text-xs">#{item.id}</td>
-                            
-                            <td className="p-4 font-bold text-slate-900 dark:text-white">
-                               {activeTab === 'messages' ? item.subject || "No Subject" : (item.title || item.name || "Untitled")}
+                         <tr key={item.id} className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                            <td className="p-4">#{item.id}</td>
+                            <td className="p-4 font-bold">{item.title || item.name || item.subject}</td>
+                            <td className="p-4 text-slate-600">
+                               {activeTab === 'jobs' && `${item.company} • ${item.salary || 'N/A'}`}
+                               {activeTab === 'gallery' && item.category}
+                               {activeTab === 'resources' && item.type}
                             </td>
-                            
-                            <td className="p-4 text-slate-600 dark:text-slate-400">
-                               {activeTab === 'blogs' && <span className="text-xs bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded">By {item.author}</span>}
-                               {activeTab === 'jobs' && <span className="flex items-center gap-2">{item.company} • {item.location}</span>}
-                               {activeTab === 'events' && <span>{new Date(item.date).toLocaleDateString()}</span>}
-                               {activeTab === 'admins' && <span className="text-xs font-mono">{item.email} ({item.role})</span>}
-                               {activeTab === 'resources' && <span className="text-xs uppercase font-bold">{item.type}</span>}
-                               {(activeTab === 'mentors' || activeTab === 'mentees') && item.email}
-                               {activeTab === 'messages' && (
-                                  <div className="flex flex-col">
-                                    <span className="font-bold text-xs">{item.name} ({item.email})</span>
-                                    <span className="text-xs text-slate-500 mt-1 line-clamp-1">{item.message}</span>
-                                  </div>
-                               )}
-                            </td>
-
                             <td className="p-4 flex justify-end gap-2">
-                               {activeTab !== 'mentors' && activeTab !== 'mentees' && activeTab !== 'gallery' && activeTab !== 'messages' && activeTab !== 'admins' && (
-                                 <button 
-                                    onClick={() => { setEditItem(item); setPreviewUrl(item.image || item.imageUrl); setIsEditing(true); }} 
-                                    className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-md transition"
-                                 >
-                                    <Edit size={16}/>
-                                 </button>
-                               )}
-                               
-                               <button 
-                                 onClick={() => handleDelete(item.id)} 
-                                 className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition"
-                               >
-                                 <Trash2 size={16}/>
-                               </button>
+                               {activeTab !== 'mentors' && activeTab !== 'messages' && <button onClick={() => { setEditItem(item); setPreviewUrl(item.image || item.imageUrl); setIsEditing(true); }}><Edit size={16}/></button>}
+                               <button onClick={() => handleDelete(item.id)} className="text-red-600"><Trash2 size={16}/></button>
                             </td>
                          </tr>
                        ))}
                     </tbody>
                  </table>
-               </div>
-             )}
-
-             {/* PAGINATION */}
-             {totalPages > 1 && (
-               <div className="p-4 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center">
-                  <span className="text-xs text-slate-500 dark:text-slate-400">Page {currentPage} of {totalPages}</span>
-                  <div className="flex gap-2">
-                     <button 
-                       disabled={currentPage === 1}
-                       onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                       className="p-2 border rounded-md disabled:opacity-50 hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 transition"
-                     >
-                       <ChevronLeft size={16}/>
-                     </button>
-                     <button 
-                       disabled={currentPage === totalPages}
-                       onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                       className="p-2 border rounded-md disabled:opacity-50 hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 transition"
-                     >
-                       <ChevronRight size={16}/>
-                     </button>
-                  </div>
-               </div>
-             )}
+             </div>
           </div>
         )}
 
-        {/* MODAL */}
         {isEditing && (
            <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm">
-              <div className="bg-white dark:bg-slate-900 w-full max-w-2xl rounded-xl shadow-2xl p-8 max-h-[90vh] overflow-y-auto border border-slate-200 dark:border-slate-800">
-                 <div className="flex justify-between mb-6 border-b border-slate-100 dark:border-slate-800 pb-4">
-                    <h3 className="text-xl font-bold text-slate-900 dark:text-white">
-                       {editItem ? `Edit ${activeTab.slice(0, -1)}` : `Create New ${activeTab.slice(0, -1)}`}
-                    </h3>
-                    <button onClick={() => setIsEditing(false)} className="text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition"><X/></button>
-                 </div>
-                 
-                 <form key={editItem ? editItem.id : 'new'} onSubmit={handleSubmit} className="space-y-4">
+              <div className="bg-white dark:bg-slate-900 w-full max-w-2xl rounded-xl shadow-2xl p-8 max-h-[90vh] overflow-y-auto">
+                 <div className="flex justify-between mb-6 pb-4 border-b"><h3 className="text-xl font-bold">{editItem ? 'Edit' : 'Create'}</h3><button onClick={() => setIsEditing(false)}><X/></button></div>
+                 <form onSubmit={handleSubmit} className="space-y-4">
                     
-                    {/* BLOGS */}
-                    {activeTab === 'blogs' && (
-                       <>
-                          <input name="title" defaultValue={editItem?.title} placeholder="Post Title" required className="admin-input" />
-                          <input name="author" defaultValue={editItem?.author} placeholder="Author Name" required className="admin-input" />
-                          <textarea name="excerpt" defaultValue={editItem?.excerpt} placeholder="Short Summary" required className="admin-input" rows={2}/>
-                          <textarea name="content" defaultValue={editItem?.content} placeholder="Full Content" required className="admin-input" rows={6}/>
-                          
-                          {/* VISUAL IMAGE PICKER */}
-                          <div className="space-y-3">
-                            <label className="block text-sm font-bold text-slate-700 dark:text-slate-300">Cover Image</label>
-                            {previewUrl && (
-                               <div className="relative w-full h-40 bg-slate-100 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700">
-                                  <Image src={previewUrl} alt="Preview" fill className="object-cover" />
-                               </div>
-                            )}
-                            <div className="flex items-center gap-4">
-                              <label htmlFor="file-upload" className="flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-700 transition">
-                                <Upload size={18} /> {previewUrl ? "Change File" : "Choose File"}
-                              </label>
-                              <input id="file-upload" type="file" ref={fileInputRef} onChange={handleFileSelect} className="hidden" accept="image/*" />
-                              <span className="text-sm text-slate-500 dark:text-slate-400">Or paste URL below</span>
-                            </div>
-                            <input name="image" defaultValue={editItem?.image} placeholder="Image URL (optional)" className="admin-input" />
-                          </div>
-                       </>
-                    )}
-
-                    {/* EVENTS (WITH VISUAL UPLOAD) */}
-                    {activeTab === 'events' && (
-                       <>
-                          <input name="title" defaultValue={editItem?.title} placeholder="Event Name" required className="admin-input" />
-                          <input name="date" type="datetime-local" defaultValue={editItem?.date ? new Date(editItem.date).toISOString().slice(0, 16) : ''} required className="admin-input" />
-                          <input name="location" defaultValue={editItem?.location} placeholder="Location" required className="admin-input" />
-                          
-                          <div className="space-y-3">
-                            <label className="block text-sm font-bold text-slate-700 dark:text-slate-300">Event Banner</label>
-                            {previewUrl && (
-                               <div className="relative w-full h-40 bg-slate-100 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700">
-                                  <Image src={previewUrl} alt="Preview" fill className="object-cover" />
-                               </div>
-                            )}
-                            <div className="flex items-center gap-4">
-                              <label htmlFor="file-upload" className="flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-700 transition">
-                                <Upload size={18} /> {previewUrl ? "Change File" : "Choose File"}
-                              </label>
-                              <input id="file-upload" type="file" ref={fileInputRef} onChange={handleFileSelect} className="hidden" accept="image/*" />
-                            </div>
-                            <input name="image" defaultValue={editItem?.image} placeholder="Image URL (optional)" className="admin-input" />
-                          </div>
-                       </>
-                    )}
-
-                     {/* GALLERY (WITH VISUAL UPLOAD) */}
-                    {activeTab === 'gallery' && (
-                       <>
-                          <input name="title" placeholder="Caption" required className="admin-input" />
-                          <input name="category" placeholder="Category" required className="admin-input" />
-                          
-                          <div className="space-y-3">
-                            <label className="block text-sm font-bold text-slate-700 dark:text-slate-300">Gallery Image</label>
-                            {previewUrl && (
-                               <div className="relative w-full h-40 bg-slate-100 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700">
-                                  <Image src={previewUrl} alt="Preview" fill className="object-cover" />
-                               </div>
-                            )}
-                            <div className="flex items-center gap-4">
-                              <label htmlFor="file-upload" className="flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-700 transition">
-                                <Upload size={18} /> {previewUrl ? "Change File" : "Choose File"}
-                              </label>
-                              <input id="file-upload" type="file" ref={fileInputRef} onChange={handleFileSelect} className="hidden" accept="image/*" />
-                            </div>
-                            <input name="imageUrl" placeholder="Image URL (optional)" className="admin-input" />
-                          </div>
-                       </>
-                    )}
-
-                    {/* OTHER TABS (Standard) */}
+                    {/* JOBS WITH SALARY */}
                     {activeTab === 'jobs' && (
                        <>
                           <input name="title" defaultValue={editItem?.title} placeholder="Job Title" required className="admin-input" />
                           <input name="company" defaultValue={editItem?.company} placeholder="Company" required className="admin-input" />
+                          <input name="salary" defaultValue={editItem?.salary} placeholder="Salary (e.g. $50k - $70k)" className="admin-input" />
                           <input name="location" defaultValue={editItem?.location} placeholder="Location" required className="admin-input" />
                           <select name="type" defaultValue={editItem?.type || "Full Time"} className="admin-input"><option>Full Time</option><option>Part Time</option><option>Contract</option></select>
                           <textarea name="description" defaultValue={editItem?.description} placeholder="Description" required className="admin-input" rows={4}/>
                           <input name="applyLink" defaultValue={editItem?.applyLink} placeholder="Application Link/Email" required className="admin-input" />
                        </>
                     )}
-                    {activeTab === 'resources' && (
+
+                    {/* GALLERY WITH DROPDOWN */}
+                    {activeTab === 'gallery' && (
                        <>
-                          <input name="title" defaultValue={editItem?.title} placeholder="Title" required className="admin-input" />
-                          <select name="type" defaultValue={editItem?.type || "PDF"} className="admin-input"><option>PDF</option><option>Video</option><option>Link</option></select>
-                          <input name="fileUrl" defaultValue={editItem?.fileUrl} placeholder="File URL" required className="admin-input" />
-                       </>
-                    )}
-                    {activeTab === 'admins' && (
-                       <>
-                          <input name="name" placeholder="Admin Name" required className="admin-input" />
-                          <input name="email" type="email" placeholder="Admin Email" required className="admin-input" />
-                          <input name="password" type="password" placeholder="Password" required className="admin-input" />
+                          <input name="title" placeholder="Caption" required className="admin-input" />
+                          <select name="category" className="admin-input">
+                             <option value="Events">Events</option>
+                             <option value="Workshops">Workshops</option>
+                             <option value="Meetups">Meetups</option>
+                          </select>
+                          <div className="space-y-3">
+                            <label className="block text-sm font-bold">Image</label>
+                            {previewUrl && <div className="h-40 w-full relative"><Image src={previewUrl} alt="Preview" fill className="object-cover rounded"/></div>}
+                            <input type="file" ref={fileInputRef} onChange={handleFileSelect} accept="image/*" />
+                          </div>
                        </>
                     )}
 
-                    <button disabled={isUploading} type="submit" className="w-full py-3 bg-primary text-white font-bold rounded-lg hover:bg-primary/90 mt-4 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition">
-                       {isUploading && <RefreshCw className="animate-spin" size={18} />}
-                       {editItem ? "Save Changes" : "Create New Item"}
+                    {/* RESOURCES WITH BOOK */}
+                    {activeTab === 'resources' && (
+                       <>
+                          <input name="title" defaultValue={editItem?.title} placeholder="Title" required className="admin-input" />
+                          <select name="type" defaultValue={editItem?.type || "PDF"} className="admin-input">
+                             <option>PDF</option><option>Video</option><option>Link</option><option>Book</option>
+                          </select>
+                          <input name="fileUrl" defaultValue={editItem?.fileUrl} placeholder="File URL / Video Link" required className="admin-input" />
+                       </>
+                    )}
+
+                    {/* BLOGS/EVENTS (Standard) */}
+                    {(activeTab === 'blogs' || activeTab === 'events') && (
+                       <>
+                          <input name="title" defaultValue={editItem?.title} placeholder="Title" required className="admin-input" />
+                          {activeTab === 'blogs' && <input name="author" defaultValue={editItem?.author} placeholder="Author" className="admin-input" />}
+                          {activeTab === 'events' && <input name="date" type="datetime-local" className="admin-input" />}
+                          <textarea name="content" defaultValue={editItem?.content} placeholder="Content/Description" className="admin-input" rows={4}/>
+                          
+                          <div className="space-y-3">
+                            <label className="block text-sm font-bold">Image</label>
+                            {previewUrl && <div className="h-40 w-full relative"><Image src={previewUrl} alt="Preview" fill className="object-cover rounded"/></div>}
+                            <input type="file" ref={fileInputRef} onChange={handleFileSelect} accept="image/*" />
+                          </div>
+                       </>
+                    )}
+
+                    <button disabled={isUploading} type="submit" className="w-full py-3 bg-primary text-white font-bold rounded-lg mt-4 disabled:opacity-50">
+                       {isUploading ? "Uploading..." : "Save Changes"}
                     </button>
                  </form>
               </div>
            </div>
         )}
       </main>
-      <style jsx global>{`
-        .admin-input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0; background-color: #f8fafc; outline: none; color: #1e293b; transition: all 0.2s; }
-        .dark .admin-input { border-color: #334155; background-color: #1e293b; color: #f1f5f9; }
-        .admin-input:focus { border-color: #7c3aed; background-color: white; }
-        .dark .admin-input:focus { border-color: #7c3aed; background-color: #0f172a; }
-      `}</style>
+      <style jsx global>{` .admin-input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc; background: transparent; } `}</style>
     </div>
   );
 }

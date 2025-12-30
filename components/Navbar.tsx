@@ -11,7 +11,6 @@ export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { theme, setTheme } = useTheme();
-  const pathname = usePathname();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -19,17 +18,18 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Removed "Certificate Courses" from this list
+  // UPDATED LIST AS REQUESTED
   const learningLinks = [
-    { label: "Mentorship", href: "/mentorship" },
+    { label: "Webinars", href: "/webinars" },
+    { label: "Events", href: "/events" },
     { label: "Resources", href: "/resources" },
+    { label: "Book of the Month", href: "/books" },
   ];
 
   return (
     <nav className={`fixed w-full z-50 transition-all duration-300 ${scrolled ? "bg-white/90 dark:bg-slate-950/90 backdrop-blur-md shadow-sm py-4" : "bg-transparent py-6"}`}>
       <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
         
-        {/* LOGO */}
         <Link href="/" className="flex items-center gap-2">
            <div className="relative w-10 h-10 bg-white rounded-full flex items-center justify-center overflow-hidden">
              <Image src="/logo.png" alt="HR Logo" width={40} height={40} className="object-cover"/>
@@ -39,7 +39,6 @@ export default function Navbar() {
            </span>
         </Link>
 
-        {/* DESKTOP MENU */}
         <div className="hidden md:flex items-center gap-8">
            <Link href="/" className={`text-sm font-bold hover:text-primary transition ${scrolled ? 'text-slate-700 dark:text-slate-300' : 'text-white/90'}`}>Home</Link>
            <Link href="/about" className={`text-sm font-bold hover:text-primary transition ${scrolled ? 'text-slate-700 dark:text-slate-300' : 'text-white/90'}`}>About Us</Link>
@@ -75,29 +74,10 @@ export default function Navbar() {
            </Link>
         </div>
 
-        {/* MOBILE TOGGLE */}
         <button onClick={() => setIsOpen(!isOpen)} className={`md:hidden p-2 ${scrolled ? 'text-slate-900 dark:text-white' : 'text-white'}`}>
            {isOpen ? <X size={24}/> : <Menu size={24}/>}
         </button>
       </div>
-
-      {/* MOBILE MENU */}
-      {isOpen && (
-         <div className="md:hidden absolute top-full left-0 w-full bg-white dark:bg-slate-950 border-t border-slate-100 dark:border-slate-800 p-6 shadow-xl flex flex-col gap-4">
-            <Link href="/" className="text-lg font-bold text-slate-900 dark:text-white" onClick={() => setIsOpen(false)}>Home</Link>
-            <Link href="/about" className="text-lg font-bold text-slate-900 dark:text-white" onClick={() => setIsOpen(false)}>About Us</Link>
-            <Link href="/team" className="text-lg font-bold text-slate-900 dark:text-white" onClick={() => setIsOpen(false)}>Team</Link>
-            <div className="h-px bg-slate-100 dark:bg-slate-800 my-2"></div>
-            <Link href="/mentorship" className="text-lg font-bold text-slate-900 dark:text-white" onClick={() => setIsOpen(false)}>Mentorship</Link>
-            <Link href="/resources" className="text-lg font-bold text-slate-900 dark:text-white" onClick={() => setIsOpen(false)}>Resources</Link>
-            <div className="h-px bg-slate-100 dark:bg-slate-800 my-2"></div>
-            <Link href="/jobs" className="text-lg font-bold text-slate-900 dark:text-white" onClick={() => setIsOpen(false)}>Jobs</Link>
-            <Link href="/blog" className="text-lg font-bold text-slate-900 dark:text-white" onClick={() => setIsOpen(false)}>Blog</Link>
-            <Link href="/gallery" className="text-lg font-bold text-slate-900 dark:text-white" onClick={() => setIsOpen(false)}>Gallery</Link>
-            <Link href="/contact" className="text-lg font-bold text-slate-900 dark:text-white" onClick={() => setIsOpen(false)}>Contact</Link>
-            <Link href="/join" className="w-full py-3 bg-primary text-white text-center font-bold rounded-lg" onClick={() => setIsOpen(false)}>Join Community</Link>
-         </div>
-      )}
     </nav>
   );
 }
