@@ -1,7 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import Image from "next/image";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Calendar, User } from "lucide-react";
 
 export const dynamic = 'force-dynamic';
 
@@ -21,10 +21,18 @@ export default async function BlogPage(props: { searchParams: Promise<{ page?: s
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
-       {/* HERO SECTION - FORCED */}
+       {/* HERO SECTION - FORCED IMAGE */}
        <section className="relative pt-48 pb-20 px-6 bg-primary w-full overflow-hidden">
-         {/* Background Image Overlay */}
-         <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1499750310159-5254f4cc1555?auto=format&fit=crop&w=1200')] bg-cover bg-center opacity-20"></div>
+         {/* Direct Image Component to ensure visibility */}
+         <div className="absolute inset-0">
+            <Image 
+              src="https://images.unsplash.com/photo-1499750310159-5254f4cc1555?auto=format&fit=crop&w=1200" 
+              alt="Blog Hero" 
+              fill 
+              className="object-cover opacity-40" 
+              priority
+            />
+         </div>
          <div className="relative z-10 max-w-4xl mx-auto text-center text-white">
             <h1 className="text-4xl md:text-6xl font-heading font-bold mb-6">Our Blog</h1>
             <p className="text-xl text-white/90">Latest News, Insights & Stories.</p>
@@ -50,8 +58,8 @@ export default async function BlogPage(props: { searchParams: Promise<{ page?: s
                       </div>
                       <div className="p-6">
                          <div className="flex gap-4 text-xs font-bold text-slate-400 mb-3">
-                            <span>{new Date(blog.createdAt).toLocaleDateString()}</span>
-                            <span>{blog.author}</span>
+                            <span className="flex items-center gap-1"><Calendar size={12}/> {new Date(blog.createdAt).toLocaleDateString()}</span>
+                            <span className="flex items-center gap-1"><User size={12}/> {blog.author}</span>
                          </div>
                          <h3 className="text-lg font-bold mb-3 group-hover:text-primary transition line-clamp-2">{blog.title}</h3>
                          <p className="text-slate-600 dark:text-slate-400 text-sm line-clamp-3">{blog.excerpt}</p>
