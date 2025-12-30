@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight, Calendar, User } from "lucide-react";
 
-export const revalidate = 60; // Updates every 60 seconds (FAST)
+export const revalidate = 60;
 
 export default async function BlogPage(props: { searchParams: Promise<{ page?: string }> }) {
   const searchParams = await props.searchParams;
@@ -21,16 +21,19 @@ export default async function BlogPage(props: { searchParams: Promise<{ page?: s
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
+       {/* HERO SECTION */}
        <section className="relative pt-48 pb-20 px-6 bg-primary w-full overflow-hidden">
-         <div className="absolute inset-0">
+         {/* ABSOLUTE BACKGROUND IMAGE */}
+         <div className="absolute inset-0 z-0">
             <Image 
-              src="https://images.unsplash.com/photo-1499750310159-5254f4cc1555?auto=format&fit=crop&w=1200" 
-              alt="Blog Hero" 
-              fill 
-              className="object-cover opacity-30"
+              src="https://images.unsplash.com/photo-1499750310159-5254f4cc1555?auto=format&fit=crop&w=1200"
+              alt="Blog Hero Background"
+              fill
+              className="object-cover opacity-20"
               priority
             />
          </div>
+         
          <div className="relative z-10 max-w-4xl mx-auto text-center text-white">
             <h1 className="text-4xl md:text-6xl font-heading font-bold mb-6">Our Blog</h1>
             <p className="text-xl text-white/90">Latest News, Insights & Stories.</p>
@@ -38,28 +41,39 @@ export default async function BlogPage(props: { searchParams: Promise<{ page?: s
        </section>
 
        <div className="max-w-7xl mx-auto px-6 py-20">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-             {blogs.map((blog) => (
-                <Link href={`/blog/${blog.id}`} key={blog.id} className="group bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden hover:shadow-xl transition">
-                   <div className="relative h-56 w-full">
-                      <Image 
-                        src={blog.image || "https://via.placeholder.com/800x600"} 
-                        alt={blog.title} 
-                        fill 
-                        className="object-cover group-hover:scale-105 transition duration-500"
-                      />
-                   </div>
-                   <div className="p-6">
-                      <div className="flex gap-4 text-xs font-bold text-slate-400 mb-3">
-                         <span className="flex items-center gap-1"><Calendar size={12}/> {new Date(blog.createdAt).toLocaleDateString()}</span>
-                         <span className="flex items-center gap-1"><User size={12}/> {blog.author}</span>
+          {blogs.length === 0 ? (
+             <div className="text-center py-20 bg-white dark:bg-slate-900 rounded-xl border border-dashed border-slate-300 dark:border-slate-800">
+                <p className="text-slate-500 font-bold">No blog posts found. Go to Admin to create one.</p>
+             </div>
+          ) : (
+             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+                {blogs.map((blog) => (
+                   <Link href={`/blog/${blog.id}`} key={blog.id} className="group bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden hover:shadow-xl transition flex flex-col h-full">
+                      <div className="relative h-56 w-full bg-slate-200">
+                         {blog.image ? (
+                           <Image 
+                             src={blog.image} 
+                             alt={blog.title} 
+                             fill 
+                             className="object-cover group-hover:scale-105 transition duration-500"
+                           />
+                         ) : (
+                           <div className="w-full h-full flex items-center justify-center text-slate-400">No Image</div>
+                         )}
                       </div>
-                      <h3 className="text-lg font-bold mb-3 group-hover:text-primary transition line-clamp-2 text-slate-900 dark:text-white">{blog.title}</h3>
-                      <p className="text-slate-600 dark:text-slate-400 text-sm line-clamp-3">{blog.excerpt}</p>
-                   </div>
-                </Link>
-             ))}
-          </div>
+                      <div className="p-6 flex flex-col flex-1">
+                         <div className="flex gap-4 text-xs font-bold text-slate-400 mb-3">
+                            <span className="flex items-center gap-1"><Calendar size={12}/> {new Date(blog.createdAt).toLocaleDateString()}</span>
+                            <span className="flex items-center gap-1"><User size={12}/> {blog.author}</span>
+                         </div>
+                         <h3 className="text-lg font-bold mb-3 group-hover:text-primary transition line-clamp-2 text-slate-900 dark:text-white">{blog.title}</h3>
+                         <p className="text-slate-600 dark:text-slate-400 text-sm line-clamp-3 mb-4 flex-1">{blog.excerpt}</p>
+                         <span className="text-primary font-bold text-sm mt-auto">Read More →</span>
+                      </div>
+                   </Link>
+                ))}
+             </div>
+          )}
 
           {/* PAGINATION */}
           <div className="flex justify-center gap-4">

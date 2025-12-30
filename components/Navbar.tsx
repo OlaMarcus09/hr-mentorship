@@ -28,17 +28,15 @@ export default function Navbar() {
     <nav className={`fixed w-full z-50 transition-all duration-300 ${scrolled ? "bg-white/95 dark:bg-slate-950/95 backdrop-blur-md shadow-sm py-3" : "bg-transparent py-5"}`}>
       <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
         
-        {/* LOGO FIX */}
+        {/* LOGO FIXED WITH CLOUDINARY URL */}
         <Link href="/" className="flex items-center gap-2 group">
            <div className="relative w-10 h-10 bg-white rounded-full flex items-center justify-center overflow-hidden shadow-sm group-hover:scale-105 transition">
-             {/* Ensure you have logo.png in your public folder. If not, this acts as a placeholder */}
              <Image 
-               src="/logo.png" 
+               src="https://res.cloudinary.com/dmqjicpcc/image/upload/v1765218297/1001440111_dztflg.jpg" 
                alt="HR Logo" 
                width={40} 
                height={40} 
                className="object-cover"
-               onError={(e) => { e.currentTarget.style.display = 'none'; }} // Hides image if missing, falling back to text
              />
            </div>
            <span className={`text-xl font-heading font-bold ${scrolled ? 'text-slate-900 dark:text-white' : 'text-white'} group-hover:opacity-80 transition`}>
@@ -87,7 +85,7 @@ export default function Navbar() {
         </button>
       </div>
 
-      {/* MOBILE MENU (Full Screen Overlay) */}
+      {/* MOBILE MENU */}
       {isOpen && (
          <div className="lg:hidden fixed inset-0 top-16 bg-white dark:bg-slate-950 p-6 flex flex-col gap-6 overflow-y-auto pb-20 z-40">
             <Link href="/" className="text-xl font-bold text-slate-900 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-2" onClick={() => setIsOpen(false)}>Home</Link>
