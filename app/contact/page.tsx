@@ -39,18 +39,22 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 pt-32 pb-20 px-6">
-      <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-16">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
+       {/* HERO SECTION */}
+       <section className="relative pt-48 pb-20 px-6 bg-primary">
+         <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1516387938699-a93567ec168e?auto=format&fit=crop&w=1200')] bg-cover bg-center opacity-10"></div>
+         <div className="relative z-10 max-w-4xl mx-auto text-center text-white">
+            <h1 className="text-4xl md:text-6xl font-heading font-bold mb-6">Get in Touch</h1>
+            <p className="text-xl text-white/90 max-w-2xl mx-auto">
+               Have questions? We'd love to hear from you.
+            </p>
+         </div>
+       </section>
+
+      <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-16 py-20 px-6">
         
         {/* Contact Info */}
         <div>
-           <h1 className="text-4xl md:text-5xl font-heading font-bold text-slate-900 dark:text-white mb-6">
-             Get in Touch
-           </h1>
-           <p className="text-xl text-slate-600 dark:text-slate-400 mb-10 leading-relaxed">
-             Have questions about our mentorship programs, events, or community? We're here to help.
-           </p>
-
            <div className="space-y-8">
               <div className="flex items-start gap-4">
                  <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center text-primary shrink-0">

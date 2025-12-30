@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 export default function AdminDashboard() {
   const router = useRouter();
@@ -16,7 +17,7 @@ export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('blogs');
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
-  const [role, setRole] = useState<string>('ADMIN'); // Default to low privilege
+  const [role, setRole] = useState<string>('ADMIN');
   
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -26,14 +27,13 @@ export default function AdminDashboard() {
   const [isEditing, setIsEditing] = useState(false);
   const [editItem, setEditItem] = useState<any>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null); // NEW: Visual Preview
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // --- CHECK PERMISSIONS ON LOAD ---
   useEffect(() => {
     const storedRole = localStorage.getItem("adminRole");
     if (storedRole) setRole(storedRole);
-    // Optional: If no role found, redirect to login
-    // if (!storedRole) router.push('/admin');
   }, []);
 
   // --- CONFIGURATION ---
@@ -51,7 +51,7 @@ export default function AdminDashboard() {
     {
       title: "People",
       items: [
-        { id: 'team', label: 'Website Team', icon: <Users size={18}/> },
+        // REMOVED "Website Team" as requested
         { id: 'mentors', label: 'Mentor Applicants', icon: <UserCheck size={18}/> },
         { id: 'mentees', label: 'Mentee Applicants', icon: <Users size={18}/> },
         { id: 'messages', label: 'Messages', icon: <Mail size={18}/> },
@@ -60,21 +60,27 @@ export default function AdminDashboard() {
     {
       title: "System",
       items: [
-        // ONLY SHOW 'MANAGE ADMINS' IF SUPER_ADMIN
         ...(role === 'SUPER_ADMIN' ? [{ id: 'admins', label: 'Manage Admins', icon: <ShieldAlert size={18}/> }] : []),
         { id: 'settings', label: 'Settings', icon: <Settings size={18}/> },
       ]
     }
   ];
 
-  // --- IMAGE UPLOAD HELPER (FIXED) ---
+  // --- IMAGE PREVIEW HELPER ---
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const objectUrl = URL.createObjectURL(file);
+      setPreviewUrl(objectUrl); // Show image immediately
+    }
+  };
+
+  // --- IMAGE UPLOAD HELPER ---
   const uploadImage = async (file: File): Promise<string> => {
     const formData = new FormData();
     formData.append('file', file);
-    // HARDCODED FIX: Using your specific cloud details to prevent errors
     formData.append('upload_preset', 'ml_default'); 
 
-    // Cloud Name: dmqjicpcc
     try {
       const res = await fetch(`https://api.cloudinary.com/v1_1/dmqjicpcc/image/upload`, {
         method: 'POST',
@@ -90,7 +96,7 @@ export default function AdminDashboard() {
       return data.secure_url;
     } catch (error) {
       console.error("Upload error:", error);
-      alert("Image Upload Failed. Please check your internet or image size.");
+      alert("Image Upload Failed. Please check your internet connection.");
       throw error;
     }
   };
@@ -153,8 +159,8 @@ export default function AdminDashboard() {
     try {
       let url = '';
       let method = '';
-      
       let endpointBase = activeTab;
+      
       if (activeTab === 'mentors' || activeTab === 'mentees') endpointBase = 'applicants';
       
       if (activeTab === 'gallery' || activeTab === 'admins') {
@@ -166,16 +172,14 @@ export default function AdminDashboard() {
       }
 
       // Handle image upload
-      if ((activeTab === 'blogs' || activeTab === 'team' || activeTab === 'events' || activeTab === 'gallery') && fileInputRef.current?.files?.[0]) {
+      if (fileInputRef.current?.files?.[0]) {
         try {
           const imageUrl = await uploadImage(fileInputRef.current.files[0]);
-          if (activeTab === 'blogs') data.image = imageUrl;
-          if (activeTab === 'team') data.image = imageUrl;
-          if (activeTab === 'events') data.image = imageUrl;
+          if (activeTab === 'blogs' || activeTab === 'events') data.image = imageUrl;
           if (activeTab === 'gallery') data.imageUrl = imageUrl;
         } catch (uploadError) {
           setIsUploading(false);
-          return; // Stop if upload fails
+          return; 
         }
       }
 
@@ -188,6 +192,7 @@ export default function AdminDashboard() {
       if (res.ok) {
         setIsEditing(false);
         setEditItem(null);
+        setPreviewUrl(null); // Clear preview
         fetchData();
         alert("Saved successfully!");
       } else {
@@ -208,10 +213,10 @@ export default function AdminDashboard() {
   const totalPages = Math.ceil(items.length / itemsPerPage);
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex pt-20">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col md:flex-row pt-20">
       
-      {/* SIDEBAR */}
-      <aside className="w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 fixed h-full overflow-y-auto hidden md:block z-10">
+      {/* SIDEBAR - MOVABLE (Removed 'fixed', added flex sizing) */}
+      <aside className="w-full md:w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 shrink-0">
         <div className="p-6">
            <h2 className="font-heading font-bold text-xl text-primary mb-1">Admin Panel</h2>
            <p className="text-xs text-slate-500 dark:text-slate-400">
@@ -219,7 +224,7 @@ export default function AdminDashboard() {
            </p>
         </div>
         
-        <nav className="px-4 space-y-8">
+        <nav className="px-4 space-y-8 mb-8">
            {menuGroups.map((group) => (
              <div key={group.title}>
                 <h3 className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-3 px-2">{group.title}</h3>
@@ -240,7 +245,7 @@ export default function AdminDashboard() {
       </aside>
 
       {/* MAIN CONTENT */}
-      <main className="flex-1 md:ml-64 p-8">
+      <main className="flex-1 p-8 overflow-x-hidden">
         
         {/* TOP BAR */}
         <div className="flex justify-between items-center mb-8">
@@ -248,9 +253,6 @@ export default function AdminDashboard() {
               <h1 className="text-2xl font-bold text-slate-900 dark:text-white capitalize">
                 {activeTab === 'mentors' ? 'Mentor Applicants' : activeTab === 'mentees' ? 'Mentee Applicants' : activeTab === 'messages' ? 'Inbox Messages' : activeTab === 'admins' ? 'Dashboard Admins' : `Manage ${activeTab}`}
               </h1>
-              <p className="text-sm text-slate-500 dark:text-slate-400">
-                 {activeTab === 'admins' ? 'Create users who can login to this dashboard.' : 'Add, Edit, or Remove entries.'}
-              </p>
            </div>
            
            <div className="flex gap-3">
@@ -260,7 +262,7 @@ export default function AdminDashboard() {
              
              {activeTab !== 'settings' && activeTab !== 'mentors' && activeTab !== 'mentees' && activeTab !== 'messages' && (
                <button 
-                 onClick={() => { setEditItem(null); setIsEditing(true); }}
+                 onClick={() => { setEditItem(null); setIsEditing(true); setPreviewUrl(null); }}
                  className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg text-sm font-bold hover:bg-primary/90 shadow-lg shadow-primary/20 transition"
                >
                  <Plus size={16} /> Add New
@@ -304,7 +306,6 @@ export default function AdminDashboard() {
                                {activeTab === 'blogs' && <span className="text-xs bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded">By {item.author}</span>}
                                {activeTab === 'jobs' && <span className="flex items-center gap-2">{item.company} • {item.location}</span>}
                                {activeTab === 'events' && <span>{new Date(item.date).toLocaleDateString()}</span>}
-                               {activeTab === 'team' && item.role}
                                {activeTab === 'admins' && <span className="text-xs font-mono">{item.email} ({item.role})</span>}
                                {activeTab === 'resources' && <span className="text-xs uppercase font-bold">{item.type}</span>}
                                {(activeTab === 'mentors' || activeTab === 'mentees') && item.email}
@@ -317,10 +318,9 @@ export default function AdminDashboard() {
                             </td>
 
                             <td className="p-4 flex justify-end gap-2">
-                               {/* Edit Button */}
                                {activeTab !== 'mentors' && activeTab !== 'mentees' && activeTab !== 'gallery' && activeTab !== 'messages' && activeTab !== 'admins' && (
                                  <button 
-                                    onClick={() => { setEditItem(item); setIsEditing(true); }} 
+                                    onClick={() => { setEditItem(item); setPreviewUrl(item.image || item.imageUrl); setIsEditing(true); }} 
                                     className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-md transition"
                                  >
                                     <Edit size={16}/>
@@ -386,13 +386,20 @@ export default function AdminDashboard() {
                           <input name="author" defaultValue={editItem?.author} placeholder="Author Name" required className="admin-input" />
                           <textarea name="excerpt" defaultValue={editItem?.excerpt} placeholder="Short Summary" required className="admin-input" rows={2}/>
                           <textarea name="content" defaultValue={editItem?.content} placeholder="Full Content" required className="admin-input" rows={6}/>
-                          <div className="space-y-2">
+                          
+                          {/* VISUAL IMAGE PICKER */}
+                          <div className="space-y-3">
                             <label className="block text-sm font-bold text-slate-700 dark:text-slate-300">Cover Image</label>
+                            {previewUrl && (
+                               <div className="relative w-full h-40 bg-slate-100 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700">
+                                  <Image src={previewUrl} alt="Preview" fill className="object-cover" />
+                               </div>
+                            )}
                             <div className="flex items-center gap-4">
                               <label htmlFor="file-upload" className="flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-700 transition">
-                                <Upload size={18} /> Choose File
+                                <Upload size={18} /> {previewUrl ? "Change File" : "Choose File"}
                               </label>
-                              <input id="file-upload" type="file" ref={fileInputRef} className="hidden" accept="image/*" />
+                              <input id="file-upload" type="file" ref={fileInputRef} onChange={handleFileSelect} className="hidden" accept="image/*" />
                               <span className="text-sm text-slate-500 dark:text-slate-400">Or paste URL below</span>
                             </div>
                             <input name="image" defaultValue={editItem?.image} placeholder="Image URL (optional)" className="admin-input" />
@@ -400,50 +407,66 @@ export default function AdminDashboard() {
                        </>
                     )}
 
-                    {/* ADMINS */}
-                    {activeTab === 'admins' && (
+                    {/* EVENTS (WITH VISUAL UPLOAD) */}
+                    {activeTab === 'events' && (
                        <>
-                          <input name="name" placeholder="Admin Name" required className="admin-input" />
-                          <input name="email" type="email" placeholder="Admin Email" required className="admin-input" />
-                          <input name="password" type="password" placeholder="Password" required className="admin-input" />
-                          <p className="text-xs text-red-500">Note: New admins will have 'ADMIN' role (cannot create other admins).</p>
+                          <input name="title" defaultValue={editItem?.title} placeholder="Event Name" required className="admin-input" />
+                          <input name="date" type="datetime-local" defaultValue={editItem?.date ? new Date(editItem.date).toISOString().slice(0, 16) : ''} required className="admin-input" />
+                          <input name="location" defaultValue={editItem?.location} placeholder="Location" required className="admin-input" />
+                          
+                          <div className="space-y-3">
+                            <label className="block text-sm font-bold text-slate-700 dark:text-slate-300">Event Banner</label>
+                            {previewUrl && (
+                               <div className="relative w-full h-40 bg-slate-100 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700">
+                                  <Image src={previewUrl} alt="Preview" fill className="object-cover" />
+                               </div>
+                            )}
+                            <div className="flex items-center gap-4">
+                              <label htmlFor="file-upload" className="flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-700 transition">
+                                <Upload size={18} /> {previewUrl ? "Change File" : "Choose File"}
+                              </label>
+                              <input id="file-upload" type="file" ref={fileInputRef} onChange={handleFileSelect} className="hidden" accept="image/*" />
+                            </div>
+                            <input name="image" defaultValue={editItem?.image} placeholder="Image URL (optional)" className="admin-input" />
+                          </div>
                        </>
                     )}
 
-                    {/* JOBS */}
+                     {/* GALLERY (WITH VISUAL UPLOAD) */}
+                    {activeTab === 'gallery' && (
+                       <>
+                          <input name="title" placeholder="Caption" required className="admin-input" />
+                          <input name="category" placeholder="Category" required className="admin-input" />
+                          
+                          <div className="space-y-3">
+                            <label className="block text-sm font-bold text-slate-700 dark:text-slate-300">Gallery Image</label>
+                            {previewUrl && (
+                               <div className="relative w-full h-40 bg-slate-100 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700">
+                                  <Image src={previewUrl} alt="Preview" fill className="object-cover" />
+                               </div>
+                            )}
+                            <div className="flex items-center gap-4">
+                              <label htmlFor="file-upload" className="flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-700 transition">
+                                <Upload size={18} /> {previewUrl ? "Change File" : "Choose File"}
+                              </label>
+                              <input id="file-upload" type="file" ref={fileInputRef} onChange={handleFileSelect} className="hidden" accept="image/*" />
+                            </div>
+                            <input name="imageUrl" placeholder="Image URL (optional)" className="admin-input" />
+                          </div>
+                       </>
+                    )}
+
+                    {/* OTHER TABS (Standard) */}
                     {activeTab === 'jobs' && (
                        <>
                           <input name="title" defaultValue={editItem?.title} placeholder="Job Title" required className="admin-input" />
                           <input name="company" defaultValue={editItem?.company} placeholder="Company" required className="admin-input" />
                           <input name="location" defaultValue={editItem?.location} placeholder="Location" required className="admin-input" />
-                          <select name="type" defaultValue={editItem?.type || "Full Time"} className="admin-input">
-                             <option>Full Time</option><option>Part Time</option><option>Contract</option>
-                          </select>
+                          <select name="type" defaultValue={editItem?.type || "Full Time"} className="admin-input"><option>Full Time</option><option>Part Time</option><option>Contract</option></select>
                           <textarea name="description" defaultValue={editItem?.description} placeholder="Description" required className="admin-input" rows={4}/>
                           <input name="applyLink" defaultValue={editItem?.applyLink} placeholder="Application Link/Email" required className="admin-input" />
                        </>
                     )}
-
-                    {/* TEAM (WEBSITE) */}
-                    {activeTab === 'team' && (
-                       <>
-                          <input name="name" defaultValue={editItem?.name} placeholder="Full Name" required className="admin-input" />
-                          <input name="role" defaultValue={editItem?.role} placeholder="Role" required className="admin-input" />
-                          <div className="space-y-2">
-                            <label className="block text-sm font-bold text-slate-700 dark:text-slate-300">Profile Photo</label>
-                            <div className="flex items-center gap-4">
-                              <label htmlFor="file-upload" className="flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-700 transition">
-                                <Upload size={18} /> Choose File
-                              </label>
-                              <input id="file-upload" type="file" ref={fileInputRef} className="hidden" accept="image/*" />
-                              <span className="text-sm text-slate-500 dark:text-slate-400">Or paste URL below</span>
-                            </div>
-                            <input name="image" defaultValue={editItem?.image} placeholder="Image URL (optional)" className="admin-input" />
-                          </div>
-                       </>
-                    )}
-                    
-                    {/* RESOURCES */}
                     {activeTab === 'resources' && (
                        <>
                           <input name="title" defaultValue={editItem?.title} placeholder="Title" required className="admin-input" />
@@ -451,43 +474,11 @@ export default function AdminDashboard() {
                           <input name="fileUrl" defaultValue={editItem?.fileUrl} placeholder="File URL" required className="admin-input" />
                        </>
                     )}
-
-                    {/* EVENTS */}
-                    {activeTab === 'events' && (
+                    {activeTab === 'admins' && (
                        <>
-                          <input name="title" defaultValue={editItem?.title} placeholder="Event Name" required className="admin-input" />
-                          <input name="date" type="datetime-local" defaultValue={editItem?.date ? new Date(editItem.date).toISOString().slice(0, 16) : ''} required className="admin-input" />
-                          <input name="location" defaultValue={editItem?.location} placeholder="Location" required className="admin-input" />
-                          <div className="space-y-2">
-                            <label className="block text-sm font-bold text-slate-700 dark:text-slate-300">Event Banner</label>
-                            <div className="flex items-center gap-4">
-                              <label htmlFor="file-upload" className="flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-700 transition">
-                                <Upload size={18} /> Choose File
-                              </label>
-                              <input id="file-upload" type="file" ref={fileInputRef} className="hidden" accept="image/*" />
-                              <span className="text-sm text-slate-500 dark:text-slate-400">Or paste URL below</span>
-                            </div>
-                            <input name="image" defaultValue={editItem?.image} placeholder="Image URL (optional)" className="admin-input" />
-                          </div>
-                       </>
-                    )}
-                    
-                    {/* GALLERY */}
-                    {activeTab === 'gallery' && (
-                       <>
-                          <input name="title" placeholder="Caption" required className="admin-input" />
-                          <input name="category" placeholder="Category" required className="admin-input" />
-                          <div className="space-y-2">
-                            <label className="block text-sm font-bold text-slate-700 dark:text-slate-300">Image</label>
-                            <div className="flex items-center gap-4">
-                              <label htmlFor="file-upload" className="flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-700 transition">
-                                <Upload size={18} /> Choose File
-                              </label>
-                              <input id="file-upload" type="file" ref={fileInputRef} className="hidden" accept="image/*" />
-                              <span className="text-sm text-slate-500 dark:text-slate-400">Or paste URL below</span>
-                            </div>
-                            <input name="imageUrl" placeholder="Image URL (optional)" className="admin-input" />
-                          </div>
+                          <input name="name" placeholder="Admin Name" required className="admin-input" />
+                          <input name="email" type="email" placeholder="Admin Email" required className="admin-input" />
+                          <input name="password" type="password" placeholder="Password" required className="admin-input" />
                        </>
                     )}
 
