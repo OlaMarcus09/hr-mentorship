@@ -16,7 +16,6 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     
-    // FALLBACK: If date is missing or invalid, use current time
     let eventDate = new Date();
     if (body.date) {
         const parsedDate = new Date(body.date);
@@ -30,14 +29,14 @@ export async function POST(request: Request) {
         title: body.title || "Untitled Event",
         location: body.location || "TBD",
         image: body.image || "",
-        date: eventDate, 
+        date: eventDate,
+        registrationLink: body.registrationLink || "#", // <--- Saving the link
       }
     });
 
     return NextResponse.json(event);
   } catch (error) {
     console.error("Create Event Error:", error);
-    // Return detailed error so we know why
     return NextResponse.json({ error: `DB Error: ${error instanceof Error ? error.message : String(error)}` }, { status: 500 });
   }
 }

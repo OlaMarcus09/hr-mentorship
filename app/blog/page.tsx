@@ -21,19 +21,16 @@ export default async function BlogPage(props: { searchParams: Promise<{ page?: s
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
-       {/* HERO SECTION */}
        <section className="relative pt-48 pb-20 px-6 bg-primary w-full overflow-hidden">
-         {/* ABSOLUTE BACKGROUND IMAGE */}
          <div className="absolute inset-0 z-0">
             <Image 
-              src="https://images.unsplash.com/photo-1499750310159-5254f4cc1555?auto=format&fit=crop&w=1200"
-              alt="Blog Hero Background"
+              src="https://res.cloudinary.com/dmqjicpcc/image/upload/v1767099366/hero_Image_ezg2ir.jpg"
+              alt="Blog Hero"
               fill
-              className="object-cover opacity-20"
+              className="object-cover opacity-30"
               priority
             />
          </div>
-         
          <div className="relative z-10 max-w-4xl mx-auto text-center text-white">
             <h1 className="text-4xl md:text-6xl font-heading font-bold mb-6">Our Blog</h1>
             <p className="text-xl text-white/90">Latest News, Insights & Stories.</p>

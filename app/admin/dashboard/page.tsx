@@ -14,7 +14,6 @@ export default function AdminDashboard() {
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [role, setRole] = useState<string>('ADMIN');
-  const [adminEmail, setAdminEmail] = useState(''); // Store logged in email
   
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -31,8 +30,6 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     const storedRole = localStorage.getItem("adminRole");
-    // In a real app we decode the token, here we trust localstorage for UI only
-    // You should store email on login to use here
     if (storedRole) setRole(storedRole);
   }, []);
 
@@ -211,7 +208,6 @@ export default function AdminDashboard() {
            )}
         </div>
 
-        {/* SETTINGS VIEW */}
         {activeTab === 'settings' && (
            <div className="bg-white dark:bg-slate-900 p-8 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 max-w-xl">
               <h2 className="text-xl font-bold mb-6 flex items-center gap-2"><Lock size={20}/> Change Credentials</h2>
@@ -229,7 +225,6 @@ export default function AdminDashboard() {
            </div>
         )}
 
-        {/* NORMAL LIST VIEW */}
         {activeTab !== 'settings' && (
           loading ? <div className="h-64 flex items-center justify-center"><RefreshCw className="animate-spin"/></div> : (
             <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
@@ -265,7 +260,6 @@ export default function AdminDashboard() {
           )
         )}
 
-        {/* MODALS (Message & Edit) */}
         {viewMessage && (
           <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm">
              <div className="bg-white dark:bg-slate-900 w-full max-w-lg rounded-xl shadow-2xl p-8 border border-slate-200 dark:border-slate-800">
@@ -300,9 +294,24 @@ export default function AdminDashboard() {
                        </>
                     )}
 
+                    {activeTab === 'events' && (
+                       <>
+                          <input name="title" defaultValue={editItem?.title} placeholder="Event Name" required className="admin-input" />
+                          <input name="date" type="datetime-local" className="admin-input" />
+                          <input name="location" defaultValue={editItem?.location} placeholder="Location (e.g. Zoom or Lagos)" required className="admin-input" />
+                          {/* NEW FIELD FOR LINK */}
+                          <input name="registrationLink" defaultValue={editItem?.registrationLink} placeholder="Registration Link (e.g. https://zoom.us/...)" className="admin-input" />
+                          <div className="space-y-3">
+                            <label className="block text-sm font-bold">Event Banner</label>
+                            {previewUrl && <div className="h-40 w-full relative"><Image src={previewUrl} alt="Preview" fill className="object-cover rounded"/></div>}
+                            <input type="file" ref={fileInputRef} onChange={handleFileSelect} accept="image/*" />
+                          </div>
+                       </>
+                    )}
+
                     {activeTab === 'gallery' && (
                        <>
-                          <input name="title" placeholder="Caption (Optional for bulk upload)" className="admin-input" />
+                          <input name="title" placeholder="Caption (Optional)" className="admin-input" />
                           <select name="category" className="admin-input">
                              <option value="Events">Events</option>
                              <option value="Webinars">Webinars</option>
@@ -324,11 +333,10 @@ export default function AdminDashboard() {
                        </>
                     )}
 
-                    {(activeTab === 'blogs' || activeTab === 'events') && (
+                    {activeTab === 'blogs' && (
                        <>
                           <input name="title" defaultValue={editItem?.title} placeholder="Title" required className="admin-input" />
-                          {activeTab === 'blogs' && <input name="author" defaultValue={editItem?.author} placeholder="Author" className="admin-input" />}
-                          {activeTab === 'events' && <input name="date" type="datetime-local" className="admin-input" />}
+                          <input name="author" defaultValue={editItem?.author} placeholder="Author" className="admin-input" />
                           <textarea name="content" defaultValue={editItem?.content} placeholder="Content/Description" className="admin-input" rows={4}/>
                           
                           <div className="space-y-3">
