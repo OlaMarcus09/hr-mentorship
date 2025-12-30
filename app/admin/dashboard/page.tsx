@@ -7,12 +7,16 @@ import {
   ChevronLeft, ChevronRight, X, Upload, Mail, ShieldAlert
 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function AdminDashboard() {
+  const router = useRouter();
+  
   // --- STATE ---
   const [activeTab, setActiveTab] = useState('blogs');
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [role, setRole] = useState<string>('ADMIN'); // Default to low privilege
   
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -23,6 +27,14 @@ export default function AdminDashboard() {
   const [editItem, setEditItem] = useState<any>(null);
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // --- CHECK PERMISSIONS ON LOAD ---
+  useEffect(() => {
+    const storedRole = localStorage.getItem("adminRole");
+    if (storedRole) setRole(storedRole);
+    // Optional: If no role found, redirect to login
+    // if (!storedRole) router.push('/admin');
+  }, []);
 
   // --- CONFIGURATION ---
   const menuGroups = [
@@ -39,7 +51,7 @@ export default function AdminDashboard() {
     {
       title: "People",
       items: [
-        { id: 'team', label: 'Website Team', icon: <Users size={18}/> }, // Frontend Team
+        { id: 'team', label: 'Website Team', icon: <Users size={18}/> },
         { id: 'mentors', label: 'Mentor Applicants', icon: <UserCheck size={18}/> },
         { id: 'mentees', label: 'Mentee Applicants', icon: <Users size={18}/> },
         { id: 'messages', label: 'Messages', icon: <Mail size={18}/> },
@@ -48,7 +60,8 @@ export default function AdminDashboard() {
     {
       title: "System",
       items: [
-        { id: 'admins', label: 'Manage Admins', icon: <ShieldAlert size={18}/> }, // NEW: Dashboard Admins
+        // ONLY SHOW 'MANAGE ADMINS' IF SUPER_ADMIN
+        ...(role === 'SUPER_ADMIN' ? [{ id: 'admins', label: 'Manage Admins', icon: <ShieldAlert size={18}/> }] : []),
         { id: 'settings', label: 'Settings', icon: <Settings size={18}/> },
       ]
     }
@@ -56,33 +69,28 @@ export default function AdminDashboard() {
 
   // --- IMAGE UPLOAD HELPER (FIXED) ---
   const uploadImage = async (file: File): Promise<string> => {
-    const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
-    if (!cloudName) {
-      alert("Configuration Error: NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME is missing in .env file");
-      throw new Error("Missing Cloud Name");
-    }
-
     const formData = new FormData();
     formData.append('file', file);
-    // IMPORTANT: Make sure this "upload preset" exists in your Cloudinary Settings -> Upload
+    // HARDCODED FIX: Using your specific cloud details to prevent errors
     formData.append('upload_preset', 'ml_default'); 
 
+    // Cloud Name: dmqjicpcc
     try {
-      const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+      const res = await fetch(`https://api.cloudinary.com/v1_1/dmqjicpcc/image/upload`, {
         method: 'POST',
         body: formData,
       });
 
       if (!res.ok) {
         const err = await res.json();
-        console.error("Cloudinary Error:", err);
-        throw new Error(err.error?.message || 'Failed to upload image');
+        throw new Error(err.error?.message || 'Failed to upload');
       }
 
       const data = await res.json();
       return data.secure_url;
     } catch (error) {
-      console.error("Upload error details:", error);
+      console.error("Upload error:", error);
+      alert("Image Upload Failed. Please check your internet or image size.");
       throw error;
     }
   };
@@ -93,7 +101,6 @@ export default function AdminDashboard() {
     setItems([]); 
     try {
       let endpoint = `/api/${activeTab}`;
-      
       if (activeTab === 'mentors') endpoint = `/api/applicants?role=mentor`;
       if (activeTab === 'mentees') endpoint = `/api/applicants?role=mentee`;
       if (activeTab === 'admins') endpoint = `/api/admins`;
@@ -119,7 +126,7 @@ export default function AdminDashboard() {
 
   // --- HANDLERS ---
   const handleDelete = async (id: number) => {
-    if (!confirm("Are you sure you want to delete this?")) return;
+    if (!confirm("Are you sure?")) return;
     try {
       let endpoint = `/api/${activeTab}/${id}`;
       if (activeTab === 'gallery') endpoint = `/api/gallery?id=${id}`;
@@ -132,8 +139,7 @@ export default function AdminDashboard() {
         fetchData();
         alert("Deleted successfully");
       } else {
-        const err = await res.json();
-        alert(err.error || "Failed to delete");
+        alert("Failed to delete");
       }
     } catch (e) { alert("Error deleting"); }
   };
@@ -151,10 +157,9 @@ export default function AdminDashboard() {
       let endpointBase = activeTab;
       if (activeTab === 'mentors' || activeTab === 'mentees') endpointBase = 'applicants';
       
-      if (activeTab === 'gallery') {
-         url = '/api/gallery'; method = 'POST'; 
-      } else if (activeTab === 'admins') {
-         url = '/api/admins'; method = 'POST'; // Admins only allow creation here for safety
+      if (activeTab === 'gallery' || activeTab === 'admins') {
+         url = activeTab === 'gallery' ? '/api/gallery' : '/api/admins';
+         method = 'POST'; 
       } else {
          url = editItem ? `/api/${endpointBase}/${editItem.id}` : `/api/${endpointBase}`;
          method = editItem ? 'PATCH' : 'POST';
@@ -169,9 +174,8 @@ export default function AdminDashboard() {
           if (activeTab === 'events') data.image = imageUrl;
           if (activeTab === 'gallery') data.imageUrl = imageUrl;
         } catch (uploadError) {
-          alert("Image Upload Failed. Check console for details.");
           setIsUploading(false);
-          return;
+          return; // Stop if upload fails
         }
       }
 
@@ -191,8 +195,7 @@ export default function AdminDashboard() {
         alert(`Failed: ${errorData.error || "Unknown error"}`);
       }
     } catch (err) { 
-      console.error(err);
-      alert("Error submitting form. See console."); 
+      alert("Error submitting form"); 
     } finally { 
       setIsUploading(false); 
     }
@@ -211,7 +214,9 @@ export default function AdminDashboard() {
       <aside className="w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 fixed h-full overflow-y-auto hidden md:block z-10">
         <div className="p-6">
            <h2 className="font-heading font-bold text-xl text-primary mb-1">Admin Panel</h2>
-           <p className="text-xs text-slate-500 dark:text-slate-400">Manage Content</p>
+           <p className="text-xs text-slate-500 dark:text-slate-400">
+             Logged in as: <span className="font-bold text-slate-900 dark:text-white">{role === 'SUPER_ADMIN' ? 'Super Admin' : 'Admin'}</span>
+           </p>
         </div>
         
         <nav className="px-4 space-y-8">
@@ -300,7 +305,7 @@ export default function AdminDashboard() {
                                {activeTab === 'jobs' && <span className="flex items-center gap-2">{item.company} • {item.location}</span>}
                                {activeTab === 'events' && <span>{new Date(item.date).toLocaleDateString()}</span>}
                                {activeTab === 'team' && item.role}
-                               {activeTab === 'admins' && <span className="text-xs font-mono">{item.email}</span>}
+                               {activeTab === 'admins' && <span className="text-xs font-mono">{item.email} ({item.role})</span>}
                                {activeTab === 'resources' && <span className="text-xs uppercase font-bold">{item.type}</span>}
                                {(activeTab === 'mentors' || activeTab === 'mentees') && item.email}
                                {activeTab === 'messages' && (
@@ -312,6 +317,7 @@ export default function AdminDashboard() {
                             </td>
 
                             <td className="p-4 flex justify-end gap-2">
+                               {/* Edit Button */}
                                {activeTab !== 'mentors' && activeTab !== 'mentees' && activeTab !== 'gallery' && activeTab !== 'messages' && activeTab !== 'admins' && (
                                  <button 
                                     onClick={() => { setEditItem(item); setIsEditing(true); }} 
@@ -394,13 +400,13 @@ export default function AdminDashboard() {
                        </>
                     )}
 
-                    {/* ADMINS (NEW) */}
+                    {/* ADMINS */}
                     {activeTab === 'admins' && (
                        <>
                           <input name="name" placeholder="Admin Name" required className="admin-input" />
                           <input name="email" type="email" placeholder="Admin Email" required className="admin-input" />
                           <input name="password" type="password" placeholder="Password" required className="admin-input" />
-                          <p className="text-xs text-red-500">Note: New admins will have full access to this dashboard.</p>
+                          <p className="text-xs text-red-500">Note: New admins will have 'ADMIN' role (cannot create other admins).</p>
                        </>
                     )}
 

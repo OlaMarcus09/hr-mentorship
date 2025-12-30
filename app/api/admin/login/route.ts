@@ -7,31 +7,22 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { email, password } = body;
 
-    if (!email || !password) {
-      return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
-    }
+    if (!email || !password) return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
 
-    // 1. Find the admin
-    const admin = await prisma.admin.findUnique({
-      where: { email }
+    const admin = await prisma.admin.findUnique({ where: { email } });
+    if (!admin) return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
+
+    const isValid = await compare(password, admin.password);
+    if (!isValid) return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
+
+    // Return the role so the frontend can hide/show tabs
+    return NextResponse.json({ 
+      success: true, 
+      role: admin.role, // 'SUPER_ADMIN' or 'ADMIN'
+      name: admin.name 
     });
 
-    if (!admin) {
-      return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
-    }
-
-    // 2. Check Password
-    const isValid = await compare(password, admin.password);
-
-    if (!isValid) {
-      return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
-    }
-
-    // 3. Success
-    return NextResponse.json({ success: true });
-
   } catch (error) {
-    console.error("Login error:", error);
     return NextResponse.json({ error: 'Login failed' }, { status: 500 });
   }
 }
