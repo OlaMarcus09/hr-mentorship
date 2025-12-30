@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { 
   LayoutDashboard, FileText, Briefcase, Calendar, Image as ImageIcon, 
   Users, UserCheck, Settings, Plus, Trash2, Edit, RefreshCw, 
-  X, Upload, Mail, ShieldAlert, Eye, Lock
+  X, Upload, Mail, ShieldAlert, Eye, Lock, ChevronLeft, ChevronRight
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -171,13 +171,20 @@ export default function AdminDashboard() {
 
       if (res.ok) {
         setIsEditing(false); setEditItem(null); setPreviewUrl(null); fetchData(); alert("Saved successfully!");
-      } else { alert("Operation failed."); }
-    } catch (err) { alert("Error submitting"); } finally { setIsUploading(false); setUploadProgress(""); }
+      } else { 
+        // Log error if any
+        const errData = await res.json();
+        console.error("Save Error:", errData);
+        alert(`Operation failed: ${errData.error || 'Unknown error'}`); 
+      }
+    } catch (err) { alert("Error submitting form"); } finally { setIsUploading(false); setUploadProgress(""); }
   };
 
+  // Pagination Logic
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = items.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(items.length / itemsPerPage);
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col md:flex-row pt-20">
@@ -192,7 +199,7 @@ export default function AdminDashboard() {
                 <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 px-2">{group.title}</h3>
                 <div className="space-y-1">
                    {group.items.map((item) => (
-                     <button key={item.id} onClick={() => setActiveTab(item.id)} className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition ${activeTab === item.id ? 'bg-primary/10 text-primary' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'}`}>{item.icon} {item.label}</button>
+                     <button key={item.id} onClick={() => { setActiveTab(item.id); setCurrentPage(1); }} className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition ${activeTab === item.id ? 'bg-primary/10 text-primary' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'}`}>{item.icon} {item.label}</button>
                    ))}
                 </div>
              </div>
@@ -227,14 +234,14 @@ export default function AdminDashboard() {
 
         {activeTab !== 'settings' && (
           loading ? <div className="h-64 flex items-center justify-center"><RefreshCw className="animate-spin"/></div> : (
-            <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
+            <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col">
                <div className="overflow-x-auto">
                    <table className="w-full text-left text-sm">
                       <thead className="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
                          <tr><th className="p-4 w-16">ID</th><th className="p-4">Title/Name</th><th className="p-4">Details</th><th className="p-4 w-32 text-right">Actions</th></tr>
                       </thead>
                       <tbody>
-                         {currentItems.map((item) => (
+                         {currentItems.length > 0 ? currentItems.map((item) => (
                            <tr key={item.id} className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50">
                               <td className="p-4">#{item.id}</td>
                               <td className="p-4 font-bold">{item.title || item.name || item.subject}</td>
@@ -243,6 +250,7 @@ export default function AdminDashboard() {
                                  {activeTab === 'jobs' && `${item.company}`}
                                  {activeTab === 'gallery' && item.category}
                                  {activeTab === 'resources' && item.type}
+                                 {activeTab === 'events' && item.date && new Date(item.date).toLocaleDateString()}
                               </td>
                               <td className="p-4 flex justify-end gap-2">
                                  {activeTab === 'messages' && (
@@ -252,14 +260,42 @@ export default function AdminDashboard() {
                                  <button onClick={() => handleDelete(item.id)} className="text-red-600"><Trash2 size={16}/></button>
                               </td>
                            </tr>
-                         ))}
+                         )) : (
+                           <tr>
+                             <td colSpan={4} className="p-8 text-center text-slate-500">No items found.</td>
+                           </tr>
+                         )}
                       </tbody>
                    </table>
                </div>
+               
+               {/* PAGINATION CONTROLS */}
+               {totalPages > 1 && (
+                 <div className="p-4 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-900/50">
+                    <span className="text-xs text-slate-500 font-bold">Page {currentPage} of {totalPages}</span>
+                    <div className="flex gap-2">
+                       <button 
+                         onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                         disabled={currentPage === 1}
+                         className="p-2 bg-white dark:bg-slate-800 border dark:border-slate-700 rounded-md disabled:opacity-50 hover:bg-slate-100 dark:hover:bg-slate-700 transition"
+                       >
+                         <ChevronLeft size={16}/>
+                       </button>
+                       <button 
+                         onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                         disabled={currentPage === totalPages}
+                         className="p-2 bg-white dark:bg-slate-800 border dark:border-slate-700 rounded-md disabled:opacity-50 hover:bg-slate-100 dark:hover:bg-slate-700 transition"
+                       >
+                         <ChevronRight size={16}/>
+                       </button>
+                    </div>
+                 </div>
+               )}
             </div>
           )
         )}
 
+        {/* MODALS */}
         {viewMessage && (
           <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm">
              <div className="bg-white dark:bg-slate-900 w-full max-w-lg rounded-xl shadow-2xl p-8 border border-slate-200 dark:border-slate-800">
@@ -297,10 +333,15 @@ export default function AdminDashboard() {
                     {activeTab === 'events' && (
                        <>
                           <input name="title" defaultValue={editItem?.title} placeholder="Event Name" required className="admin-input" />
-                          <input name="date" type="datetime-local" className="admin-input" />
-                          <input name="location" defaultValue={editItem?.location} placeholder="Location (e.g. Zoom or Lagos)" required className="admin-input" />
-                          {/* NEW FIELD FOR LINK */}
-                          <input name="registrationLink" defaultValue={editItem?.registrationLink} placeholder="Registration Link (e.g. https://zoom.us/...)" className="admin-input" />
+                          {/* FIX: Ensure date string is formatted correctly for input */}
+                          <input 
+                            name="date" 
+                            type="datetime-local" 
+                            defaultValue={editItem?.date ? new Date(editItem.date).toISOString().slice(0, 16) : ''} 
+                            className="admin-input" 
+                          />
+                          <input name="location" defaultValue={editItem?.location} placeholder="Location" required className="admin-input" />
+                          <input name="registrationLink" defaultValue={editItem?.registrationLink} placeholder="Registration Link" className="admin-input" />
                           <div className="space-y-3">
                             <label className="block text-sm font-bold">Event Banner</label>
                             {previewUrl && <div className="h-40 w-full relative"><Image src={previewUrl} alt="Preview" fill className="object-cover rounded"/></div>}
