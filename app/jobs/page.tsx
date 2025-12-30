@@ -1,11 +1,22 @@
 import { prisma } from '@/lib/prisma';
 import Link from "next/link";
-import { MapPin, DollarSign, Briefcase } from "lucide-react";
+import { MapPin, DollarSign, Briefcase, ChevronLeft, ChevronRight } from "lucide-react";
 
 export const dynamic = 'force-dynamic';
 
-export default async function JobsPage() {
-  const jobs = await prisma.job.findMany({ orderBy: { postedAt: 'desc' } });
+export default async function JobsPage(props: { searchParams: Promise<{ page?: string }> }) {
+  const searchParams = await props.searchParams;
+  const page = parseInt(searchParams.page || '1');
+  const pageSize = 8;
+
+  const jobs = await prisma.job.findMany({ 
+    orderBy: { postedAt: 'desc' },
+    skip: (page - 1) * pageSize,
+    take: pageSize
+  });
+
+  const totalJobs = await prisma.job.count();
+  const totalPages = Math.ceil(totalJobs / pageSize);
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
@@ -19,7 +30,7 @@ export default async function JobsPage() {
        </section>
 
        <div className="max-w-7xl mx-auto px-6 py-20">
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid md:grid-cols-2 gap-6 mb-12">
              {jobs.map((job) => (
                 <div key={job.id} className="bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-100 dark:border-slate-800 hover:shadow-xl transition group">
                    <div className="flex justify-between items-start mb-4">
@@ -42,6 +53,20 @@ export default async function JobsPage() {
                    </Link>
                 </div>
              ))}
+          </div>
+
+          {/* PAGINATION */}
+          <div className="flex justify-center gap-4">
+             {page > 1 && (
+               <Link href={`/jobs?page=${page - 1}`} className="flex items-center gap-2 px-6 py-3 bg-white dark:bg-slate-800 border dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-900 dark:text-white font-bold transition">
+                 <ChevronLeft size={16}/> Previous
+               </Link>
+             )}
+             {page < totalPages && (
+               <Link href={`/jobs?page=${page + 1}`} className="flex items-center gap-2 px-6 py-3 bg-white dark:bg-slate-800 border dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-900 dark:text-white font-bold transition">
+                 Next <ChevronRight size={16}/>
+               </Link>
+             )}
           </div>
        </div>
     </div>

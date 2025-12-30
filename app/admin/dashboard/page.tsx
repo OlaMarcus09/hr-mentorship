@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { 
   LayoutDashboard, FileText, Briefcase, Calendar, Image as ImageIcon, 
   Users, UserCheck, Settings, Plus, Trash2, Edit, RefreshCw, 
-  ChevronLeft, ChevronRight, X, Upload, Mail, ShieldAlert, Eye
+  X, Upload, Mail, ShieldAlert, Eye, Lock
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -14,6 +14,7 @@ export default function AdminDashboard() {
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [role, setRole] = useState<string>('ADMIN');
+  const [adminEmail, setAdminEmail] = useState(''); // Store logged in email
   
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -21,15 +22,17 @@ export default function AdminDashboard() {
 
   // CRUD State
   const [isEditing, setIsEditing] = useState(false);
-  const [viewMessage, setViewMessage] = useState<any>(null); // For reading messages
+  const [viewMessage, setViewMessage] = useState<any>(null);
   const [editItem, setEditItem] = useState<any>(null);
   const [isUploading, setIsUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(""); // For multiple uploads
+  const [uploadProgress, setUploadProgress] = useState("");
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const storedRole = localStorage.getItem("adminRole");
+    // In a real app we decode the token, here we trust localstorage for UI only
+    // You should store email on login to use here
     if (storedRole) setRole(storedRole);
   }, []);
 
@@ -78,6 +81,7 @@ export default function AdminDashboard() {
   };
 
   const fetchData = async () => {
+    if (activeTab === 'settings') { setItems([]); return; }
     setLoading(true);
     setItems([]); 
     try {
@@ -85,7 +89,6 @@ export default function AdminDashboard() {
       if (activeTab === 'mentors') endpoint = `/api/applicants?role=mentor`;
       if (activeTab === 'mentees') endpoint = `/api/applicants?role=mentee`;
       if (activeTab === 'admins') endpoint = `/api/admins`;
-      if (activeTab === 'settings') { setLoading(false); return; }
 
       const res = await fetch(endpoint);
       if (!res.ok) throw new Error("Failed");
@@ -111,6 +114,23 @@ export default function AdminDashboard() {
     } catch (e) { alert("Error deleting"); }
   };
 
+  const handleSettingsSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const formData = new FormData(e.target as HTMLFormElement);
+    const email = formData.get('email');
+    const newPassword = formData.get('newPassword');
+
+    try {
+      const res = await fetch('/api/admin/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, newPassword })
+      });
+      if(res.ok) { alert("Password updated!"); (e.target as HTMLFormElement).reset(); }
+      else { alert("Failed to update password"); }
+    } catch(err) { alert("Error updating settings"); }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsUploading(true);
@@ -120,16 +140,14 @@ export default function AdminDashboard() {
     const data: any = Object.fromEntries(formData.entries());
 
     try {
-      // SPECIAL HANDLE FOR GALLERY MULTIPLE UPLOAD
       if (activeTab === 'gallery' && fileInputRef.current?.files?.length) {
         const files = Array.from(fileInputRef.current.files);
         const category = data.category;
-        const caption = data.title; // optional caption for all
+        const caption = data.title; 
 
         for (let i = 0; i < files.length; i++) {
           setUploadProgress(`Uploading ${i + 1} of ${files.length}...`);
           const url = await uploadOneImage(files[i]);
-          // Post each image individually
           await fetch('/api/gallery', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -140,7 +158,6 @@ export default function AdminDashboard() {
         return;
       }
 
-      // NORMAL SINGLE ITEM CRUD
       let url = ''; let method = ''; let endpointBase = activeTab;
       if (activeTab === 'mentors' || activeTab === 'mentees') endpointBase = 'applicants';
       if (activeTab === 'admins') { url = '/api/admins'; method = 'POST'; }
@@ -164,7 +181,6 @@ export default function AdminDashboard() {
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = items.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(items.length / itemsPerPage);
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col md:flex-row pt-20">
@@ -195,40 +211,61 @@ export default function AdminDashboard() {
            )}
         </div>
 
-        {loading ? <div className="h-64 flex items-center justify-center"><RefreshCw className="animate-spin"/></div> : (
-          <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
-             <div className="overflow-x-auto">
-                 <table className="w-full text-left text-sm">
-                    <thead className="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
-                       <tr><th className="p-4 w-16">ID</th><th className="p-4">Title/Name</th><th className="p-4">Details</th><th className="p-4 w-32 text-right">Actions</th></tr>
-                    </thead>
-                    <tbody>
-                       {currentItems.map((item) => (
-                         <tr key={item.id} className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50">
-                            <td className="p-4">#{item.id}</td>
-                            <td className="p-4 font-bold">{item.title || item.name || item.subject}</td>
-                            <td className="p-4 text-slate-600">
-                               {activeTab === 'messages' && <span className="text-xs truncate block max-w-xs">{item.message}</span>}
-                               {activeTab === 'jobs' && `${item.company}`}
-                               {activeTab === 'gallery' && item.category}
-                               {activeTab === 'resources' && item.type}
-                            </td>
-                            <td className="p-4 flex justify-end gap-2">
-                               {activeTab === 'messages' && (
-                                 <button onClick={() => setViewMessage(item)} className="p-2 text-green-600 bg-green-50 rounded hover:bg-green-100"><Eye size={16} /></button>
-                               )}
-                               {activeTab !== 'mentors' && activeTab !== 'messages' && <button onClick={() => { setEditItem(item); setPreviewUrl(item.image || item.imageUrl); setIsEditing(true); }}><Edit size={16}/></button>}
-                               <button onClick={() => handleDelete(item.id)} className="text-red-600"><Trash2 size={16}/></button>
-                            </td>
-                         </tr>
-                       ))}
-                    </tbody>
-                 </table>
-             </div>
-          </div>
+        {/* SETTINGS VIEW */}
+        {activeTab === 'settings' && (
+           <div className="bg-white dark:bg-slate-900 p-8 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 max-w-xl">
+              <h2 className="text-xl font-bold mb-6 flex items-center gap-2"><Lock size={20}/> Change Credentials</h2>
+              <form onSubmit={handleSettingsSubmit} className="space-y-4">
+                 <div>
+                    <label className="block text-sm font-bold mb-2">Confirm Email</label>
+                    <input name="email" type="email" placeholder="admin@hrmentorship.com" required className="admin-input" />
+                 </div>
+                 <div>
+                    <label className="block text-sm font-bold mb-2">New Password</label>
+                    <input name="newPassword" type="password" placeholder="Min 6 characters" required className="admin-input" />
+                 </div>
+                 <button type="submit" className="px-6 py-3 bg-primary text-white font-bold rounded-lg hover:bg-primary/90">Update Password</button>
+              </form>
+           </div>
         )}
 
-        {/* MESSAGE VIEWER MODAL */}
+        {/* NORMAL LIST VIEW */}
+        {activeTab !== 'settings' && (
+          loading ? <div className="h-64 flex items-center justify-center"><RefreshCw className="animate-spin"/></div> : (
+            <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
+               <div className="overflow-x-auto">
+                   <table className="w-full text-left text-sm">
+                      <thead className="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
+                         <tr><th className="p-4 w-16">ID</th><th className="p-4">Title/Name</th><th className="p-4">Details</th><th className="p-4 w-32 text-right">Actions</th></tr>
+                      </thead>
+                      <tbody>
+                         {currentItems.map((item) => (
+                           <tr key={item.id} className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                              <td className="p-4">#{item.id}</td>
+                              <td className="p-4 font-bold">{item.title || item.name || item.subject}</td>
+                              <td className="p-4 text-slate-600">
+                                 {activeTab === 'messages' && <span className="text-xs truncate block max-w-xs">{item.message}</span>}
+                                 {activeTab === 'jobs' && `${item.company}`}
+                                 {activeTab === 'gallery' && item.category}
+                                 {activeTab === 'resources' && item.type}
+                              </td>
+                              <td className="p-4 flex justify-end gap-2">
+                                 {activeTab === 'messages' && (
+                                   <button onClick={() => setViewMessage(item)} className="p-2 text-green-600 bg-green-50 rounded hover:bg-green-100"><Eye size={16} /></button>
+                                 )}
+                                 {activeTab !== 'mentors' && activeTab !== 'messages' && <button onClick={() => { setEditItem(item); setPreviewUrl(item.image || item.imageUrl); setIsEditing(true); }}><Edit size={16}/></button>}
+                                 <button onClick={() => handleDelete(item.id)} className="text-red-600"><Trash2 size={16}/></button>
+                              </td>
+                           </tr>
+                         ))}
+                      </tbody>
+                   </table>
+               </div>
+            </div>
+          )
+        )}
+
+        {/* MODALS (Message & Edit) */}
         {viewMessage && (
           <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm">
              <div className="bg-white dark:bg-slate-900 w-full max-w-lg rounded-xl shadow-2xl p-8 border border-slate-200 dark:border-slate-800">
@@ -268,7 +305,7 @@ export default function AdminDashboard() {
                           <input name="title" placeholder="Caption (Optional for bulk upload)" className="admin-input" />
                           <select name="category" className="admin-input">
                              <option value="Events">Events</option>
-                             <option value="Workshops">Workshops</option>
+                             <option value="Webinars">Webinars</option>
                              <option value="Meetups">Meetups</option>
                           </select>
                           <div className="space-y-3">

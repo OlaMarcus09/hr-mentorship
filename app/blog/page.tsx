@@ -21,7 +21,7 @@ export default async function BlogPage(props: { searchParams: Promise<{ page?: s
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
-       {/* HERO */}
+       {/* HERO SECTION */}
        <section className="relative pt-48 pb-20 px-6 bg-primary">
          <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1499750310159-5254f4cc1555?auto=format&fit=crop&w=1200')] bg-cover bg-center opacity-10"></div>
          <div className="relative z-10 max-w-4xl mx-auto text-center text-white">
@@ -31,25 +31,29 @@ export default async function BlogPage(props: { searchParams: Promise<{ page?: s
        </section>
 
        <div className="max-w-7xl mx-auto px-6 py-20">
-          <div className="grid md:grid-cols-3 gap-8 mb-16">
-             {blogs.map((blog) => (
-                <Link href={`/blog/${blog.id}`} key={blog.id} className="group bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden hover:shadow-xl transition">
-                   <div className="relative h-56">
-                      <Image src={blog.image || "https://via.placeholder.com/800x600"} alt={blog.title} fill className="object-cover group-hover:scale-105 transition duration-500"/>
-                   </div>
-                   <div className="p-6">
-                      <div className="flex gap-4 text-xs font-bold text-slate-400 mb-3">
-                         <span>{new Date(blog.createdAt).toLocaleDateString()}</span>
-                         <span>{blog.author}</span>
+          {blogs.length === 0 ? (
+             <div className="text-center py-20"><p className="text-slate-500">No blog posts found.</p></div>
+          ) : (
+             <div className="grid md:grid-cols-3 gap-8 mb-16">
+                {blogs.map((blog) => (
+                   <Link href={`/blog/${blog.id}`} key={blog.id} className="group bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden hover:shadow-xl transition">
+                      <div className="relative h-56">
+                         <Image src={blog.image || "https://via.placeholder.com/800x600"} alt={blog.title} fill className="object-cover group-hover:scale-105 transition duration-500"/>
                       </div>
-                      <h3 className="text-lg font-bold mb-3 group-hover:text-primary transition">{blog.title}</h3>
-                      <p className="text-slate-600 dark:text-slate-400 text-sm line-clamp-3">{blog.excerpt}</p>
-                   </div>
-                </Link>
-             ))}
-          </div>
+                      <div className="p-6">
+                         <div className="flex gap-4 text-xs font-bold text-slate-400 mb-3">
+                            <span>{new Date(blog.createdAt).toLocaleDateString()}</span>
+                            <span>{blog.author}</span>
+                         </div>
+                         <h3 className="text-lg font-bold mb-3 group-hover:text-primary transition">{blog.title}</h3>
+                         <p className="text-slate-600 dark:text-slate-400 text-sm line-clamp-3">{blog.excerpt}</p>
+                      </div>
+                   </Link>
+                ))}
+             </div>
+          )}
 
-          {/* PAGINATION BUTTONS */}
+          {/* PAGINATION */}
           <div className="flex justify-center gap-4">
              {page > 1 && (
                <Link href={`/blog?page=${page - 1}`} className="flex items-center gap-2 px-6 py-3 bg-white dark:bg-slate-800 border dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-900 dark:text-white font-bold transition">
