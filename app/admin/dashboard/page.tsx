@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { 
   LayoutDashboard, FileText, Briefcase, Calendar, Image as ImageIcon, 
   Users, UserCheck, Settings, Plus, Trash2, Edit, RefreshCw, 
-  X, Upload, Mail, ShieldAlert, Eye, Lock, ChevronLeft, ChevronRight
+  X, Upload, Mail, ShieldAlert, Eye, Lock, ChevronLeft, ChevronRight, Check, Ban
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -21,8 +21,8 @@ export default function AdminDashboard() {
 
   // CRUD State
   const [isEditing, setIsEditing] = useState(false);
-  const [viewMessage, setViewMessage] = useState<any>(null); // For Messages
-  const [viewApplicant, setViewApplicant] = useState<any>(null); // NEW: For Mentor/Mentee
+  const [viewMessage, setViewMessage] = useState<any>(null); 
+  const [viewApplicant, setViewApplicant] = useState<any>(null);
   const [editItem, setEditItem] = useState<any>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState("");
@@ -98,8 +98,28 @@ export default function AdminDashboard() {
 
   useEffect(() => { fetchData(); }, [activeTab]);
 
+  // Handle Accept/Reject for Applicants
+  const handleStatusUpdate = async (id: number, status: 'ACCEPTED' | 'REJECTED') => {
+    if (!confirm(`Are you sure you want to mark this applicant as ${status}?`)) return;
+    try {
+      const res = await fetch(`/api/applicants/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status })
+      });
+      if (res.ok) {
+        alert(`Applicant ${status}`);
+        fetchData(); // Refresh list
+      } else {
+        alert("Failed to update status");
+      }
+    } catch (e) {
+      alert("Error updating status");
+    }
+  };
+
   const handleDelete = async (id: number) => {
-    if (!confirm("Are you sure?")) return;
+    if (!confirm("Are you sure you want to delete this?")) return;
     try {
       let endpoint = `/api/${activeTab}/${id}`;
       if (activeTab === 'gallery') endpoint = `/api/gallery?id=${id}`;
@@ -187,6 +207,8 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col md:flex-row pt-20">
+      
+      {/* SIDEBAR: Fixed text color to be BLACK in light mode */}
       <aside className="w-full md:w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 shrink-0">
         <div className="p-6">
            <h2 className="font-heading font-bold text-xl text-primary mb-1">Admin Panel</h2>
@@ -198,7 +220,17 @@ export default function AdminDashboard() {
                 <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 px-2">{group.title}</h3>
                 <div className="space-y-1">
                    {group.items.map((item) => (
-                     <button key={item.id} onClick={() => { setActiveTab(item.id); setCurrentPage(1); }} className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition ${activeTab === item.id ? 'bg-primary/10 text-primary' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'}`}>{item.icon} {item.label}</button>
+                     <button 
+                       key={item.id} 
+                       onClick={() => { setActiveTab(item.id); setCurrentPage(1); }} 
+                       className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition 
+                         ${activeTab === item.id 
+                           ? 'bg-primary/10 text-primary' 
+                           : 'text-slate-900 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800' // FIXED: text-slate-900 for black text
+                         }`}
+                     >
+                       {item.icon} {item.label}
+                     </button>
                    ))}
                 </div>
              </div>
@@ -208,7 +240,9 @@ export default function AdminDashboard() {
 
       <main className="flex-1 p-8 overflow-x-hidden">
         <div className="flex justify-between items-center mb-8">
+           {/* HEADER: Fixed text color to be BLACK in light mode */}
            <h1 className="text-2xl font-bold text-slate-900 dark:text-white capitalize">{activeTab}</h1>
+           
            {activeTab !== 'settings' && activeTab !== 'mentors' && activeTab !== 'mentees' && activeTab !== 'messages' && (
              <button onClick={() => { setEditItem(null); setIsEditing(true); setPreviewUrl(null); }} className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg text-sm font-bold hover:bg-primary/90 shadow-lg"><Plus size={16} /> Add New</button>
            )}
@@ -216,14 +250,14 @@ export default function AdminDashboard() {
 
         {activeTab === 'settings' && (
            <div className="bg-white dark:bg-slate-900 p-8 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 max-w-xl">
-              <h2 className="text-xl font-bold mb-6 flex items-center gap-2"><Lock size={20}/> Change Credentials</h2>
+              <h2 className="text-xl font-bold mb-6 flex items-center gap-2 text-slate-900 dark:text-white"><Lock size={20}/> Change Credentials</h2>
               <form onSubmit={handleSettingsSubmit} className="space-y-4">
                  <div>
-                    <label className="block text-sm font-bold mb-2">Confirm Email</label>
+                    <label className="block text-sm font-bold mb-2 text-slate-700 dark:text-slate-300">Confirm Email</label>
                     <input name="email" type="email" placeholder="admin@hrmentorship.com" required className="admin-input" />
                  </div>
                  <div>
-                    <label className="block text-sm font-bold mb-2">New Password</label>
+                    <label className="block text-sm font-bold mb-2 text-slate-700 dark:text-slate-300">New Password</label>
                     <input name="newPassword" type="password" placeholder="Min 6 characters" required className="admin-input" />
                  </div>
                  <button type="submit" className="px-6 py-3 bg-primary text-white font-bold rounded-lg hover:bg-primary/90">Update Password</button>
@@ -232,44 +266,75 @@ export default function AdminDashboard() {
         )}
 
         {activeTab !== 'settings' && (
-          loading ? <div className="h-64 flex items-center justify-center"><RefreshCw className="animate-spin"/></div> : (
+          loading ? <div className="h-64 flex items-center justify-center"><RefreshCw className="animate-spin text-primary"/></div> : (
             <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col">
                <div className="overflow-x-auto">
                    <table className="w-full text-left text-sm">
-                      <thead className="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
-                         <tr><th className="p-4 w-16">ID</th><th className="p-4">Title/Name</th><th className="p-4">Details</th><th className="p-4 w-32 text-right">Actions</th></tr>
+                      <thead className="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white">
+                         <tr><th className="p-4 w-16">ID</th><th className="p-4">Title/Name</th><th className="p-4">Details</th><th className="p-4 w-40 text-right">Actions</th></tr>
                       </thead>
-                      <tbody>
+                      <tbody className="text-slate-600 dark:text-slate-300">
                          {currentItems.length > 0 ? currentItems.map((item) => (
                            <tr key={item.id} className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50">
                               <td className="p-4">#{item.id}</td>
-                              <td className="p-4 font-bold">{item.title || item.name || item.subject}</td>
-                              <td className="p-4 text-slate-600">
-                                 {/* SHOW MESSAGE PREVIEW */}
+                              <td className="p-4 font-bold text-slate-900 dark:text-white">{item.title || item.name || item.subject}</td>
+                              <td className="p-4">
                                  {activeTab === 'messages' && <span className="text-xs truncate block max-w-xs italic opacity-75">{item.message?.substring(0, 50)}...</span>}
                                  {activeTab === 'jobs' && `${item.company}`}
                                  {activeTab === 'gallery' && item.category}
                                  {activeTab === 'resources' && item.type}
                                  {activeTab === 'events' && item.date && new Date(item.date).toLocaleDateString()}
+                                 
+                                 {/* SHOW STATUS FOR APPLICANTS */}
+                                 {(activeTab === 'mentors' || activeTab === 'mentees') && (
+                                    <span className={`px-2 py-1 rounded text-xs font-bold ${
+                                      item.status === 'ACCEPTED' ? 'bg-green-100 text-green-700' : 
+                                      item.status === 'REJECTED' ? 'bg-red-100 text-red-700' : 
+                                      'bg-yellow-100 text-yellow-700'
+                                    }`}>
+                                      {item.status || 'PENDING'}
+                                    </span>
+                                 )}
                               </td>
                               <td className="p-4 flex justify-end gap-2">
-                                 {/* EYE BUTTON FOR MESSAGES AND APPLICANTS */}
+                                 
+                                 {/* ACCEPT / REJECT BUTTONS (For Mentors/Mentees) */}
+                                 {(activeTab === 'mentors' || activeTab === 'mentees') && (
+                                   <>
+                                     <button 
+                                       onClick={() => handleStatusUpdate(item.id, 'ACCEPTED')}
+                                       className="p-2 text-green-600 bg-green-50 rounded hover:bg-green-100"
+                                       title="Accept"
+                                     >
+                                       <Check size={16} />
+                                     </button>
+                                     <button 
+                                       onClick={() => handleStatusUpdate(item.id, 'REJECTED')}
+                                       className="p-2 text-red-600 bg-red-50 rounded hover:bg-red-100"
+                                       title="Reject"
+                                     >
+                                       <Ban size={16} />
+                                     </button>
+                                   </>
+                                 )}
+
+                                 {/* VIEW BUTTON (Messages/Applicants) */}
                                  {(activeTab === 'messages' || activeTab === 'mentors' || activeTab === 'mentees') && (
                                    <button 
                                      onClick={() => activeTab === 'messages' ? setViewMessage(item) : setViewApplicant(item)} 
-                                     className="p-2 text-green-600 bg-green-50 rounded hover:bg-green-100"
+                                     className="p-2 text-blue-600 bg-blue-50 rounded hover:bg-blue-100"
                                      title="View Details"
                                    >
                                      <Eye size={16} />
                                    </button>
                                  )}
                                  
-                                 {/* HIDE EDIT BUTTON FOR MESSAGES, MENTORS, MENTEES */}
+                                 {/* EDIT BUTTON (Others) */}
                                  {activeTab !== 'mentors' && activeTab !== 'mentees' && activeTab !== 'messages' && (
-                                    <button onClick={() => { setEditItem(item); setPreviewUrl(item.image || item.imageUrl); setIsEditing(true); }}><Edit size={16}/></button>
+                                    <button onClick={() => { setEditItem(item); setPreviewUrl(item.image || item.imageUrl); setIsEditing(true); }} className="p-2 text-slate-600 hover:text-primary"><Edit size={16}/></button>
                                  )}
                                  
-                                 <button onClick={() => handleDelete(item.id)} className="text-red-600"><Trash2 size={16}/></button>
+                                 <button onClick={() => handleDelete(item.id)} className="p-2 text-red-600 hover:bg-red-50 rounded"><Trash2 size={16}/></button>
                               </td>
                            </tr>
                          )) : (
@@ -295,15 +360,16 @@ export default function AdminDashboard() {
           )
         )}
 
-        {/* MESSAGE MODAL */}
+        {/* MODALS REMAIN UNCHANGED (ViewMessage / ViewApplicant / Edit Forms) - Kept brief for file size, assume strict existence of previous modals logic or re-include if needed. For this specific request, the key changes are above. To be safe, I'm including the existing modal structures below briefly. */}
+        
         {viewMessage && (
           <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm">
              <div className="bg-white dark:bg-slate-900 w-full max-w-lg rounded-xl shadow-2xl p-8 border border-slate-200 dark:border-slate-800">
                 <div className="flex justify-between items-center mb-6">
-                   <h3 className="text-xl font-bold">Message Details</h3>
-                   <button onClick={() => setViewMessage(null)}><X/></button>
+                   <h3 className="text-xl font-bold text-slate-900 dark:text-white">Message Details</h3>
+                   <button onClick={() => setViewMessage(null)}><X className="text-slate-500"/></button>
                 </div>
-                <div className="space-y-4">
+                <div className="space-y-4 text-slate-700 dark:text-slate-300">
                    <div><label className="text-xs font-bold text-slate-500">FROM</label><p className="font-bold">{viewMessage.name} ({viewMessage.email})</p></div>
                    <div><label className="text-xs font-bold text-slate-500">SUBJECT</label><p className="font-bold">{viewMessage.subject}</p></div>
                    <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-lg"><p className="whitespace-pre-wrap">{viewMessage.message}</p></div>
@@ -312,35 +378,33 @@ export default function AdminDashboard() {
           </div>
         )}
 
-        {/* APPLICANT MODAL (NEW) */}
         {viewApplicant && (
           <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm">
              <div className="bg-white dark:bg-slate-900 w-full max-w-lg rounded-xl shadow-2xl p-8 border border-slate-200 dark:border-slate-800">
                 <div className="flex justify-between items-center mb-6">
-                   <h3 className="text-xl font-bold capitalize">{viewApplicant.role} Application</h3>
-                   <button onClick={() => setViewApplicant(null)}><X/></button>
+                   <h3 className="text-xl font-bold capitalize text-slate-900 dark:text-white">{viewApplicant.role} Application</h3>
+                   <button onClick={() => setViewApplicant(null)}><X className="text-slate-500"/></button>
                 </div>
-                <div className="space-y-4 text-sm">
+                <div className="space-y-4 text-sm text-slate-700 dark:text-slate-300">
                    <div className="grid grid-cols-2 gap-4">
                       <div><label className="text-xs font-bold text-slate-500">NAME</label><p className="font-bold">{viewApplicant.name}</p></div>
                       <div><label className="text-xs font-bold text-slate-500">EMAIL</label><p className="font-bold truncate" title={viewApplicant.email}>{viewApplicant.email}</p></div>
                    </div>
                    <div><label className="text-xs font-bold text-slate-500">LINKEDIN</label><p className="font-bold text-primary truncate"><a href={viewApplicant.linkedin} target="_blank">{viewApplicant.linkedin || 'N/A'}</a></p></div>
                    <div><label className="text-xs font-bold text-slate-500">GOAL</label><div className="bg-slate-50 dark:bg-slate-800 p-3 rounded mt-1"><p>{viewApplicant.goal}</p></div></div>
-                   <div className="flex justify-between items-center pt-2 border-t mt-4">
+                   <div className="flex justify-between items-center pt-2 border-t mt-4 border-slate-100 dark:border-slate-800">
                       <span className="text-xs text-slate-400">Applied: {new Date(viewApplicant.createdAt).toLocaleDateString()}</span>
-                      <span className={`px-2 py-1 rounded text-xs font-bold ${viewApplicant.status === 'PENDING' ? 'bg-yellow-100 text-yellow-700' : 'bg-green-100 text-green-700'}`}>{viewApplicant.status}</span>
+                      <span className={`px-2 py-1 rounded text-xs font-bold ${viewApplicant.status === 'ACCEPTED' ? 'bg-green-100 text-green-700' : viewApplicant.status === 'REJECTED' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'}`}>{viewApplicant.status || 'PENDING'}</span>
                    </div>
                 </div>
              </div>
           </div>
         )}
 
-        {/* CREATE/EDIT MODAL */}
         {isEditing && (
            <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm">
               <div className="bg-white dark:bg-slate-900 w-full max-w-2xl rounded-xl shadow-2xl p-8 max-h-[90vh] overflow-y-auto">
-                 <div className="flex justify-between mb-6 pb-4 border-b"><h3 className="text-xl font-bold">{editItem ? 'Edit' : 'Create'}</h3><button onClick={() => setIsEditing(false)}><X/></button></div>
+                 <div className="flex justify-between mb-6 pb-4 border-b border-slate-100 dark:border-slate-800"><h3 className="text-xl font-bold text-slate-900 dark:text-white">{editItem ? 'Edit' : 'Create'}</h3><button onClick={() => setIsEditing(false)}><X className="text-slate-500"/></button></div>
                  <form onSubmit={handleSubmit} className="space-y-5">
                     
                     {activeTab === 'jobs' && (
@@ -428,8 +492,10 @@ export default function AdminDashboard() {
         )}
       </main>
       <style jsx global>{` 
-        .admin-input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc; background: transparent; } 
+        .admin-input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0; background: transparent; color: inherit; } 
+        .dark .admin-input { border-color: #1e293b; }
         .admin-label { display: block; font-size: 0.85rem; font-weight: 700; margin-bottom: 0.5rem; color: #64748b; }
+        .dark .admin-label { color: #94a3b8; }
       `}</style>
     </div>
   );
