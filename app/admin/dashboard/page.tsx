@@ -360,7 +360,7 @@ export default function AdminDashboard() {
           )
         )}
 
-        {/* MODALS REMAIN UNCHANGED (ViewMessage / ViewApplicant / Edit Forms) - Kept brief for file size, assume strict existence of previous modals logic or re-include if needed. For this specific request, the key changes are above. To be safe, I'm including the existing modal structures below briefly. */}
+        {/* MODALS (ViewMessage / ViewApplicant / Edit Forms) - Including standard structure */}
         
         {viewMessage && (
           <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm">
@@ -407,6 +407,7 @@ export default function AdminDashboard() {
                  <div className="flex justify-between mb-6 pb-4 border-b border-slate-100 dark:border-slate-800"><h3 className="text-xl font-bold text-slate-900 dark:text-white">{editItem ? 'Edit' : 'Create'}</h3><button onClick={() => setIsEditing(false)}><X className="text-slate-500"/></button></div>
                  <form onSubmit={handleSubmit} className="space-y-5">
                     
+                    {/* (Standard edit forms remain same as previous, included here for completeness) */}
                     {activeTab === 'jobs' && (
                        <>
                           <div><label className="admin-label">Job Title</label><input name="title" defaultValue={editItem?.title} required className="admin-input" /></div>
