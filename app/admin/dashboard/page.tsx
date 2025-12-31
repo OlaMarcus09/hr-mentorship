@@ -21,7 +21,8 @@ export default function AdminDashboard() {
 
   // CRUD State
   const [isEditing, setIsEditing] = useState(false);
-  const [viewMessage, setViewMessage] = useState<any>(null);
+  const [viewMessage, setViewMessage] = useState<any>(null); // For Messages
+  const [viewApplicant, setViewApplicant] = useState<any>(null); // NEW: For Mentor/Mentee
   const [editItem, setEditItem] = useState<any>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState("");
@@ -172,7 +173,6 @@ export default function AdminDashboard() {
       if (res.ok) {
         setIsEditing(false); setEditItem(null); setPreviewUrl(null); fetchData(); alert("Saved successfully!");
       } else { 
-        // Log error if any
         const errData = await res.json();
         console.error("Save Error:", errData);
         alert(`Operation failed: ${errData.error || 'Unknown error'}`); 
@@ -180,7 +180,6 @@ export default function AdminDashboard() {
     } catch (err) { alert("Error submitting form"); } finally { setIsUploading(false); setUploadProgress(""); }
   };
 
-  // Pagination Logic
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = items.slice(indexOfFirstItem, indexOfLastItem);
@@ -246,17 +245,30 @@ export default function AdminDashboard() {
                               <td className="p-4">#{item.id}</td>
                               <td className="p-4 font-bold">{item.title || item.name || item.subject}</td>
                               <td className="p-4 text-slate-600">
-                                 {activeTab === 'messages' && <span className="text-xs truncate block max-w-xs">{item.message}</span>}
+                                 {/* SHOW MESSAGE PREVIEW */}
+                                 {activeTab === 'messages' && <span className="text-xs truncate block max-w-xs italic opacity-75">{item.message?.substring(0, 50)}...</span>}
                                  {activeTab === 'jobs' && `${item.company}`}
                                  {activeTab === 'gallery' && item.category}
                                  {activeTab === 'resources' && item.type}
                                  {activeTab === 'events' && item.date && new Date(item.date).toLocaleDateString()}
                               </td>
                               <td className="p-4 flex justify-end gap-2">
-                                 {activeTab === 'messages' && (
-                                   <button onClick={() => setViewMessage(item)} className="p-2 text-green-600 bg-green-50 rounded hover:bg-green-100"><Eye size={16} /></button>
+                                 {/* EYE BUTTON FOR MESSAGES AND APPLICANTS */}
+                                 {(activeTab === 'messages' || activeTab === 'mentors' || activeTab === 'mentees') && (
+                                   <button 
+                                     onClick={() => activeTab === 'messages' ? setViewMessage(item) : setViewApplicant(item)} 
+                                     className="p-2 text-green-600 bg-green-50 rounded hover:bg-green-100"
+                                     title="View Details"
+                                   >
+                                     <Eye size={16} />
+                                   </button>
                                  )}
-                                 {activeTab !== 'mentors' && activeTab !== 'messages' && <button onClick={() => { setEditItem(item); setPreviewUrl(item.image || item.imageUrl); setIsEditing(true); }}><Edit size={16}/></button>}
+                                 
+                                 {/* HIDE EDIT BUTTON FOR MESSAGES, MENTORS, MENTEES */}
+                                 {activeTab !== 'mentors' && activeTab !== 'mentees' && activeTab !== 'messages' && (
+                                    <button onClick={() => { setEditItem(item); setPreviewUrl(item.image || item.imageUrl); setIsEditing(true); }}><Edit size={16}/></button>
+                                 )}
+                                 
                                  <button onClick={() => handleDelete(item.id)} className="text-red-600"><Trash2 size={16}/></button>
                               </td>
                            </tr>
@@ -269,25 +281,13 @@ export default function AdminDashboard() {
                    </table>
                </div>
                
-               {/* PAGINATION CONTROLS */}
+               {/* PAGINATION */}
                {totalPages > 1 && (
                  <div className="p-4 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-900/50">
                     <span className="text-xs text-slate-500 font-bold">Page {currentPage} of {totalPages}</span>
                     <div className="flex gap-2">
-                       <button 
-                         onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                         disabled={currentPage === 1}
-                         className="p-2 bg-white dark:bg-slate-800 border dark:border-slate-700 rounded-md disabled:opacity-50 hover:bg-slate-100 dark:hover:bg-slate-700 transition"
-                       >
-                         <ChevronLeft size={16}/>
-                       </button>
-                       <button 
-                         onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                         disabled={currentPage === totalPages}
-                         className="p-2 bg-white dark:bg-slate-800 border dark:border-slate-700 rounded-md disabled:opacity-50 hover:bg-slate-100 dark:hover:bg-slate-700 transition"
-                       >
-                         <ChevronRight size={16}/>
-                       </button>
+                       <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1} className="p-2 bg-white dark:bg-slate-800 border dark:border-slate-700 rounded-md disabled:opacity-50"><ChevronLeft size={16}/></button>
+                       <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages} className="p-2 bg-white dark:bg-slate-800 border dark:border-slate-700 rounded-md disabled:opacity-50"><ChevronRight size={16}/></button>
                     </div>
                  </div>
                )}
@@ -295,7 +295,7 @@ export default function AdminDashboard() {
           )
         )}
 
-        {/* MODALS */}
+        {/* MESSAGE MODAL */}
         {viewMessage && (
           <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm">
              <div className="bg-white dark:bg-slate-900 w-full max-w-lg rounded-xl shadow-2xl p-8 border border-slate-200 dark:border-slate-800">
@@ -312,38 +312,57 @@ export default function AdminDashboard() {
           </div>
         )}
 
+        {/* APPLICANT MODAL (NEW) */}
+        {viewApplicant && (
+          <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm">
+             <div className="bg-white dark:bg-slate-900 w-full max-w-lg rounded-xl shadow-2xl p-8 border border-slate-200 dark:border-slate-800">
+                <div className="flex justify-between items-center mb-6">
+                   <h3 className="text-xl font-bold capitalize">{viewApplicant.role} Application</h3>
+                   <button onClick={() => setViewApplicant(null)}><X/></button>
+                </div>
+                <div className="space-y-4 text-sm">
+                   <div className="grid grid-cols-2 gap-4">
+                      <div><label className="text-xs font-bold text-slate-500">NAME</label><p className="font-bold">{viewApplicant.name}</p></div>
+                      <div><label className="text-xs font-bold text-slate-500">EMAIL</label><p className="font-bold truncate" title={viewApplicant.email}>{viewApplicant.email}</p></div>
+                   </div>
+                   <div><label className="text-xs font-bold text-slate-500">LINKEDIN</label><p className="font-bold text-primary truncate"><a href={viewApplicant.linkedin} target="_blank">{viewApplicant.linkedin || 'N/A'}</a></p></div>
+                   <div><label className="text-xs font-bold text-slate-500">GOAL</label><div className="bg-slate-50 dark:bg-slate-800 p-3 rounded mt-1"><p>{viewApplicant.goal}</p></div></div>
+                   <div className="flex justify-between items-center pt-2 border-t mt-4">
+                      <span className="text-xs text-slate-400">Applied: {new Date(viewApplicant.createdAt).toLocaleDateString()}</span>
+                      <span className={`px-2 py-1 rounded text-xs font-bold ${viewApplicant.status === 'PENDING' ? 'bg-yellow-100 text-yellow-700' : 'bg-green-100 text-green-700'}`}>{viewApplicant.status}</span>
+                   </div>
+                </div>
+             </div>
+          </div>
+        )}
+
+        {/* CREATE/EDIT MODAL */}
         {isEditing && (
            <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm">
               <div className="bg-white dark:bg-slate-900 w-full max-w-2xl rounded-xl shadow-2xl p-8 max-h-[90vh] overflow-y-auto">
                  <div className="flex justify-between mb-6 pb-4 border-b"><h3 className="text-xl font-bold">{editItem ? 'Edit' : 'Create'}</h3><button onClick={() => setIsEditing(false)}><X/></button></div>
-                 <form onSubmit={handleSubmit} className="space-y-4">
+                 <form onSubmit={handleSubmit} className="space-y-5">
                     
                     {activeTab === 'jobs' && (
                        <>
-                          <input name="title" defaultValue={editItem?.title} placeholder="Job Title" required className="admin-input" />
-                          <input name="company" defaultValue={editItem?.company} placeholder="Company" required className="admin-input" />
-                          <input name="salary" defaultValue={editItem?.salary} placeholder="Salary (e.g. $50k - $70k)" className="admin-input" />
-                          <input name="location" defaultValue={editItem?.location} placeholder="Location" required className="admin-input" />
-                          <select name="type" defaultValue={editItem?.type || "Full Time"} className="admin-input"><option>Full Time</option><option>Part Time</option><option>Contract</option></select>
-                          <textarea name="description" defaultValue={editItem?.description} placeholder="Description" required className="admin-input" rows={4}/>
-                          <input name="applyLink" defaultValue={editItem?.applyLink} placeholder="Application Link/Email" required className="admin-input" />
+                          <div><label className="admin-label">Job Title</label><input name="title" defaultValue={editItem?.title} required className="admin-input" /></div>
+                          <div><label className="admin-label">Company Name</label><input name="company" defaultValue={editItem?.company} required className="admin-input" /></div>
+                          <div><label className="admin-label">Salary (Optional)</label><input name="salary" defaultValue={editItem?.salary} placeholder="$50k - $70k" className="admin-input" /></div>
+                          <div><label className="admin-label">Location</label><input name="location" defaultValue={editItem?.location} required className="admin-input" /></div>
+                          <div><label className="admin-label">Job Type</label><select name="type" defaultValue={editItem?.type || "Full Time"} className="admin-input"><option>Full Time</option><option>Part Time</option><option>Contract</option></select></div>
+                          <div><label className="admin-label">Job Description</label><textarea name="description" defaultValue={editItem?.description} required className="admin-input" rows={4}/></div>
+                          <div><label className="admin-label">Application Link/Email</label><input name="applyLink" defaultValue={editItem?.applyLink} required className="admin-input" /></div>
                        </>
                     )}
 
                     {activeTab === 'events' && (
                        <>
-                          <input name="title" defaultValue={editItem?.title} placeholder="Event Name" required className="admin-input" />
-                          {/* FIX: Ensure date string is formatted correctly for input */}
-                          <input 
-                            name="date" 
-                            type="datetime-local" 
-                            defaultValue={editItem?.date ? new Date(editItem.date).toISOString().slice(0, 16) : ''} 
-                            className="admin-input" 
-                          />
-                          <input name="location" defaultValue={editItem?.location} placeholder="Location" required className="admin-input" />
-                          <input name="registrationLink" defaultValue={editItem?.registrationLink} placeholder="Registration Link" className="admin-input" />
+                          <div><label className="admin-label">Event Title</label><input name="title" defaultValue={editItem?.title} required className="admin-input" /></div>
+                          <div><label className="admin-label">Date & Time</label><input name="date" type="datetime-local" defaultValue={editItem?.date ? new Date(editItem.date).toISOString().slice(0, 16) : ''} className="admin-input" /></div>
+                          <div><label className="admin-label">Location</label><input name="location" defaultValue={editItem?.location} placeholder="Zoom / Lagos" required className="admin-input" /></div>
+                          <div><label className="admin-label">Registration URL</label><input name="registrationLink" defaultValue={editItem?.registrationLink} placeholder="https://..." className="admin-input" /></div>
                           <div className="space-y-3">
-                            <label className="block text-sm font-bold">Event Banner</label>
+                            <label className="admin-label">Event Banner</label>
                             {previewUrl && <div className="h-40 w-full relative"><Image src={previewUrl} alt="Preview" fill className="object-cover rounded"/></div>}
                             <input type="file" ref={fileInputRef} onChange={handleFileSelect} accept="image/*" />
                           </div>
@@ -352,14 +371,16 @@ export default function AdminDashboard() {
 
                     {activeTab === 'gallery' && (
                        <>
-                          <input name="title" placeholder="Caption (Optional)" className="admin-input" />
-                          <select name="category" className="admin-input">
-                             <option value="Events">Events</option>
-                             <option value="Webinars">Webinars</option>
-                             <option value="Meetups">Meetups</option>
-                          </select>
+                          <div><label className="admin-label">Caption (Optional)</label><input name="title" className="admin-input" /></div>
+                          <div><label className="admin-label">Category</label>
+                            <select name="category" className="admin-input">
+                               <option value="Events">Events</option>
+                               <option value="Webinars">Webinars</option>
+                               <option value="Meetups">Meetups</option>
+                            </select>
+                          </div>
                           <div className="space-y-3">
-                            <label className="block text-sm font-bold">Images (Select Multiple)</label>
+                            <label className="admin-label">Images (Select Multiple)</label>
                             <input type="file" ref={fileInputRef} multiple accept="image/*" />
                           </div>
                           {uploadProgress && <p className="text-primary font-bold animate-pulse">{uploadProgress}</p>}
@@ -368,35 +389,37 @@ export default function AdminDashboard() {
 
                     {activeTab === 'resources' && (
                        <>
-                          <input name="title" defaultValue={editItem?.title} placeholder="Title" required className="admin-input" />
-                          <select name="type" defaultValue={editItem?.type || "PDF"} className="admin-input"><option>PDF</option><option>Video</option><option>Link</option><option>Book</option></select>
-                          <input name="fileUrl" defaultValue={editItem?.fileUrl} placeholder="File URL / Video Link" required className="admin-input" />
+                          <div><label className="admin-label">Resource Title</label><input name="title" defaultValue={editItem?.title} required className="admin-input" /></div>
+                          <div><label className="admin-label">Type</label>
+                            <select name="type" defaultValue={editItem?.type || "PDF"} className="admin-input">
+                              <option>PDF</option>
+                              <option>Video</option>
+                              <option>Link</option>
+                              <option>Book</option>
+                              <option>DOC</option>
+                              <option>PPT</option>
+                              <option>XLS</option>
+                            </select>
+                          </div>
+                          <div><label className="admin-label">File URL / YouTube Link</label><input name="fileUrl" defaultValue={editItem?.fileUrl} required className="admin-input" /></div>
                        </>
                     )}
 
                     {activeTab === 'blogs' && (
                        <>
-                          <input name="title" defaultValue={editItem?.title} placeholder="Title" required className="admin-input" />
-                          <input name="author" defaultValue={editItem?.author} placeholder="Author" className="admin-input" />
-                          <textarea name="content" defaultValue={editItem?.content} placeholder="Content/Description" className="admin-input" rows={4}/>
+                          <div><label className="admin-label">Blog Title</label><input name="title" defaultValue={editItem?.title} required className="admin-input" /></div>
+                          <div><label className="admin-label">Author</label><input name="author" defaultValue={editItem?.author} className="admin-input" /></div>
+                          <div><label className="admin-label">Content</label><textarea name="content" defaultValue={editItem?.content} className="admin-input" rows={6}/></div>
                           
                           <div className="space-y-3">
-                            <label className="block text-sm font-bold">Image</label>
+                            <label className="admin-label">Cover Image</label>
                             {previewUrl && <div className="h-40 w-full relative"><Image src={previewUrl} alt="Preview" fill className="object-cover rounded"/></div>}
                             <input type="file" ref={fileInputRef} onChange={handleFileSelect} accept="image/*" />
                           </div>
                        </>
                     )}
 
-                    {activeTab === 'admins' && (
-                       <>
-                          <input name="name" placeholder="Name" required className="admin-input" />
-                          <input name="email" placeholder="Email" required className="admin-input" />
-                          <input name="password" type="password" placeholder="Password" required className="admin-input" />
-                       </>
-                    )}
-
-                    <button disabled={isUploading} type="submit" className="w-full py-3 bg-primary text-white font-bold rounded-lg mt-4 disabled:opacity-50">
+                    <button disabled={isUploading} type="submit" className="w-full py-3 bg-primary text-white font-bold rounded-lg mt-4 disabled:opacity-50 hover:bg-primary/90">
                        {isUploading ? "Processing..." : "Save Changes"}
                     </button>
                  </form>
@@ -404,7 +427,10 @@ export default function AdminDashboard() {
            </div>
         )}
       </main>
-      <style jsx global>{` .admin-input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc; background: transparent; } `}</style>
+      <style jsx global>{` 
+        .admin-input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc; background: transparent; } 
+        .admin-label { display: block; font-size: 0.85rem; font-weight: 700; margin-bottom: 0.5rem; color: #64748b; }
+      `}</style>
     </div>
   );
 }

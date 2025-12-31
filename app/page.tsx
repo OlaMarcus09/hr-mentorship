@@ -1,160 +1,94 @@
 import { prisma } from '@/lib/prisma';
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, Users, Briefcase, TrendingUp, BookOpen, Award, BarChart, CheckCircle, ArrowUpRight } from "lucide-react";
+import { ArrowRight, Users, BookOpen, Calendar, Briefcase, CheckCircle2 } from "lucide-react";
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 60;
 
 export default async function Home() {
-  const teamPreview = await prisma.teamMember.findMany({ take: 4, orderBy: { id: 'asc' } });
-  const events = await prisma.event.findMany({ take: 3, orderBy: { date: 'asc' } });
-  const gallery = await prisma.galleryImage.findMany({ take: 4, orderBy: { createdAt: 'desc' } });
-
+  const latestBlogs = await prisma.blog.findMany({ take: 3, orderBy: { createdAt: 'desc' } });
+  
   return (
-    <div className="min-h-screen bg-white dark:bg-slate-950">
+    <div className="bg-slate-50 dark:bg-slate-950 min-h-screen">
       
-      {/* 1. HERO SECTION */}
-      <section className="relative pt-48 pb-32 px-6 flex items-center justify-center min-h-[85vh]">
+      {/* HERO SECTION - Darker Overlay Fix */}
+      <section className="relative min-h-screen flex items-center pt-20 overflow-hidden">
         <div className="absolute inset-0 z-0">
           <Image 
-            src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?q=80&w=2070&auto=format&fit=crop"
-            alt="HR Community"
-            fill
+            src="https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=2000" 
+            alt="HR Professionals" 
+            fill 
             className="object-cover"
             priority
           />
-          <div className="absolute inset-0 bg-white/90 dark:bg-slate-950/90 backdrop-blur-[2px]"></div>
+          {/* Opacity increased from 90% to 95%/90% for better text contrast */}
+          <div className="absolute inset-0 bg-gradient-to-r from-purple-900/95 via-purple-800/90 to-purple-900/40 mix-blend-multiply" />
         </div>
-        
-        <div className="relative z-10 max-w-7xl mx-auto text-center">
-          <h1 className="text-5xl md:text-7xl font-heading font-bold mb-6 leading-tight text-primary dark:text-white drop-shadow-sm">
-            Trusted by 7,000+ HR Professionals <br/> Across Nigeria and Beyond
-          </h1>
-          <p className="text-xl md:text-2xl text-slate-700 dark:text-slate-300 mb-10 max-w-3xl mx-auto leading-relaxed font-medium">
-            Where HR Careers Grow, Leaders Emerge, and Community Thrives.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
-            <Link href="/mentorship/apply" className="px-10 py-4 bg-primary text-white font-bold rounded-lg hover:bg-primary/90 transition shadow-xl shadow-primary/20 text-lg">
-              Start Your Journey
-            </Link>
-            <Link href="/learning/resources" className="px-10 py-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white font-bold rounded-lg hover:bg-slate-50 transition text-lg">
-              Explore Programs
-            </Link>
-          </div>
-          
-          <div className="border-t border-slate-200 dark:border-slate-800 pt-10">
-             <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-                <div>
-                   <div className="text-6xl font-bold text-primary dark:text-white mb-2">7k+</div>
-                   <div className="text-sm font-bold uppercase tracking-widest text-slate-500">Active Members</div>
-                </div>
-                <div className="md:border-l border-slate-300 dark:border-slate-800">
-                   <div className="text-6xl font-bold text-primary dark:text-white mb-2">60k+</div>
-                   <div className="text-sm font-bold uppercase tracking-widest text-slate-500">Applications Supported</div>
-                </div>
-                <div className="md:border-l border-slate-300 dark:border-slate-800">
-                   <div className="text-6xl font-bold text-primary dark:text-white mb-2">98%</div>
-                   <div className="text-sm font-bold uppercase tracking-widest text-slate-500">Career Growth Rate</div>
-                </div>
-             </div>
-          </div>
-        </div>
-      </section>
 
-      {/* 2. ABOUT SECTION */}
-      <section className="py-24 px-6 bg-slate-50 dark:bg-slate-900">
-        <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-16 items-center">
-           <div className="relative h-[500px] rounded-2xl overflow-hidden shadow-2xl">
-              <Image src="https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=800" alt="Story" fill className="object-cover" />
-           </div>
-           <div>
-              <p className="text-primary font-bold uppercase tracking-widest mb-3">Who We Are</p>
-              <h2 className="text-4xl md:text-5xl font-heading font-bold text-slate-900 dark:text-white mb-6">A Community Built on Growth</h2>
-              <div className="prose dark:prose-invert text-lg text-slate-600 dark:text-slate-300 leading-relaxed space-y-6">
-                <p>Founded on July 2, 2018, HR Mentorship began with one vision: to create a safe space where HR professionals could learn and grow.</p>
-                <div className="pt-4">
-                   <Link href="/about" className="text-primary font-bold hover:underline inline-flex items-center gap-2 text-lg">Read our full story <ArrowRight size={20}/></Link>
-                </div>
-              </div>
-           </div>
-        </div>
-      </section>
-
-      {/* 3. UPCOMING EVENTS */}
-      <section className="py-24 px-6 bg-white dark:bg-slate-950">
-         <div className="max-w-7xl mx-auto text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-heading font-bold text-slate-900 dark:text-white mb-4">Upcoming Events</h2>
-            <p className="text-xl text-slate-500 dark:text-slate-400">Join our workshops, summits, and training sessions.</p>
-         </div>
-
-         {events.length > 0 ? (
-           <div className="max-w-7xl mx-auto grid md:grid-cols-3 gap-8 mb-12">
-              {events.map((event) => (
-                <div key={event.id} className="group bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl p-6 hover:shadow-lg transition">
-                   <div className="flex justify-between items-start mb-6">
-                      <div className="bg-white dark:bg-slate-800 p-3 rounded-lg shadow-sm text-center min-w-[70px]">
-                         <div className="text-xs font-bold text-red-500 uppercase">{new Date(event.date).toLocaleString('default', { month: 'short' })}</div>
-                         <div className="text-2xl font-bold text-slate-900 dark:text-white">{new Date(event.date).getDate()}</div>
-                      </div>
-                      <span className="bg-primary/10 text-primary text-xs font-bold px-3 py-1 rounded-full">Event</span>
-                   </div>
-                   <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2 line-clamp-2 group-hover:text-primary transition">{event.title}</h3>
-                   <p className="text-slate-500 text-sm mb-6 flex items-center gap-2"><Briefcase size={16}/> {event.location}</p>
-                   <Link href="/events" className="w-full block text-center py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg font-bold text-sm hover:bg-slate-50 transition">Register Now</Link>
-                </div>
-              ))}
-           </div>
-         ) : (
-           <div className="text-center py-10 text-slate-500">No upcoming events scheduled.</div>
-         )}
-         
-         <div className="text-center">
-            <Link href="/events" className="inline-flex items-center gap-2 px-8 py-3 bg-primary text-white rounded-lg font-bold hover:bg-primary/90 transition">
-              View All Events <ArrowRight size={18} />
-            </Link>
-         </div>
-      </section>
-
-      {/* 4. GALLERY PREVIEW */}
-      <section className="py-24 px-6 bg-slate-50 dark:bg-slate-900">
-         <div className="max-w-7xl mx-auto text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-heading font-bold text-slate-900 dark:text-white mb-6">Our Community in Action</h2>
-            <p className="text-xl text-slate-500 dark:text-slate-400">Experience the energy and collaboration.</p>
-         </div>
-
-         <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
-            {gallery.length > 0 ? gallery.map((img) => (
-               <div key={img.id} className="relative h-64 rounded-xl overflow-hidden group">
-                  <Image src={img.imageUrl} alt="Gallery" fill className="object-cover transition duration-700 group-hover:scale-110" />
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition duration-300 flex items-center justify-center">
-                     <ArrowUpRight className="text-white" size={32} />
-                  </div>
-               </div>
-            )) : (
-              [1,2,3,4].map(i => (
-                <div key={i} className="relative h-64 rounded-xl overflow-hidden bg-slate-200 dark:bg-slate-800 animate-pulse"></div>
-              ))
-            )}
-         </div>
-
-         <div className="text-center">
-            <Link href="/gallery" className="inline-block px-10 py-4 border-2 border-slate-200 dark:border-slate-800 rounded-full font-bold hover:border-primary hover:text-primary transition">
-               View Full Gallery
-            </Link>
-         </div>
-      </section>
-
-      {/* 5. CTA */}
-      <section className="py-24 px-6 bg-white dark:bg-slate-950">
-        <div className="max-w-5xl mx-auto text-center">
-           <span className="inline-block py-1 px-4 rounded-full bg-primary/10 text-primary font-bold text-sm mb-6">Join Our Growing Community</span>
-           <h2 className="text-4xl md:text-6xl font-heading font-bold text-primary dark:text-white mb-8">Ready to Take the Next Step?</h2>
-           <div className="flex flex-col sm:flex-row gap-6 justify-center mb-20">
-              <Link href="/mentorship/apply" className="px-10 py-5 bg-primary text-white font-bold text-lg rounded-xl hover:bg-primary/90 transition shadow-xl">Become a Mentee</Link>
-              {/* FIX: Reverted to Join as Mentor -> Links to Apply Page */}
-              <Link href="/mentorship/apply" className="px-10 py-5 bg-white border-2 border-slate-200 text-slate-900 font-bold text-lg rounded-xl hover:border-primary hover:text-primary transition">
-                Join as Mentor
+        <div className="relative z-10 max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
+          <div className="space-y-8 animate-fade-in-up">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full border border-white/20 text-white text-sm font-medium">
+              <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"/> #1 HR Community in Africa
+            </div>
+            <h1 className="text-5xl md:text-7xl font-heading font-bold text-white leading-tight">
+              Elevate Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-200 to-pink-200">HR Career</span>
+            </h1>
+            <p className="text-xl text-white/90 leading-relaxed max-w-lg">
+              Join 7,000+ professionals bridging the gap between talent and opportunity through mentorship, resources, and growth.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Link href="/join" className="px-8 py-4 bg-white text-primary font-bold rounded-full shadow-xl hover:shadow-2xl hover:scale-105 transition-all flex items-center justify-center gap-2">
+                Start Your Journey <ArrowRight size={20}/>
               </Link>
+              <Link href="/about" className="px-8 py-4 bg-transparent border-2 border-white/30 text-white font-bold rounded-full hover:bg-white/10 transition flex items-center justify-center">
+                Explore Programs
+              </Link>
+            </div>
+            
+            <div className="pt-8 flex items-center gap-8 border-t border-white/10 text-white/80">
+              <div><p className="text-3xl font-bold text-white">7k+</p><p className="text-xs uppercase tracking-wide">Active Members</p></div>
+              <div><p className="text-3xl font-bold text-white">60k+</p><p className="text-xs uppercase tracking-wide">Applications Supported</p></div>
+              <div><p className="text-3xl font-bold text-white">98%</p><p className="text-xs uppercase tracking-wide">Career Growth Rate</p></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* TRUSTED SECTION */}
+      <section className="py-20 bg-white dark:bg-slate-900">
+         <div className="max-w-7xl mx-auto px-6 text-center">
+            <h2 className="text-3xl font-heading font-bold mb-16 text-slate-900 dark:text-white">Trusted by 7,000+ HR Professionals <br/> Across Nigeria and Beyond</h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 opacity-60 grayscale hover:grayscale-0 transition-all duration-500">
+               {['Access Bank', 'Dangote', 'MTN', 'First Bank'].map((brand, i) => (
+                  <div key={i} className="flex items-center justify-center h-20 bg-slate-50 dark:bg-slate-800 rounded-xl font-bold text-xl text-slate-400">{brand}</div>
+               ))}
+            </div>
+         </div>
+      </section>
+
+      {/* LATEST BLOGS */}
+      <section className="py-20 bg-slate-50 dark:bg-slate-950">
+        <div className="max-w-7xl mx-auto px-6">
+           <div className="flex justify-between items-end mb-12">
+              <div>
+                <h2 className="text-3xl font-heading font-bold text-slate-900 dark:text-white mb-4">Latest Insights</h2>
+                <p className="text-slate-600 dark:text-slate-400">Fresh thinking from our editorial team.</p>
+              </div>
+              <Link href="/blog" className="text-primary font-bold hover:underline">View All Articles</Link>
+           </div>
+           
+           <div className="grid md:grid-cols-3 gap-8">
+             {latestBlogs.map(blog => (
+               <Link href={`/blog/${blog.id}`} key={blog.id} className="group bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm hover:shadow-xl transition border border-slate-100 dark:border-slate-800">
+                 <div className="h-48 bg-slate-200 rounded-xl mb-6 relative overflow-hidden">
+                    {blog.image ? <Image src={blog.image} alt={blog.title} fill className="object-cover group-hover:scale-105 transition duration-500"/> : null}
+                 </div>
+                 <p className="text-xs font-bold text-primary mb-2">{new Date(blog.createdAt).toLocaleDateString()}</p>
+                 <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3 line-clamp-2 group-hover:text-primary transition">{blog.title}</h3>
+                 <p className="text-slate-500 line-clamp-3 mb-4">{blog.excerpt}</p>
+                 <span className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-primary flex items-center gap-1">Read Post <ArrowRight size={14}/></span>
+               </Link>
+             ))}
            </div>
         </div>
       </section>

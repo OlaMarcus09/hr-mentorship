@@ -1,141 +1,131 @@
-"use client";
-
-import { useState, useEffect } from "react";
-import { Search } from "lucide-react";
-import Link from "next/link";
 import Image from "next/image";
+import { Linkedin, Twitter } from "lucide-react";
 
 export default function TeamPage() {
-  const [team, setTeam] = useState<any[]>([]);
-  const [search, setSearch] = useState("");
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    async function fetchTeam() {
-      try {
-        // Fetch from the seeder API for demo/speed
-        const res = await fetch('/api/seed-team');
-        // Fallback data matching the seed for instant render
-        const data = [
-          { name: "Abdulganiy Abdulganiy", role: "Associate", slug: "abdulganiy-abdulganiy", image: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=800&q=80" },
-          { name: "Abdulkabir Olode", role: "Associate", slug: "abdulkabir-olode", image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=800&q=80" },
-          { name: "Abdulmajeed Moshood", role: "Associate", slug: "abdulmajeed-moshood", image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=800&q=80" },
-          { name: "Abisola Odeinde", role: "Partner", slug: "abisola-odeinde", image: "https://images.unsplash.com/photo-1589156280159-27698a70f29e?auto=format&fit=crop&w=800&q=80" },
-          { name: "Adanna Uzowuru", role: "Associate", slug: "adanna-uzowuru", image: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=800&q=80" },
-          { name: "Adebola Soyode", role: "Associate", slug: "adebola-soyode", image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=800&q=80" },
-          { name: "Adeniyi Aderogba", role: "Senior Associate", slug: "adeniyi-aderogba", image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&q=80" },
-          { name: "Adeoluwakiiti Opesanwo", role: "Associate", slug: "adeoluwakiiti-opesanwo", image: "https://images.unsplash.com/photo-1598550874175-4d7112ee7f43?auto=format&fit=crop&w=800&q=80" },
-        ];
-        setTeam(data);
-      } catch (e) {
-        console.error(e);
-      } finally {
-        setLoading(false);
-      }
+  const coreTeam = [
+    {
+      name: "Oluyemi Adeosun, PhD, DTM",
+      role: "Founder & Visionary Leader",
+      image: "/team/oluyemi.jpg",
+      bio: "A top-performing HR Executive and Economist with over 24 years of experience spanning Power, Oil & Gas, and Fintech."
+    },
+    {
+      name: "Irene Ewheme Obagwu",
+      role: "Director of Brand & Creativity",
+      image: "/team/irene.jpg",
+      bio: "A dynamic HR professional and creative strategist leading the community's storytelling and visual identity."
+    },
+    {
+      name: "Deborah Dumbiri",
+      role: "Director of Finance and Welfare",
+      image: "/team/deborah.jpg",
+      bio: "Seasoned HR professional driving people strategies and member well-being initiatives."
+    },
+    {
+      name: "Adenrele Amosu",
+      role: "Director of People Engagement",
+      image: "/team/adenrele.jpg",
+      bio: "Over 15 years of cross-sector experience, driving initiatives that strengthen connection and inclusivity."
+    },
+    {
+      name: "Omobolajoko Sowemimo",
+      role: "Projects & Operations Director",
+      image: "/team/omobolajoko.jpg",
+      bio: "HR and Culture Leader aligning talent strategy with business excellence."
+    },
+    {
+      name: "Abimbola Victoria Akindiilete",
+      role: "Director of Web and ICT",
+      image: "/team/abimbola.jpg",
+      bio: "Strategic HR leader overseeing digital strategy and technology-driven communication systems."
+    },
+    {
+      name: "Ajoke Oyedele-Omotayo",
+      role: "Director of Counselling and Support",
+      image: "/team/ajoke.jpg",
+      bio: "Executive People Strategist with over 25 years of corporate leadership experience."
+    },
+    {
+      name: "Titilope Kolade-Iyiola",
+      role: "Director of Publicity",
+      image: "/team/titilope.jpg",
+      bio: "Managing event publicity and information flow to keep the community connected."
+    },
+    {
+      name: "Yetunde Akintoye",
+      role: "Director of Membership",
+      image: "/team/yetunde.jpg",
+      bio: "Championing initiatives that strengthen connection, inclusion, and professional development."
+    },
+    {
+      name: "Olukunle Hunge",
+      role: "Director of Socials",
+      image: "/team/olukunle.jpg",
+      bio: "Fostering connection and belonging through social programs and wellness initiatives."
+    },
+    {
+      name: "Tochukwu Emeka Umeh",
+      role: "Coordinator – Northern Nigeria",
+      image: "/team/tochukwu.jpg",
+      bio: "Advocate for people development driving community growth across Northern Nigeria."
+    },
+    {
+      name: "Victor Agu",
+      role: "Creative & Data Integration",
+      image: "/team/victor.jpg",
+      bio: "Merging analytics with people strategy to drive organizational success."
+    },
+    {
+      name: "Ugochi Obi",
+      role: "Director, Job Alert & Employability",
+      image: "/team/ugochi.jpg",
+      bio: "Leading one of Nigeria’s largest online employability communities."
+    },
+    {
+      name: "Ezinne Obiora (Zee)",
+      role: "Director, Book Club",
+      image: "/team/ezinne.jpg",
+      bio: "Curating conversations that stretch minds and connect perspectives through literature."
+    },
+    {
+      name: "Monisola Ibhade Oyelaja",
+      role: "Director, Chaplaincy & Pastoral Care",
+      image: "/team/monisola.jpg",
+      bio: "Providing emotional and spiritual guidance to members with empathy and grace."
     }
-    fetchTeam();
-  }, []);
-
-  const filteredTeam = team.filter(member => 
-    member.name.toLowerCase().includes(search.toLowerCase()) ||
-    member.role.toLowerCase().includes(search.toLowerCase())
-  );
+  ];
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
-      
-      {/* 1. HERO SECTION WITH IMAGE */}
-      <section className="relative pt-48 pb-32 px-6 flex items-center justify-center min-h-[50vh]">
-        {/* Background Image */}
-        <div className="absolute inset-0 z-0">
-          <Image 
-            src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1200&q=80"
-            alt="HR Team"
-            fill
-            className="object-cover"
-            priority
-          />
-          {/* Dark Overlay for Text Readability */}
-          <div className="absolute inset-0 bg-black/60 dark:bg-black/70"></div>
-        </div>
-        
-        <div className="relative z-10 max-w-4xl mx-auto text-center text-white">
-           <span className="inline-block py-1 px-4 rounded-full bg-primary/20 text-white font-bold text-sm mb-6 backdrop-blur-md">
-             Our People
-           </span>
-           <h1 className="text-4xl md:text-6xl font-heading font-bold mb-6 leading-tight">
-             Meet the Core Team
-           </h1>
-           <p className="text-xl text-white/90 max-w-2xl mx-auto leading-relaxed">
-             The dedicated professionals driving our vision and supporting the HR community.
-           </p>
-        </div>
-      </section>
-
-      {/* 2. SEARCH & INTRO CONTENT */}
-      <section className="py-16 px-6 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 relative z-20 -mt-8 rounded-t-3xl shadow-[0_-10px_20px_-5px_rgba(0,0,0,0.1)]">
-        <div className="max-w-3xl mx-auto text-center">
-           {/* Search Bar */}
-           <div className="relative mb-10">
-              <div className="bg-slate-100 dark:bg-slate-800 rounded-full shadow-inner border border-slate-200 dark:border-slate-700 p-2 flex items-center">
-                 <Search className="ml-4 text-slate-400" size={20} />
-                 <input 
-                   type="text" 
-                   value={search}
-                   onChange={(e) => setSearch(e.target.value)}
-                   placeholder="Search by name or role..." 
-                   className="flex-1 pl-4 pr-6 py-3 bg-transparent outline-none text-slate-900 dark:text-white placeholder:text-slate-500 font-medium text-lg"
-                 />
-              </div>
-           </div>
-           
-           {/* Content Beneath Search */}
-           <p className="text-lg text-slate-600 dark:text-slate-300 leading-relaxed">
-             Our team is composed of experienced HR practitioners, thought leaders, and community builders passionate about elevating the profession. Get to know the faces behind HR Mentorship.
-           </p>
-        </div>
-      </section>
-
-      {/* 3. TEAM GRID */}
-      <div className="max-w-7xl mx-auto px-6 py-20">
-        {loading ? (
-           <div className="text-center py-20 text-slate-500 animate-pulse">Loading team...</div>
-        ) : filteredTeam.length === 0 ? (
-           <div className="text-center py-20 text-slate-500 text-lg">No team members found matching "{search}".</div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-12">
-            {filteredTeam.map((member: any, index: number) => (
-              <Link 
-                key={member.slug} 
-                href={`/team/${member.slug}`} 
-                className="group cursor-pointer block"
-              >
-                {/* Image Container - Sharp, fixed aspect ratio, subtle hover */}
-                <div className="relative aspect-[3/4] w-full overflow-hidden rounded-xl bg-slate-200 dark:bg-slate-800 mb-5 shadow-sm transition-shadow hover:shadow-md">
-                  <Image 
-                    src={member.image} 
-                    alt={member.name}
-                    fill
-                    sizes="(max-width: 768px) 100vw, 25vw"
-                    className="object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-                </div>
-
-                {/* Text Content */}
-                <div className="text-center">
-                  <h3 className="text-xl font-bold text-slate-900 dark:text-white group-hover:text-primary transition-colors mb-1">
-                    {member.name}
-                  </h3>
-                  <p className="text-slate-500 dark:text-slate-400 font-medium text-sm uppercase tracking-wider">
-                    {member.role}
-                  </p>
-                </div>
-              </Link>
-            ))}
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 pt-24 pb-20">
+       <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-20">
+             <h1 className="text-4xl md:text-5xl font-heading font-bold text-slate-900 dark:text-white mb-6">Our Leadership</h1>
+             <p className="text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
+               The visionaries and strategists driving HR excellence across Africa.
+             </p>
           </div>
-        )}
-      </div>
 
+          {/* CORE TEAM GRID */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+             {coreTeam.map((member, idx) => (
+                <div key={idx} className="bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-sm border border-slate-100 dark:border-slate-800 hover:shadow-xl transition group text-center">
+                   <div className="w-32 h-32 mx-auto rounded-full overflow-hidden mb-6 border-4 border-slate-100 dark:border-slate-800 relative">
+                      <Image 
+                        src={member.image} 
+                        alt={member.name} 
+                        fill 
+                        className="object-cover group-hover:scale-110 transition duration-500"
+                        // Fallback logic not strictly possible in static export easily, 
+                        // so user MUST ensure images exist in public/team/
+                      />
+                   </div>
+                   <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1">{member.name}</h3>
+                   <p className="text-xs font-bold text-primary uppercase tracking-wider mb-4">{member.role}</p>
+                   <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">{member.bio}</p>
+                </div>
+             ))}
+          </div>
+       </div>
     </div>
   );
 }
