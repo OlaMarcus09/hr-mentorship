@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Menu, X, Sun, Moon, ChevronDown } from "lucide-react";
 import { useTheme } from "next-themes";
-import Image from "next/image";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -24,11 +23,24 @@ export default function Navbar() {
 
   if (!mounted) return null;
 
-  // LOGIC: If scrolled OR if theme is light, use dark text. Otherwise (transparent top on dark mode), use white text.
-  const isLightMode = theme === 'light';
-  const textColorClass = scrolled || isLightMode ? "text-slate-900 dark:text-white" : "text-white";
-  const logoTextClass = scrolled || isLightMode ? "text-primary dark:text-white" : "text-white";
-  const bgClass = scrolled ? "bg-white/80 dark:bg-slate-900/80 backdrop-blur-md shadow-sm" : "bg-transparent";
+  // VISIBILITY LOGIC:
+  // If scrolled -> Dark Text on White Background
+  // If Light Mode -> Dark Text (unless at top of Home)
+  // If Dark Mode -> White Text
+  
+  const isLight = theme === 'light';
+  // Use dark text if: (We are scrolled) OR (We are in Light Mode)
+  // Note: For Hero sections, we usually want White text initially. 
+  // But to be safe for "all pages", we will default to dark in light mode, 
+  // relying on the background being white.
+  
+  const useDarkText = isLight || scrolled; 
+  
+  // Specific override: If at top (not scrolled) AND on a page with a Dark Hero, we might want white.
+  // But simply forcing Dark Text on Light Mode is the safest fix for "not visible".
+  
+  const textColorClass = useDarkText ? "text-slate-900 dark:text-white" : "text-white";
+  const bgClass = scrolled ? "bg-white/90 dark:bg-slate-900/90 backdrop-blur-md shadow-sm" : "bg-transparent";
 
   const navLinks = [
     { name: "Home", href: "/" },
@@ -54,10 +66,10 @@ export default function Navbar() {
         <div className="flex justify-between items-center h-20">
           {/* LOGO */}
           <Link href="/" className="flex items-center gap-2 group">
-            <div className="relative w-10 h-10 bg-white rounded-lg flex items-center justify-center overflow-hidden">
+            <div className="relative w-10 h-10 bg-white rounded-lg flex items-center justify-center overflow-hidden shadow-sm">
                <span className="font-bold text-primary text-xl">HR</span>
             </div>
-            <span className={`font-heading font-bold text-xl tracking-tight transition-colors ${logoTextClass}`}>
+            <span className={`font-heading font-bold text-xl tracking-tight transition-colors ${textColorClass}`}>
               HR Mentorship
             </span>
           </Link>
@@ -92,7 +104,7 @@ export default function Navbar() {
             {/* THEME TOGGLE */}
             <button 
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className={`p-2 rounded-full transition-colors ${scrolled || isLightMode ? 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white' : 'bg-white/20 text-white hover:bg-white/30'}`}
+              className={`p-2 rounded-full transition-colors ${useDarkText ? 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white' : 'bg-white/20 text-white hover:bg-white/30'}`}
             >
               {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
             </button>
@@ -106,7 +118,7 @@ export default function Navbar() {
           <div className="md:hidden flex items-center gap-4">
              <button 
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className={`p-2 rounded-full transition-colors ${scrolled || isLightMode ? 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white' : 'bg-white/20 text-white'}`}
+              className={`p-2 rounded-full transition-colors ${useDarkText ? 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white' : 'bg-white/20 text-white'}`}
             >
               {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
             </button>
@@ -122,7 +134,7 @@ export default function Navbar() {
 
       {/* MOBILE MENU */}
       {isOpen && (
-        <div className="md:hidden absolute top-20 left-0 w-full bg-white dark:bg-slate-950 border-t border-slate-100 dark:border-slate-800 shadow-xl p-6 flex flex-col gap-4">
+        <div className="md:hidden absolute top-20 left-0 w-full bg-white dark:bg-slate-950 border-t border-slate-100 dark:border-slate-800 shadow-xl p-6 flex flex-col gap-4 h-screen overflow-y-auto pb-32">
           {navLinks.map((link) => (
              <div key={link.name}>
                {link.dropdown ? (

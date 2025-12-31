@@ -1,7 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, Users, BookOpen, Calendar, Briefcase, CheckCircle2, Star, ShieldCheck, Zap } from "lucide-react";
+import { ArrowRight, Users, BookOpen, Calendar, Briefcase, CheckCircle2, ShieldCheck, Zap } from "lucide-react";
 
 export const revalidate = 60;
 
@@ -11,7 +11,7 @@ export default async function Home() {
   return (
     <div className="bg-slate-50 dark:bg-slate-950 min-h-screen">
       
-      {/* 1. HERO SECTION (With Fixed Dark Overlay) */}
+      {/* 1. HERO SECTION (Dark Overlay Restored) */}
       <section className="relative min-h-screen flex items-center pt-20 overflow-hidden">
         <div className="absolute inset-0 z-0">
           <Image 
@@ -21,7 +21,7 @@ export default async function Home() {
             className="object-cover"
             priority
           />
-          {/* Darker opacity (90%) to fix readability */}
+          {/* Darker opacity (90%) for readability */}
           <div className="absolute inset-0 bg-gradient-to-r from-purple-900/95 via-purple-900/90 to-purple-900/50 mix-blend-multiply" />
         </div>
 
@@ -57,7 +57,7 @@ export default async function Home() {
       {/* 2. TRUSTED BY SECTION */}
       <section className="py-10 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800">
          <div className="max-w-7xl mx-auto px-6 text-center">
-            <p className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-6">Trusted by HR Professionals form Top Companies</p>
+            <p className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-6">Trusted by HR Professionals from Top Companies</p>
             <div className="flex flex-wrap justify-center gap-8 md:gap-16 opacity-60 grayscale hover:grayscale-0 transition-all duration-500">
                {['Access Bank', 'Dangote', 'MTN', 'First Bank', 'Airtel', 'Guinness'].map((brand, i) => (
                   <span key={i} className="text-xl font-bold text-slate-400">{brand}</span>
@@ -66,7 +66,7 @@ export default async function Home() {
          </div>
       </section>
 
-      {/* 3. VALUE PROPOSITION (Restored) */}
+      {/* 3. VALUE PROPOSITION */}
       <section className="py-24 bg-slate-50 dark:bg-slate-950">
         <div className="max-w-7xl mx-auto px-6">
            <div className="text-center max-w-3xl mx-auto mb-20">
@@ -95,7 +95,7 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* 4. WHY JOIN SECTION (Restored) */}
+      {/* 4. WHY JOIN SECTION */}
       <section className="py-24 bg-white dark:bg-slate-900 overflow-hidden">
          <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-16 items-center">
             <div className="relative h-[500px] rounded-3xl overflow-hidden shadow-2xl">
@@ -133,7 +133,7 @@ export default async function Home() {
          </div>
       </section>
 
-      {/* 5. LATEST BLOGS (Restored) */}
+      {/* 5. LATEST BLOGS */}
       <section className="py-24 bg-slate-50 dark:bg-slate-950">
         <div className="max-w-7xl mx-auto px-6">
            <div className="flex justify-between items-end mb-12">
@@ -160,7 +160,7 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* 6. CALL TO ACTION (Restored) */}
+      {/* 6. CALL TO ACTION */}
       <section className="py-24 bg-primary relative overflow-hidden">
          <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
          <div className="relative z-10 max-w-4xl mx-auto px-6 text-center text-white">

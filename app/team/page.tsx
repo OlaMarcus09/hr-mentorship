@@ -2,11 +2,12 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { X, GraduationCap, Briefcase, Award, ChevronRight, User } from "lucide-react";
+import { X, GraduationCap, Briefcase, Award, ChevronRight } from "lucide-react";
 
 export default function TeamPage() {
   const [selectedMember, setSelectedMember] = useState<any>(null);
 
+  // ... (I am keeping all the hardcoded data you requested) ...
   const coreTeam = [
     {
       name: "Oluyemi Adeosun, PhD, DTM",
@@ -614,14 +615,25 @@ export default function TeamPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 pt-24 pb-20">
-       <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-20">
-             <h1 className="text-4xl md:text-5xl font-heading font-bold text-slate-900 dark:text-white mb-6">Our Leadership</h1>
-             <p className="text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
-               The visionaries and strategists driving HR excellence across Africa.
-             </p>
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
+       
+       {/* NEW TEAM HERO SECTION */}
+       <section className="relative h-[40vh] min-h-[300px] flex items-center justify-center overflow-hidden">
+          <Image 
+            src="https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=2000" 
+            alt="Our Team" 
+            fill 
+            className="object-cover"
+            priority
+          />
+          <div className="absolute inset-0 bg-purple-900/80 mix-blend-multiply" />
+          <div className="relative z-10 text-center px-6 max-w-4xl mx-auto">
+             <h1 className="text-4xl md:text-5xl font-heading font-bold text-white mb-4">Our Leadership</h1>
+             <p className="text-xl text-white/90">The visionaries and strategists driving HR excellence across Africa.</p>
           </div>
+       </section>
+
+       <div className="max-w-7xl mx-auto px-6 py-20">
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
              {coreTeam.map((member, idx) => (
