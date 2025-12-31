@@ -23,24 +23,17 @@ export default function Navbar() {
 
   if (!mounted) return null;
 
-  // VISIBILITY LOGIC:
-  // If scrolled -> Dark Text on White Background
-  // If Light Mode -> Dark Text (unless at top of Home)
-  // If Dark Mode -> White Text
+  // LOGIC: 
+  // 1. Not Scrolled (Top) -> Always WHITE (to contrast with purple Hero sections)
+  // 2. Scrolled -> Dark Text (to contrast with White/Glass background)
   
-  const isLight = theme === 'light';
-  // Use dark text if: (We are scrolled) OR (We are in Light Mode)
-  // Note: For Hero sections, we usually want White text initially. 
-  // But to be safe for "all pages", we will default to dark in light mode, 
-  // relying on the background being white.
+  const textColorClass = scrolled ? "text-slate-900 dark:text-white" : "text-white";
   
-  const useDarkText = isLight || scrolled; 
-  
-  // Specific override: If at top (not scrolled) AND on a page with a Dark Hero, we might want white.
-  // But simply forcing Dark Text on Light Mode is the safest fix for "not visible".
-  
-  const textColorClass = useDarkText ? "text-slate-900 dark:text-white" : "text-white";
-  const bgClass = scrolled ? "bg-white/90 dark:bg-slate-900/90 backdrop-blur-md shadow-sm" : "bg-transparent";
+  // Background: Transparent at top, White/Glass when scrolled
+  const bgClass = scrolled ? "bg-white/95 dark:bg-slate-900/95 backdrop-blur-md shadow-sm" : "bg-transparent";
+
+  // Logo Text: Follows the same logic as links
+  const logoTextClass = textColorClass;
 
   const navLinks = [
     { name: "Home", href: "/" },
@@ -69,7 +62,7 @@ export default function Navbar() {
             <div className="relative w-10 h-10 bg-white rounded-lg flex items-center justify-center overflow-hidden shadow-sm">
                <span className="font-bold text-primary text-xl">HR</span>
             </div>
-            <span className={`font-heading font-bold text-xl tracking-tight transition-colors ${textColorClass}`}>
+            <span className={`font-heading font-bold text-xl tracking-tight transition-colors ${logoTextClass}`}>
               HR Mentorship
             </span>
           </Link>
@@ -79,11 +72,11 @@ export default function Navbar() {
             {navLinks.map((link) => (
               <div key={link.name} className="relative group">
                 {link.dropdown ? (
-                  <button className={`flex items-center gap-1 text-sm font-medium transition-colors hover:text-primary ${textColorClass}`}>
+                  <button className={`flex items-center gap-1 text-sm font-bold transition-colors hover:text-purple-300 ${textColorClass}`}>
                     {link.name} <ChevronDown size={14}/>
                   </button>
                 ) : (
-                  <Link href={link.href} className={`text-sm font-medium transition-colors hover:text-primary ${textColorClass}`}>
+                  <Link href={link.href} className={`text-sm font-bold transition-colors hover:text-purple-300 ${textColorClass}`}>
                     {link.name}
                   </Link>
                 )}
@@ -104,12 +97,12 @@ export default function Navbar() {
             {/* THEME TOGGLE */}
             <button 
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className={`p-2 rounded-full transition-colors ${useDarkText ? 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white' : 'bg-white/20 text-white hover:bg-white/30'}`}
+              className={`p-2 rounded-full transition-colors ${scrolled ? 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white' : 'bg-white/20 text-white hover:bg-white/30'}`}
             >
               {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
             </button>
 
-            <Link href="/join" className="px-6 py-2.5 bg-primary hover:bg-primary/90 text-white text-sm font-bold rounded-full shadow-lg hover:shadow-primary/25 transition-all transform hover:-translate-y-0.5">
+            <Link href="/join" className="px-6 py-2.5 bg-white text-primary text-sm font-bold rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all">
               Join Community
             </Link>
           </div>
@@ -118,7 +111,7 @@ export default function Navbar() {
           <div className="md:hidden flex items-center gap-4">
              <button 
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className={`p-2 rounded-full transition-colors ${useDarkText ? 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white' : 'bg-white/20 text-white'}`}
+              className={`p-2 rounded-full transition-colors ${scrolled ? 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white' : 'bg-white/20 text-white'}`}
             >
               {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
             </button>

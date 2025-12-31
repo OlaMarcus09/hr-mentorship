@@ -11,7 +11,7 @@ export default async function Home() {
   return (
     <div className="bg-slate-50 dark:bg-slate-950 min-h-screen">
       
-      {/* 1. HERO SECTION (Dark Overlay Restored) */}
+      {/* 1. HERO SECTION */}
       <section className="relative min-h-screen flex items-center pt-20 overflow-hidden">
         <div className="absolute inset-0 z-0">
           <Image 
@@ -21,7 +21,7 @@ export default async function Home() {
             className="object-cover"
             priority
           />
-          {/* Darker opacity (90%) for readability */}
+          {/* Darker Overlay for White Text Visibility */}
           <div className="absolute inset-0 bg-gradient-to-r from-purple-900/95 via-purple-900/90 to-purple-900/50 mix-blend-multiply" />
         </div>
 

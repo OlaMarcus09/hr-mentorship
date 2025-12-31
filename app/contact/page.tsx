@@ -1,16 +1,27 @@
 import { Mail, Phone, MapPin, Clock, Send } from "lucide-react";
+import Image from "next/image";
 
 export default function ContactPage() {
   return (
-    <div className="bg-slate-50 dark:bg-slate-950 min-h-screen pt-24 pb-20">
-       <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-             <h1 className="text-4xl font-heading font-bold text-slate-900 dark:text-white mb-4">Get in Touch</h1>
-             <p className="text-xl text-slate-600 dark:text-slate-400">
-               Have questions about joining, partnership, or our programs? We are here to help.
-             </p>
+    <div className="bg-slate-50 dark:bg-slate-950 min-h-screen">
+       
+       {/* NEW HERO SECTION (Crucial for White Navbar) */}
+       <section className="relative h-[40vh] min-h-[300px] flex items-center justify-center overflow-hidden">
+          <Image 
+            src="https://images.unsplash.com/photo-1423666639041-f56000c27a9a?auto=format&fit=crop&w=2000" 
+            alt="Contact Us" 
+            fill 
+            className="object-cover"
+            priority
+          />
+          <div className="absolute inset-0 bg-purple-900/80 mix-blend-multiply" />
+          <div className="relative z-10 text-center px-6 max-w-4xl mx-auto">
+             <h1 className="text-4xl md:text-5xl font-heading font-bold text-white mb-4">Get in Touch</h1>
+             <p className="text-xl text-white/90">Have questions about joining, partnership, or our programs? We are here to help.</p>
           </div>
+       </section>
 
+       <div className="max-w-7xl mx-auto px-6 py-20">
           <div className="grid lg:grid-cols-3 gap-8">
              {/* Contact Info */}
              <div className="space-y-6">
