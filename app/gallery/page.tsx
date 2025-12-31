@@ -6,6 +6,7 @@ export const revalidate = 60;
 export default async function GalleryPage() {
   const images = await prisma.galleryImage.findMany({ orderBy: { createdAt: 'desc' } });
 
+  // Group by category
   const events = images.filter(img => img.category === 'Events');
   const webinars = images.filter(img => img.category === 'Webinars');
   const meetups = images.filter(img => img.category === 'Meetups');
@@ -19,7 +20,7 @@ export default async function GalleryPage() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
        
-       {/* NEW GALLERY HERO SECTION */}
+       {/* NEW HERO SECTION */}
        <section className="relative h-[40vh] min-h-[300px] flex items-center justify-center overflow-hidden">
           <Image 
             src="https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=2000" 
@@ -28,8 +29,10 @@ export default async function GalleryPage() {
             className="object-cover"
             priority
           />
+          {/* Purple Overlay to match Brand */}
           <div className="absolute inset-0 bg-purple-900/80 mix-blend-multiply" />
-          <div className="relative z-10 text-center px-6 max-w-4xl mx-auto">
+          
+          <div className="relative z-10 text-center px-6 max-w-4xl mx-auto animate-fade-in-up">
              <h1 className="text-4xl md:text-5xl font-heading font-bold text-white mb-4">Our Memories</h1>
              <p className="text-xl text-white/90">Moments of connection, learning, and growth captured in time.</p>
           </div>
@@ -62,7 +65,7 @@ export default async function GalleryPage() {
             
             {images.length === 0 && (
               <div className="text-center py-20">
-                <p className="text-slate-500">No images uploaded yet.</p>
+                <p className="text-slate-500 italic">No images uploaded yet.</p>
               </div>
             )}
           </div>
