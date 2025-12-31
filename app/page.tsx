@@ -7,18 +7,18 @@ export const revalidate = 60;
 
 export default async function Home() {
   
-  // 1. FETCH REAL GALLERY IMAGES (Top 4)
+  // 1. FETCH REAL GALLERY IMAGES
   const galleryImages = await prisma.galleryImage.findMany({
     take: 4,
     orderBy: { createdAt: 'desc' }
   });
 
-  // 2. CORE TEAM PREVIEW (Updated to match your .jpeg filenames)
+  // 2. CORE TEAM PREVIEW (Updated to .jpg for speed and accuracy)
   const coreTeamPreview = [
-    { name: "Dr. Oluyemi Adeosun", role: "Founder & Visionary Leader", image: "/team/oluyemi.jpeg" },
-    { name: "Irene Ewheme Obagwu", role: "Director of Brand & Creativity", image: "/team/irene.jpeg" },
-    { name: "Deborah Dumbiri", role: "Director of Finance and Welfare", image: "/team/deborah.jpeg" },
-    { name: "Adenrele Amosu", role: "Director of People Engagement", image: "/team/adenrele.jpeg" },
+    { name: "Dr. Oluyemi Adeosun", role: "Founder & Visionary Leader", image: "/team/oluyemi.jpg" },
+    { name: "Irene Ewheme Obagwu", role: "Director of Brand & Creativity", image: "/team/irene.jpg" },
+    { name: "Deborah Dumbiri", role: "Director of Finance and Welfare", image: "/team/deborah.jpg" },
+    { name: "Adenrele Amosu", role: "Director of People Engagement", image: "/team/adenrele.jpg" },
   ];
 
   return (
@@ -117,7 +117,7 @@ export default async function Home() {
          </div>
       </section>
 
-      {/* 3. CORE TEAM SECTION (Real Images Fixed) */}
+      {/* 3. CORE TEAM SECTION (Priority Loading) */}
       <section className="py-32 bg-slate-50 dark:bg-slate-950">
          <div className="max-w-7xl mx-auto px-6">
             <div className="text-center mb-20 max-w-3xl mx-auto">
@@ -129,7 +129,8 @@ export default async function Home() {
                {coreTeamPreview.map((member, i) => (
                   <div key={i} className="bg-white dark:bg-slate-900 rounded-2xl p-8 shadow-sm border border-slate-100 dark:border-slate-800 text-center hover:shadow-xl hover:-translate-y-2 transition duration-300 group">
                      <div className="w-40 h-40 mx-auto rounded-full overflow-hidden mb-8 border-4 border-slate-50 dark:border-slate-800 relative group-hover:border-primary/20 transition">
-                        <Image src={member.image} alt={member.name} fill className="object-cover"/>
+                        {/* Priority makes them load instantly */}
+                        <Image src={member.image} alt={member.name} fill className="object-cover" priority={true}/>
                      </div>
                      <h3 className="font-bold text-lg text-slate-900 dark:text-white mb-2">{member.name}</h3>
                      <p className="text-xs text-primary font-bold uppercase tracking-widest">{member.role}</p>
@@ -177,7 +178,7 @@ export default async function Home() {
          </div>
       </section>
 
-      {/* 5. COMMUNITY / GALLERY SECTION (Real Images) */}
+      {/* 5. COMMUNITY / GALLERY SECTION */}
       <section className="py-32 bg-slate-50 dark:bg-slate-950">
          <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-20 items-center">
             <div className="order-2 md:order-1">
@@ -207,7 +208,6 @@ export default async function Home() {
                    </div>
                  ))
                ) : (
-                 // Fallback if no images are in DB yet
                  <>
                    <div className="h-64 bg-slate-200 rounded-2xl overflow-hidden relative mt-12 shadow-lg">
                       <Image src="https://images.unsplash.com/photo-1544531586-fde5298cdd40?auto=format&fit=crop&w=600" alt="Gallery 1" fill className="object-cover hover:scale-110 transition duration-700"/>

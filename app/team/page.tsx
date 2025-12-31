@@ -7,7 +7,6 @@ import { X, GraduationCap, Briefcase, Award, ChevronRight } from "lucide-react";
 export default function TeamPage() {
   const [selectedMember, setSelectedMember] = useState<any>(null);
 
-  // ... (I am keeping all the hardcoded data you requested) ...
   const coreTeam = [
     {
       name: "Oluyemi Adeosun, PhD, DTM",
@@ -17,7 +16,8 @@ export default function TeamPage() {
       bioParagraphs: [
         "Dr Oluyemi Adeosun is a top-performing and accomplished Human Resource Executive, Economist, and Researcher with over 24 years of multi-industry experience spanning Power, Oil & Gas, Telecommunications, Fintech, Broadcasting, ICT, Real Estate, Advertising, Academia, Consulting, and Volunteer Leadership.",
         "He is the Founder and Visionary Leader of HR Mentorship, a thriving community of over 7,000 HR professionals across Nigeria and beyond—dedicated to advancing human resource practice through mentorship, collaboration, and knowledge sharing.",
-        "Dr Adeosun also runs a fast-growing YouTube channel (Oluyemi Adeosun) with more than 7,450 followers, focusing on practical HR domain knowledge and thought leadership. He is a Senior Research Fellow (2024 – 2026) at the Fate Institute, and a Certified Career Coach recognised for inspiring HR excellence across Africa and globally."
+        // Embed YouTube Link Here
+        <span key="yt-link">Dr Adeosun also runs a fast-growing YouTube channel (<a href="https://www.youtube.com/@OluyemiAdeosun" target="_blank" rel="noopener noreferrer" className="text-primary font-bold hover:underline">Oluyemi Adeosun</a>) with more than 7,450 followers, focusing on practical HR domain knowledge and thought leadership. He is a Senior Research Fellow (2024 – 2026) at the Fate Institute, and a Certified Career Coach recognised for inspiring HR excellence across Africa and globally.</span>
       ],
       sections: [
         {
@@ -615,25 +615,14 @@ export default function TeamPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
-       
-       {/* NEW TEAM HERO SECTION */}
-       <section className="relative h-[40vh] min-h-[300px] flex items-center justify-center overflow-hidden">
-          <Image 
-            src="https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=2000" 
-            alt="Our Team" 
-            fill 
-            className="object-cover"
-            priority
-          />
-          <div className="absolute inset-0 bg-purple-900/80 mix-blend-multiply" />
-          <div className="relative z-10 text-center px-6 max-w-4xl mx-auto">
-             <h1 className="text-4xl md:text-5xl font-heading font-bold text-white mb-4">Our Leadership</h1>
-             <p className="text-xl text-white/90">The visionaries and strategists driving HR excellence across Africa.</p>
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 pt-24 pb-20">
+       <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-20">
+             <h1 className="text-4xl md:text-5xl font-heading font-bold text-slate-900 dark:text-white mb-6">Our Leadership</h1>
+             <p className="text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
+               The visionaries and strategists driving HR excellence across Africa.
+             </p>
           </div>
-       </section>
-
-       <div className="max-w-7xl mx-auto px-6 py-20">
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
              {coreTeam.map((member, idx) => (
@@ -648,6 +637,8 @@ export default function TeamPage() {
                         alt={member.name} 
                         fill 
                         className="object-cover group-hover:scale-110 transition duration-500"
+                        // Priority loading for the first few items to ensure speed
+                        priority={idx < 4}
                       />
                    </div>
                    <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1">{member.name}</h3>
@@ -682,7 +673,7 @@ export default function TeamPage() {
                      </div>
 
                      <div className="space-y-6 text-slate-600 dark:text-slate-300 leading-relaxed text-base border-b border-slate-100 dark:border-slate-800 pb-8">
-                        {selectedMember.bioParagraphs.map((para: string, i: number) => (
+                        {selectedMember.bioParagraphs.map((para: any, i: number) => (
                            <p key={i}>{para}</p>
                         ))}
                      </div>

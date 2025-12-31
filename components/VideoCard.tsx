@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { Play } from "lucide-react";
 
 export default function VideoCard({ url, title }: { url: string, title: string }) {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -31,24 +30,19 @@ export default function VideoCard({ url, title }: { url: string, title: string }
       <div className="relative aspect-video bg-black group cursor-pointer">
         {!isPlaying ? (
           <div onClick={() => setIsPlaying(true)} className="absolute inset-0 w-full h-full relative">
-            {/* 1. FAST LOADING THUMBNAIL (The Preview) */}
+            {/* 1. NATIVE THUMBNAIL (Standard YouTube Look) */}
             <Image 
-              src={`https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`} 
+              src={`https://img.youtube.com/vi/${videoId}/hqdefault.jpg`} 
               alt={title} 
               fill 
-              className="object-cover opacity-90 group-hover:opacity-100 transition"
+              className="object-cover"
             />
             
-            {/* 2. CUSTOM PLAY BUTTON OVERLAY */}
+            {/* 2. STANDARD PLAY BUTTON OVERLAY (Looks like YouTube) */}
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 transition duration-300">
-                <Play fill="white" className="text-white ml-1" size={32} />
-              </div>
-            </div>
-            
-            {/* Badge */}
-            <div className="absolute bottom-2 right-2 bg-black/80 text-white text-[10px] font-bold px-2 py-1 rounded">
-              YOUTUBE
+               <div className="w-16 h-12 bg-red-600 rounded-lg flex items-center justify-center shadow-2xl opacity-90 group-hover:opacity-100 transition duration-200">
+                  <div className="w-0 h-0 border-t-[8px] border-t-transparent border-l-[14px] border-l-white border-b-[8px] border-b-transparent ml-1"></div>
+               </div>
             </div>
           </div>
         ) : (

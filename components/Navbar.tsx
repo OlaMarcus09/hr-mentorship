@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Menu, X, Sun, Moon, ChevronDown } from "lucide-react";
 import { useTheme } from "next-themes";
 
@@ -10,8 +11,6 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
-  
-  // Mobile Dropdown States
   const [mobileLearningOpen, setMobileLearningOpen] = useState(false);
 
   useEffect(() => {
@@ -23,17 +22,9 @@ export default function Navbar() {
 
   if (!mounted) return null;
 
-  // LOGIC: 
-  // 1. Not Scrolled (Top) -> Always WHITE (to contrast with purple Hero sections)
-  // 2. Scrolled -> Dark Text (to contrast with White/Glass background)
-  
+  // LOGIC: White text at top (for dark hero), Dark text when scrolled (for white bar)
   const textColorClass = scrolled ? "text-slate-900 dark:text-white" : "text-white";
-  
-  // Background: Transparent at top, White/Glass when scrolled
   const bgClass = scrolled ? "bg-white/95 dark:bg-slate-900/95 backdrop-blur-md shadow-sm" : "bg-transparent";
-
-  // Logo Text: Follows the same logic as links
-  const logoTextClass = textColorClass;
 
   const navLinks = [
     { name: "Home", href: "/" },
@@ -57,12 +48,18 @@ export default function Navbar() {
     <nav className={`fixed w-full z-50 transition-all duration-300 ${bgClass}`}>
       <div className="max-w-7xl mx-auto px-6">
         <div className="flex justify-between items-center h-20">
-          {/* LOGO */}
+          
+          {/* LOGO IMAGE */}
           <Link href="/" className="flex items-center gap-2 group">
-            <div className="relative w-10 h-10 bg-white rounded-lg flex items-center justify-center overflow-hidden shadow-sm">
-               <span className="font-bold text-primary text-xl">HR</span>
+            <div className="relative w-12 h-12 rounded-lg overflow-hidden">
+               <Image 
+                 src="https://res.cloudinary.com/dmqjicpcc/image/upload/v1765218297/1001440111_dztflg.jpg" 
+                 alt="HR Mentorship Logo" 
+                 fill
+                 className="object-cover"
+               />
             </div>
-            <span className={`font-heading font-bold text-xl tracking-tight transition-colors ${logoTextClass}`}>
+            <span className={`font-heading font-bold text-xl tracking-tight transition-colors ${textColorClass}`}>
               HR Mentorship
             </span>
           </Link>
