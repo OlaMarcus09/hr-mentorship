@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { CheckCircle2, Heart, Shield, Star, Users, Globe, BookOpen, Briefcase, Zap, Coffee, Phone, Mail, Linkedin, Twitter, Instagram } from "lucide-react";
+import { CheckCircle2, Heart, Shield, Star, Users, Globe, BookOpen, Briefcase, Zap, Coffee, Phone, Mail, Linkedin, Twitter, Instagram, Award, ArrowRight } from "lucide-react";
 
 export default function AboutPage() {
   return (
@@ -166,28 +166,19 @@ export default function AboutPage() {
          </div>
       </section>
 
-      {/* 7. CONTACT & SOCIALS */}
-      <section className="py-20 bg-white dark:bg-slate-900 text-center">
-         <div className="max-w-3xl mx-auto px-6">
-            <h2 className="text-3xl font-heading font-bold text-slate-900 dark:text-white mb-6">Be Part of the Story</h2>
-            <p className="text-lg text-slate-600 dark:text-slate-400 mb-10">Whether you’re an aspiring HR professional, a seasoned leader, or someone looking to grow, HR Mentorship welcomes you.</p>
-            
-            <div className="flex flex-col md:flex-row justify-center gap-8 mb-10">
-               <a href="tel:+2348025320606" className="flex items-center justify-center gap-2 text-slate-900 dark:text-white font-bold hover:text-primary"><Phone size={20}/> +234 802 532 0606</a>
-               <a href="mailto:hrmentorshipgroup@gmail.com" className="flex items-center justify-center gap-2 text-slate-900 dark:text-white font-bold hover:text-primary"><Mail size={20}/> hrmentorshipgroup@gmail.com</a>
-            </div>
-
-            <div className="flex justify-center gap-6">
-               <a href="https://www.linkedin.com/company/hr-mentorship" target="_blank" className="p-3 bg-slate-100 dark:bg-slate-800 rounded-full text-slate-600 dark:text-slate-400 hover:bg-primary hover:text-white transition"><Linkedin size={24}/></a>
-               <a href="https://instagram.com/hr_mentorship" target="_blank" className="p-3 bg-slate-100 dark:bg-slate-800 rounded-full text-slate-600 dark:text-slate-400 hover:bg-primary hover:text-white transition"><Instagram size={24}/></a>
-               <a href="https://twitter.com/HRMentorship007" target="_blank" className="p-3 bg-slate-100 dark:bg-slate-800 rounded-full text-slate-600 dark:text-slate-400 hover:bg-primary hover:text-white transition"><Twitter size={24}/></a>
+      {/* 7. REPLACED CTA SECTION (Purple Background) */}
+      <section className="py-32 bg-primary relative overflow-hidden">
+         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+         <div className="relative z-10 max-w-4xl mx-auto px-6 text-center text-white">
+            <h2 className="text-4xl md:text-5xl font-heading font-bold mb-6">Be Part of the Story</h2>
+            <p className="text-xl text-white/90 mb-10">Whether you’re an aspiring HR professional, a seasoned leader, or someone looking to grow, HR Mentorship welcomes you.</p>
+            <div className="flex justify-center">
+               <a href="https://t.me/hrmentorship" target="_blank" className="px-12 py-5 bg-white text-primary font-bold text-lg rounded-full shadow-2xl hover:scale-105 hover:shadow-white/20 transition-all flex items-center gap-2">
+                  Join the Movement <ArrowRight size={20}/>
+               </a>
             </div>
          </div>
       </section>
     </div>
   );
-}
-
-function Award(props: any) {
-  return <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
 }

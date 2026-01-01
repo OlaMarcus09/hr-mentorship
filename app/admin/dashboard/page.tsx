@@ -98,7 +98,6 @@ export default function AdminDashboard() {
 
   useEffect(() => { fetchData(); }, [activeTab]);
 
-  // Handle Accept/Reject for Applicants
   const handleStatusUpdate = async (id: number, status: 'ACCEPTED' | 'REJECTED') => {
     if (!confirm(`Are you sure you want to mark this applicant as ${status}?`)) return;
     try {
@@ -107,15 +106,9 @@ export default function AdminDashboard() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status })
       });
-      if (res.ok) {
-        alert(`Applicant ${status}`);
-        fetchData(); // Refresh list
-      } else {
-        alert("Failed to update status");
-      }
-    } catch (e) {
-      alert("Error updating status");
-    }
+      if (res.ok) { fetchData(); alert(`Applicant ${status}`); }
+      else { alert("Failed to update status"); }
+    } catch (e) { alert("Error updating status"); }
   };
 
   const handleDelete = async (id: number) => {
@@ -194,7 +187,6 @@ export default function AdminDashboard() {
         setIsEditing(false); setEditItem(null); setPreviewUrl(null); fetchData(); alert("Saved successfully!");
       } else { 
         const errData = await res.json();
-        console.error("Save Error:", errData);
         alert(`Operation failed: ${errData.error || 'Unknown error'}`); 
       }
     } catch (err) { alert("Error submitting form"); } finally { setIsUploading(false); setUploadProgress(""); }
@@ -207,8 +199,6 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col md:flex-row pt-20">
-      
-      {/* SIDEBAR: Fixed text color to be BLACK in light mode */}
       <aside className="w-full md:w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 shrink-0">
         <div className="p-6">
            <h2 className="font-heading font-bold text-xl text-primary mb-1">Admin Panel</h2>
@@ -223,11 +213,7 @@ export default function AdminDashboard() {
                      <button 
                        key={item.id} 
                        onClick={() => { setActiveTab(item.id); setCurrentPage(1); }} 
-                       className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition 
-                         ${activeTab === item.id 
-                           ? 'bg-primary/10 text-primary' 
-                           : 'text-slate-900 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800' // FIXED: text-slate-900 for black text
-                         }`}
+                       className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition ${activeTab === item.id ? 'bg-primary/10 text-primary' : 'text-slate-900 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
                      >
                        {item.icon} {item.label}
                      </button>
@@ -240,9 +226,7 @@ export default function AdminDashboard() {
 
       <main className="flex-1 p-8 overflow-x-hidden">
         <div className="flex justify-between items-center mb-8">
-           {/* HEADER: Fixed text color to be BLACK in light mode */}
            <h1 className="text-2xl font-bold text-slate-900 dark:text-white capitalize">{activeTab}</h1>
-           
            {activeTab !== 'settings' && activeTab !== 'mentors' && activeTab !== 'mentees' && activeTab !== 'messages' && (
              <button onClick={() => { setEditItem(null); setIsEditing(true); setPreviewUrl(null); }} className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg text-sm font-bold hover:bg-primary/90 shadow-lg"><Plus size={16} /> Add New</button>
            )}
@@ -252,14 +236,8 @@ export default function AdminDashboard() {
            <div className="bg-white dark:bg-slate-900 p-8 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 max-w-xl">
               <h2 className="text-xl font-bold mb-6 flex items-center gap-2 text-slate-900 dark:text-white"><Lock size={20}/> Change Credentials</h2>
               <form onSubmit={handleSettingsSubmit} className="space-y-4">
-                 <div>
-                    <label className="block text-sm font-bold mb-2 text-slate-700 dark:text-slate-300">Confirm Email</label>
-                    <input name="email" type="email" placeholder="admin@hrmentorship.com" required className="admin-input" />
-                 </div>
-                 <div>
-                    <label className="block text-sm font-bold mb-2 text-slate-700 dark:text-slate-300">New Password</label>
-                    <input name="newPassword" type="password" placeholder="Min 6 characters" required className="admin-input" />
-                 </div>
+                 <div><label className="admin-label">Confirm Email</label><input name="email" type="email" required className="admin-input" /></div>
+                 <div><label className="admin-label">New Password</label><input name="newPassword" type="password" required className="admin-input" /></div>
                  <button type="submit" className="px-6 py-3 bg-primary text-white font-bold rounded-lg hover:bg-primary/90">Update Password</button>
               </form>
            </div>
@@ -284,69 +262,32 @@ export default function AdminDashboard() {
                                  {activeTab === 'gallery' && item.category}
                                  {activeTab === 'resources' && item.type}
                                  {activeTab === 'events' && item.date && new Date(item.date).toLocaleDateString()}
-                                 
-                                 {/* SHOW STATUS FOR APPLICANTS */}
                                  {(activeTab === 'mentors' || activeTab === 'mentees') && (
-                                    <span className={`px-2 py-1 rounded text-xs font-bold ${
-                                      item.status === 'ACCEPTED' ? 'bg-green-100 text-green-700' : 
-                                      item.status === 'REJECTED' ? 'bg-red-100 text-red-700' : 
-                                      'bg-yellow-100 text-yellow-700'
-                                    }`}>
-                                      {item.status || 'PENDING'}
-                                    </span>
+                                    <span className={`px-2 py-1 rounded text-xs font-bold ${item.status === 'ACCEPTED' ? 'bg-green-100 text-green-700' : item.status === 'REJECTED' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'}`}>{item.status || 'PENDING'}</span>
                                  )}
                               </td>
                               <td className="p-4 flex justify-end gap-2">
-                                 
-                                 {/* ACCEPT / REJECT BUTTONS (For Mentors/Mentees) */}
                                  {(activeTab === 'mentors' || activeTab === 'mentees') && (
                                    <>
-                                     <button 
-                                       onClick={() => handleStatusUpdate(item.id, 'ACCEPTED')}
-                                       className="p-2 text-green-600 bg-green-50 rounded hover:bg-green-100"
-                                       title="Accept"
-                                     >
-                                       <Check size={16} />
-                                     </button>
-                                     <button 
-                                       onClick={() => handleStatusUpdate(item.id, 'REJECTED')}
-                                       className="p-2 text-red-600 bg-red-50 rounded hover:bg-red-100"
-                                       title="Reject"
-                                     >
-                                       <Ban size={16} />
-                                     </button>
+                                     <button onClick={() => handleStatusUpdate(item.id, 'ACCEPTED')} className="p-2 text-green-600 bg-green-50 rounded hover:bg-green-100"><Check size={16}/></button>
+                                     <button onClick={() => handleStatusUpdate(item.id, 'REJECTED')} className="p-2 text-red-600 bg-red-50 rounded hover:bg-red-100"><Ban size={16}/></button>
                                    </>
                                  )}
-
-                                 {/* VIEW BUTTON (Messages/Applicants) */}
                                  {(activeTab === 'messages' || activeTab === 'mentors' || activeTab === 'mentees') && (
-                                   <button 
-                                     onClick={() => activeTab === 'messages' ? setViewMessage(item) : setViewApplicant(item)} 
-                                     className="p-2 text-blue-600 bg-blue-50 rounded hover:bg-blue-100"
-                                     title="View Details"
-                                   >
-                                     <Eye size={16} />
-                                   </button>
+                                   <button onClick={() => activeTab === 'messages' ? setViewMessage(item) : setViewApplicant(item)} className="p-2 text-blue-600 bg-blue-50 rounded hover:bg-blue-100"><Eye size={16}/></button>
                                  )}
-                                 
-                                 {/* EDIT BUTTON (Others) */}
                                  {activeTab !== 'mentors' && activeTab !== 'mentees' && activeTab !== 'messages' && (
                                     <button onClick={() => { setEditItem(item); setPreviewUrl(item.image || item.imageUrl); setIsEditing(true); }} className="p-2 text-slate-600 hover:text-primary"><Edit size={16}/></button>
                                  )}
-                                 
                                  <button onClick={() => handleDelete(item.id)} className="p-2 text-red-600 hover:bg-red-50 rounded"><Trash2 size={16}/></button>
                               </td>
                            </tr>
                          )) : (
-                           <tr>
-                             <td colSpan={4} className="p-8 text-center text-slate-500">No items found.</td>
-                           </tr>
+                           <tr><td colSpan={4} className="p-8 text-center text-slate-500">No items found.</td></tr>
                          )}
                       </tbody>
                    </table>
                </div>
-               
-               {/* PAGINATION */}
                {totalPages > 1 && (
                  <div className="p-4 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-900/50">
                     <span className="text-xs text-slate-500 font-bold">Page {currentPage} of {totalPages}</span>
@@ -360,15 +301,11 @@ export default function AdminDashboard() {
           )
         )}
 
-        {/* MODALS (ViewMessage / ViewApplicant / Edit Forms) - Including standard structure */}
-        
+        {/* MODALS */}
         {viewMessage && (
           <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm">
              <div className="bg-white dark:bg-slate-900 w-full max-w-lg rounded-xl shadow-2xl p-8 border border-slate-200 dark:border-slate-800">
-                <div className="flex justify-between items-center mb-6">
-                   <h3 className="text-xl font-bold text-slate-900 dark:text-white">Message Details</h3>
-                   <button onClick={() => setViewMessage(null)}><X className="text-slate-500"/></button>
-                </div>
+                <div className="flex justify-between items-center mb-6"><h3 className="text-xl font-bold text-slate-900 dark:text-white">Message Details</h3><button onClick={() => setViewMessage(null)}><X className="text-slate-500"/></button></div>
                 <div className="space-y-4 text-slate-700 dark:text-slate-300">
                    <div><label className="text-xs font-bold text-slate-500">FROM</label><p className="font-bold">{viewMessage.name} ({viewMessage.email})</p></div>
                    <div><label className="text-xs font-bold text-slate-500">SUBJECT</label><p className="font-bold">{viewMessage.subject}</p></div>
@@ -381,10 +318,7 @@ export default function AdminDashboard() {
         {viewApplicant && (
           <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm">
              <div className="bg-white dark:bg-slate-900 w-full max-w-lg rounded-xl shadow-2xl p-8 border border-slate-200 dark:border-slate-800">
-                <div className="flex justify-between items-center mb-6">
-                   <h3 className="text-xl font-bold capitalize text-slate-900 dark:text-white">{viewApplicant.role} Application</h3>
-                   <button onClick={() => setViewApplicant(null)}><X className="text-slate-500"/></button>
-                </div>
+                <div className="flex justify-between items-center mb-6"><h3 className="text-xl font-bold capitalize text-slate-900 dark:text-white">{viewApplicant.role} Application</h3><button onClick={() => setViewApplicant(null)}><X className="text-slate-500"/></button></div>
                 <div className="space-y-4 text-sm text-slate-700 dark:text-slate-300">
                    <div className="grid grid-cols-2 gap-4">
                       <div><label className="text-xs font-bold text-slate-500">NAME</label><p className="font-bold">{viewApplicant.name}</p></div>
@@ -407,12 +341,25 @@ export default function AdminDashboard() {
                  <div className="flex justify-between mb-6 pb-4 border-b border-slate-100 dark:border-slate-800"><h3 className="text-xl font-bold text-slate-900 dark:text-white">{editItem ? 'Edit' : 'Create'}</h3><button onClick={() => setIsEditing(false)}><X className="text-slate-500"/></button></div>
                  <form onSubmit={handleSubmit} className="space-y-5">
                     
-                    {/* (Standard edit forms remain same as previous, included here for completeness) */}
                     {activeTab === 'jobs' && (
                        <>
                           <div><label className="admin-label">Job Title</label><input name="title" defaultValue={editItem?.title} required className="admin-input" /></div>
                           <div><label className="admin-label">Company Name</label><input name="company" defaultValue={editItem?.company} required className="admin-input" /></div>
-                          <div><label className="admin-label">Salary (Optional)</label><input name="salary" defaultValue={editItem?.salary} placeholder="$50k - $70k" className="admin-input" /></div>
+                          
+                          {/* UPDATED SALARY DROPDOWN */}
+                          <div>
+                            <label className="admin-label">Salary Range</label>
+                            <select name="salary" defaultValue={editItem?.salary || ""} className="admin-input">
+                              <option value="" disabled>Select Salary Range</option>
+                              <option value="< $1000">&lt; $1000</option>
+                              <option value="$1000 - $5000">$1000 - $5000</option>
+                              <option value="$5000 - $10000">$5000 - $10000</option>
+                              <option value="$10000 - $20000">$10000 - $20000</option>
+                              <option value="$20000 - $50000">$20000 - $50000</option>
+                              <option value="> $50000">&gt; $50000</option>
+                            </select>
+                          </div>
+
                           <div><label className="admin-label">Location</label><input name="location" defaultValue={editItem?.location} required className="admin-input" /></div>
                           <div><label className="admin-label">Job Type</label><select name="type" defaultValue={editItem?.type || "Full Time"} className="admin-input"><option>Full Time</option><option>Part Time</option><option>Contract</option></select></div>
                           <div><label className="admin-label">Job Description</label><textarea name="description" defaultValue={editItem?.description} required className="admin-input" rows={4}/></div>
@@ -426,28 +373,15 @@ export default function AdminDashboard() {
                           <div><label className="admin-label">Date & Time</label><input name="date" type="datetime-local" defaultValue={editItem?.date ? new Date(editItem.date).toISOString().slice(0, 16) : ''} className="admin-input" /></div>
                           <div><label className="admin-label">Location</label><input name="location" defaultValue={editItem?.location} placeholder="Zoom / Lagos" required className="admin-input" /></div>
                           <div><label className="admin-label">Registration URL</label><input name="registrationLink" defaultValue={editItem?.registrationLink} placeholder="https://..." className="admin-input" /></div>
-                          <div className="space-y-3">
-                            <label className="admin-label">Event Banner</label>
-                            {previewUrl && <div className="h-40 w-full relative"><Image src={previewUrl} alt="Preview" fill className="object-cover rounded"/></div>}
-                            <input type="file" ref={fileInputRef} onChange={handleFileSelect} accept="image/*" />
-                          </div>
+                          <div className="space-y-3"><label className="admin-label">Event Banner</label><input type="file" ref={fileInputRef} onChange={handleFileSelect} accept="image/*" /></div>
                        </>
                     )}
 
                     {activeTab === 'gallery' && (
                        <>
                           <div><label className="admin-label">Caption (Optional)</label><input name="title" className="admin-input" /></div>
-                          <div><label className="admin-label">Category</label>
-                            <select name="category" className="admin-input">
-                               <option value="Events">Events</option>
-                               <option value="Webinars">Webinars</option>
-                               <option value="Meetups">Meetups</option>
-                            </select>
-                          </div>
-                          <div className="space-y-3">
-                            <label className="admin-label">Images (Select Multiple)</label>
-                            <input type="file" ref={fileInputRef} multiple accept="image/*" />
-                          </div>
+                          <div><label className="admin-label">Category</label><select name="category" className="admin-input"><option value="Events">Events</option><option value="Webinars">Webinars</option><option value="Meetups">Meetups</option></select></div>
+                          <div className="space-y-3"><label className="admin-label">Images (Select Multiple)</label><input type="file" ref={fileInputRef} multiple accept="image/*" /></div>
                           {uploadProgress && <p className="text-primary font-bold animate-pulse">{uploadProgress}</p>}
                        </>
                     )}
@@ -455,17 +389,7 @@ export default function AdminDashboard() {
                     {activeTab === 'resources' && (
                        <>
                           <div><label className="admin-label">Resource Title</label><input name="title" defaultValue={editItem?.title} required className="admin-input" /></div>
-                          <div><label className="admin-label">Type</label>
-                            <select name="type" defaultValue={editItem?.type || "PDF"} className="admin-input">
-                              <option>PDF</option>
-                              <option>Video</option>
-                              <option>Link</option>
-                              <option>Book</option>
-                              <option>DOC</option>
-                              <option>PPT</option>
-                              <option>XLS</option>
-                            </select>
-                          </div>
+                          <div><label className="admin-label">Type</label><select name="type" defaultValue={editItem?.type || "PDF"} className="admin-input"><option>PDF</option><option>Video</option><option>Link</option><option>Book</option><option>DOC</option><option>PPT</option><option>XLS</option></select></div>
                           <div><label className="admin-label">File URL / YouTube Link</label><input name="fileUrl" defaultValue={editItem?.fileUrl} required className="admin-input" /></div>
                        </>
                     )}
@@ -475,18 +399,11 @@ export default function AdminDashboard() {
                           <div><label className="admin-label">Blog Title</label><input name="title" defaultValue={editItem?.title} required className="admin-input" /></div>
                           <div><label className="admin-label">Author</label><input name="author" defaultValue={editItem?.author} className="admin-input" /></div>
                           <div><label className="admin-label">Content</label><textarea name="content" defaultValue={editItem?.content} className="admin-input" rows={6}/></div>
-                          
-                          <div className="space-y-3">
-                            <label className="admin-label">Cover Image</label>
-                            {previewUrl && <div className="h-40 w-full relative"><Image src={previewUrl} alt="Preview" fill className="object-cover rounded"/></div>}
-                            <input type="file" ref={fileInputRef} onChange={handleFileSelect} accept="image/*" />
-                          </div>
+                          <div className="space-y-3"><label className="admin-label">Cover Image</label><input type="file" ref={fileInputRef} onChange={handleFileSelect} accept="image/*" /></div>
                        </>
                     )}
 
-                    <button disabled={isUploading} type="submit" className="w-full py-3 bg-primary text-white font-bold rounded-lg mt-4 disabled:opacity-50 hover:bg-primary/90">
-                       {isUploading ? "Processing..." : "Save Changes"}
-                    </button>
+                    <button disabled={isUploading} type="submit" className="w-full py-3 bg-primary text-white font-bold rounded-lg mt-4 disabled:opacity-50 hover:bg-primary/90">{isUploading ? "Processing..." : "Save Changes"}</button>
                  </form>
               </div>
            </div>

@@ -654,8 +654,8 @@ export default function TeamPage() {
                    <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1">{member.name}</h3>
                    <p className="text-xs font-bold text-primary uppercase tracking-wider mb-4 h-8 flex items-center justify-center">{member.role}</p>
                    <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed line-clamp-3 mb-4">{member.shortBio}</p>
-                   <button className="text-primary text-sm font-bold flex items-center justify-center gap-1 mx-auto group-hover:gap-2 transition-all">
-                      View Full Profile <ChevronRight size={14}/>
+                   <button className="text-primary text-xs font-bold flex items-center justify-center gap-1 mx-auto group-hover:gap-2 transition-all">
+                      View Profile <ChevronRight size={12}/>
                    </button>
                 </div>
              ))}
