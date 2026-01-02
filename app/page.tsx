@@ -13,7 +13,7 @@ export default async function Home() {
     orderBy: { createdAt: 'desc' }
   });
 
-  // 2. CORE TEAM PREVIEW (Updated to .jpg for speed and accuracy)
+  // 2. CORE TEAM PREVIEW
   const coreTeamPreview = [
     { name: "Dr. Oluyemi Adeosun", role: "Founder & Visionary Leader", image: "/team/oluyemi.jpg" },
     { name: "Irene Ewheme Obagwu", role: "Director of Brand & Creativity", image: "/team/irene.jpg" },
@@ -67,18 +67,21 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* 2. ABOUT SECTION */}
-      <section className="py-32 bg-white dark:bg-slate-900">
-         <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-20 items-center">
-            <div className="relative h-[550px] rounded-[2rem] overflow-hidden shadow-2xl group">
+      {/* 2. ABOUT SECTION (Image Updated & Responsive) */}
+      <section className="py-20 md:py-32 bg-white dark:bg-slate-900">
+         <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-12 md:gap-20 items-center">
+            
+            {/* IMAGE CONTAINER */}
+            <div className="relative h-[400px] md:h-[600px] w-full rounded-[2rem] overflow-hidden shadow-2xl group">
                <Image 
-                 src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=800" 
-                 alt="Community" 
+                 src="https://res.cloudinary.com/dmqjicpcc/image/upload/v1767089482/N-2_qnqd63.jpg" 
+                 alt="HR Mentorship Community" 
                  fill 
-                 className="object-cover group-hover:scale-105 transition duration-700"
+                 className="object-cover object-top group-hover:scale-105 transition duration-700"
                />
                <div className="absolute inset-0 bg-primary/10 mix-blend-overlay"/>
             </div>
+
             <div className="space-y-8">
                <span className="text-primary font-bold uppercase tracking-wider text-sm bg-primary/5 px-4 py-2 rounded-full inline-block">About HR Mentorship</span>
                <h2 className="text-3xl md:text-5xl font-heading font-bold text-slate-900 dark:text-white leading-tight">
@@ -117,7 +120,7 @@ export default async function Home() {
          </div>
       </section>
 
-      {/* 3. CORE TEAM SECTION (Priority Loading) */}
+      {/* 3. CORE TEAM SECTION */}
       <section className="py-32 bg-slate-50 dark:bg-slate-950">
          <div className="max-w-7xl mx-auto px-6">
             <div className="text-center mb-20 max-w-3xl mx-auto">
@@ -129,7 +132,6 @@ export default async function Home() {
                {coreTeamPreview.map((member, i) => (
                   <div key={i} className="bg-white dark:bg-slate-900 rounded-2xl p-8 shadow-sm border border-slate-100 dark:border-slate-800 text-center hover:shadow-xl hover:-translate-y-2 transition duration-300 group">
                      <div className="w-40 h-40 mx-auto rounded-full overflow-hidden mb-8 border-4 border-slate-50 dark:border-slate-800 relative group-hover:border-primary/20 transition">
-                        {/* Priority makes them load instantly */}
                         <Image src={member.image} alt={member.name} fill className="object-cover" priority={true}/>
                      </div>
                      <h3 className="font-bold text-lg text-slate-900 dark:text-white mb-2">{member.name}</h3>
