@@ -1,23 +1,29 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { 
   LayoutDashboard, FileText, Briefcase, Calendar, Image as ImageIcon, 
   Users, UserCheck, Settings, Plus, Trash2, Edit, RefreshCw, 
-  X, Upload, Mail, ShieldAlert, Eye, Lock, ChevronLeft, ChevronRight, Check, Ban
+  X, Upload, Mail, ShieldAlert, Eye, Lock, ChevronLeft, ChevronRight, Check, Ban, LogOut
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 
-export default function AdminDashboard() {
-  const [activeTab, setActiveTab] = useState('blogs');
+function DashboardContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  
+  // 1. URL PERSISTENCE: Get active tab from URL or default to 'blogs'
+  const activeTab = searchParams.get('tab') || 'blogs';
+
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [role, setRole] = useState<string>('ADMIN');
   
-  // Pagination
+  // 2. PAGINATION STATE
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 7;
+  const itemsPerPage = 7; // Number of items per page
 
   // CRUD State
   const [isEditing, setIsEditing] = useState(false);
@@ -29,10 +35,47 @@ export default function AdminDashboard() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // 3. LOGOUT & AUTO-LOGOUT LOGIC
+  const handleLogout = useCallback(() => {
+    // Clear credentials
+    localStorage.removeItem("adminRole");
+    document.cookie = "adminAuth=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;";
+    // Redirect to login
+    router.push("/admin"); 
+  }, [router]);
+
   useEffect(() => {
     const storedRole = localStorage.getItem("adminRole");
     if (storedRole) setRole(storedRole);
-  }, []);
+
+    // 1 Hour Inactivity Timer (3600000 ms)
+    let inactivityTimer: NodeJS.Timeout;
+    
+    const resetTimer = () => {
+      clearTimeout(inactivityTimer);
+      inactivityTimer = setTimeout(handleLogout, 3600000);
+    };
+
+    // Listen for activity
+    window.addEventListener("mousemove", resetTimer);
+    window.addEventListener("keydown", resetTimer);
+    window.addEventListener("click", resetTimer);
+    
+    // Start timer
+    resetTimer();
+
+    return () => {
+      clearTimeout(inactivityTimer);
+      window.removeEventListener("mousemove", resetTimer);
+      window.removeEventListener("keydown", resetTimer);
+      window.removeEventListener("click", resetTimer);
+    };
+  }, [handleLogout]);
+
+  // Reset pagination when tab changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeTab]);
 
   const menuGroups = [
     {
@@ -92,7 +135,6 @@ export default function AdminDashboard() {
       if (!res.ok) throw new Error("Failed");
       const data = await res.json();
       setItems(Array.isArray(data) ? data : []);
-      setCurrentPage(1);
     } catch (error) { setItems([]); } finally { setLoading(false); }
   };
 
@@ -192,6 +234,7 @@ export default function AdminDashboard() {
     } catch (err) { alert("Error submitting form"); } finally { setIsUploading(false); setUploadProgress(""); }
   };
 
+  // PAGINATION LOGIC
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = items.slice(indexOfFirstItem, indexOfLastItem);
@@ -199,12 +242,15 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col md:flex-row pt-20">
-      <aside className="w-full md:w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 shrink-0">
+      
+      {/* SIDEBAR */}
+      <aside className="w-full md:w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 shrink-0 flex flex-col h-[calc(100vh-80px)] md:sticky md:top-20">
         <div className="p-6">
            <h2 className="font-heading font-bold text-xl text-primary mb-1">Admin Panel</h2>
            <p className="text-xs text-slate-500">Logged in as: {role}</p>
         </div>
-        <nav className="px-4 space-y-8 mb-8">
+        
+        <nav className="px-4 space-y-8 flex-1 overflow-y-auto">
            {menuGroups.map((group) => (
              <div key={group.title}>
                 <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 px-2">{group.title}</h3>
@@ -212,8 +258,15 @@ export default function AdminDashboard() {
                    {group.items.map((item) => (
                      <button 
                        key={item.id} 
-                       onClick={() => { setActiveTab(item.id); setCurrentPage(1); }} 
-                       className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition ${activeTab === item.id ? 'bg-primary/10 text-primary' : 'text-slate-900 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+                       onClick={() => {
+                         // Push URL parameter so refresh works
+                         router.push(`/admin/dashboard?tab=${item.id}`);
+                       }} 
+                       className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition 
+                         ${activeTab === item.id 
+                           ? 'bg-primary/10 text-primary' 
+                           : 'text-slate-900 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+                         }`}
                      >
                        {item.icon} {item.label}
                      </button>
@@ -222,11 +275,22 @@ export default function AdminDashboard() {
              </div>
            ))}
         </nav>
+
+        {/* LOGOUT BUTTON */}
+        <div className="p-4 border-t border-slate-200 dark:border-slate-800">
+           <button 
+             onClick={handleLogout}
+             className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-bold text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition"
+           >
+             <LogOut size={18}/> Logout
+           </button>
+        </div>
       </aside>
 
       <main className="flex-1 p-8 overflow-x-hidden">
         <div className="flex justify-between items-center mb-8">
            <h1 className="text-2xl font-bold text-slate-900 dark:text-white capitalize">{activeTab}</h1>
+           
            {activeTab !== 'settings' && activeTab !== 'mentors' && activeTab !== 'mentees' && activeTab !== 'messages' && (
              <button onClick={() => { setEditItem(null); setIsEditing(true); setPreviewUrl(null); }} className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg text-sm font-bold hover:bg-primary/90 shadow-lg"><Plus size={16} /> Add New</button>
            )}
@@ -288,6 +352,8 @@ export default function AdminDashboard() {
                       </tbody>
                    </table>
                </div>
+
+               {/* PAGINATION CONTROLS */}
                {totalPages > 1 && (
                  <div className="p-4 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-900/50">
                     <span className="text-xs text-slate-500 font-bold">Page {currentPage} of {totalPages}</span>
@@ -345,8 +411,6 @@ export default function AdminDashboard() {
                        <>
                           <div><label className="admin-label">Job Title</label><input name="title" defaultValue={editItem?.title} required className="admin-input" /></div>
                           <div><label className="admin-label">Company Name</label><input name="company" defaultValue={editItem?.company} required className="admin-input" /></div>
-                          
-                          {/* UPDATED SALARY DROPDOWN */}
                           <div>
                             <label className="admin-label">Salary Range</label>
                             <select name="salary" defaultValue={editItem?.salary || ""} className="admin-input">
@@ -359,7 +423,6 @@ export default function AdminDashboard() {
                               <option value="> $50000">&gt; $50000</option>
                             </select>
                           </div>
-
                           <div><label className="admin-label">Location</label><input name="location" defaultValue={editItem?.location} required className="admin-input" /></div>
                           <div><label className="admin-label">Job Type</label><select name="type" defaultValue={editItem?.type || "Full Time"} className="admin-input"><option>Full Time</option><option>Part Time</option><option>Contract</option></select></div>
                           <div><label className="admin-label">Job Description</label><textarea name="description" defaultValue={editItem?.description} required className="admin-input" rows={4}/></div>
@@ -416,5 +479,14 @@ export default function AdminDashboard() {
         .dark .admin-label { color: #94a3b8; }
       `}</style>
     </div>
+  );
+}
+
+// Ensure the page can handle search params correctly
+export default function AdminDashboard() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading Dashboard...</div>}>
+      <DashboardContent />
+    </Suspense>
   );
 }
