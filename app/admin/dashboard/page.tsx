@@ -14,18 +14,15 @@ function DashboardContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   
-  // 1. URL PERSISTENCE: Get active tab from URL or default to 'blogs'
   const activeTab = searchParams.get('tab') || 'blogs';
 
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [role, setRole] = useState<string>('ADMIN');
   
-  // 2. PAGINATION STATE
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 7; // Number of items per page
+  const itemsPerPage = 7;
 
-  // CRUD State
   const [isEditing, setIsEditing] = useState(false);
   const [viewMessage, setViewMessage] = useState<any>(null); 
   const [viewApplicant, setViewApplicant] = useState<any>(null);
@@ -35,12 +32,9 @@ function DashboardContent() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // 3. LOGOUT & AUTO-LOGOUT LOGIC
   const handleLogout = useCallback(() => {
-    // Clear credentials
     localStorage.removeItem("adminRole");
     document.cookie = "adminAuth=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;";
-    // Redirect to login
     router.push("/admin"); 
   }, [router]);
 
@@ -48,20 +42,15 @@ function DashboardContent() {
     const storedRole = localStorage.getItem("adminRole");
     if (storedRole) setRole(storedRole);
 
-    // 1 Hour Inactivity Timer (3600000 ms)
     let inactivityTimer: NodeJS.Timeout;
-    
     const resetTimer = () => {
       clearTimeout(inactivityTimer);
       inactivityTimer = setTimeout(handleLogout, 3600000);
     };
 
-    // Listen for activity
     window.addEventListener("mousemove", resetTimer);
     window.addEventListener("keydown", resetTimer);
     window.addEventListener("click", resetTimer);
-    
-    // Start timer
     resetTimer();
 
     return () => {
@@ -72,7 +61,6 @@ function DashboardContent() {
     };
   }, [handleLogout]);
 
-  // Reset pagination when tab changes
   useEffect(() => {
     setCurrentPage(1);
   }, [activeTab]);
@@ -234,7 +222,6 @@ function DashboardContent() {
     } catch (err) { alert("Error submitting form"); } finally { setIsUploading(false); setUploadProgress(""); }
   };
 
-  // PAGINATION LOGIC
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = items.slice(indexOfFirstItem, indexOfLastItem);
@@ -242,14 +229,11 @@ function DashboardContent() {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col md:flex-row pt-20">
-      
-      {/* SIDEBAR */}
       <aside className="w-full md:w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 shrink-0 flex flex-col h-[calc(100vh-80px)] md:sticky md:top-20">
         <div className="p-6">
            <h2 className="font-heading font-bold text-xl text-primary mb-1">Admin Panel</h2>
            <p className="text-xs text-slate-500">Logged in as: {role}</p>
         </div>
-        
         <nav className="px-4 space-y-8 flex-1 overflow-y-auto">
            {menuGroups.map((group) => (
              <div key={group.title}>
@@ -258,10 +242,7 @@ function DashboardContent() {
                    {group.items.map((item) => (
                      <button 
                        key={item.id} 
-                       onClick={() => {
-                         // Push URL parameter so refresh works
-                         router.push(`/admin/dashboard?tab=${item.id}`);
-                       }} 
+                       onClick={() => router.push(`/admin/dashboard?tab=${item.id}`)} 
                        className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition 
                          ${activeTab === item.id 
                            ? 'bg-primary/10 text-primary' 
@@ -275,13 +256,8 @@ function DashboardContent() {
              </div>
            ))}
         </nav>
-
-        {/* LOGOUT BUTTON */}
         <div className="p-4 border-t border-slate-200 dark:border-slate-800">
-           <button 
-             onClick={handleLogout}
-             className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-bold text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition"
-           >
+           <button onClick={handleLogout} className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-bold text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition">
              <LogOut size={18}/> Logout
            </button>
         </div>
@@ -290,7 +266,6 @@ function DashboardContent() {
       <main className="flex-1 p-8 overflow-x-hidden">
         <div className="flex justify-between items-center mb-8">
            <h1 className="text-2xl font-bold text-slate-900 dark:text-white capitalize">{activeTab}</h1>
-           
            {activeTab !== 'settings' && activeTab !== 'mentors' && activeTab !== 'mentees' && activeTab !== 'messages' && (
              <button onClick={() => { setEditItem(null); setIsEditing(true); setPreviewUrl(null); }} className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg text-sm font-bold hover:bg-primary/90 shadow-lg"><Plus size={16} /> Add New</button>
            )}
@@ -319,13 +294,14 @@ function DashboardContent() {
                          {currentItems.length > 0 ? currentItems.map((item) => (
                            <tr key={item.id} className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50">
                               <td className="p-4">#{item.id}</td>
-                              <td className="p-4 font-bold text-slate-900 dark:text-white">{item.title || item.name || item.subject}</td>
+                              <td className="p-4 font-bold text-slate-900 dark:text-white">{item.title || item.name || item.subject || item.email}</td>
                               <td className="p-4">
                                  {activeTab === 'messages' && <span className="text-xs truncate block max-w-xs italic opacity-75">{item.message?.substring(0, 50)}...</span>}
                                  {activeTab === 'jobs' && `${item.company}`}
                                  {activeTab === 'gallery' && item.category}
                                  {activeTab === 'resources' && item.type}
                                  {activeTab === 'events' && item.date && new Date(item.date).toLocaleDateString()}
+                                 {activeTab === 'admins' && <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs font-bold">{item.role}</span>}
                                  {(activeTab === 'mentors' || activeTab === 'mentees') && (
                                     <span className={`px-2 py-1 rounded text-xs font-bold ${item.status === 'ACCEPTED' ? 'bg-green-100 text-green-700' : item.status === 'REJECTED' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'}`}>{item.status || 'PENDING'}</span>
                                  )}
@@ -352,8 +328,6 @@ function DashboardContent() {
                       </tbody>
                    </table>
                </div>
-
-               {/* PAGINATION CONTROLS */}
                {totalPages > 1 && (
                  <div className="p-4 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-900/50">
                     <span className="text-xs text-slate-500 font-bold">Page {currentPage} of {totalPages}</span>
@@ -407,6 +381,21 @@ function DashboardContent() {
                  <div className="flex justify-between mb-6 pb-4 border-b border-slate-100 dark:border-slate-800"><h3 className="text-xl font-bold text-slate-900 dark:text-white">{editItem ? 'Edit' : 'Create'}</h3><button onClick={() => setIsEditing(false)}><X className="text-slate-500"/></button></div>
                  <form onSubmit={handleSubmit} className="space-y-5">
                     
+                    {/* ADDED: ADMIN CREATION FORM */}
+                    {activeTab === 'admins' && (
+                       <>
+                          <div><label className="admin-label">Email</label><input name="email" type="email" required className="admin-input" /></div>
+                          <div><label className="admin-label">Password</label><input name="password" type="password" required className="admin-input" /></div>
+                          <div>
+                            <label className="admin-label">Role</label>
+                            <select name="role" className="admin-input">
+                               <option value="ADMIN">Admin</option>
+                               <option value="SUPER_ADMIN">Super Admin</option>
+                            </select>
+                          </div>
+                       </>
+                    )}
+
                     {activeTab === 'jobs' && (
                        <>
                           <div><label className="admin-label">Job Title</label><input name="title" defaultValue={editItem?.title} required className="admin-input" /></div>
@@ -482,7 +471,6 @@ function DashboardContent() {
   );
 }
 
-// Ensure the page can handle search params correctly
 export default function AdminDashboard() {
   return (
     <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading Dashboard...</div>}>
