@@ -2,167 +2,135 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { Menu, X, Sun, Moon, ChevronDown } from "lucide-react";
-import { useTheme } from "next-themes";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
-  const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-  const [mobileLearningOpen, setMobileLearningOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isDark, setIsDark] = useState(false);
+  const pathname = usePathname();
 
+  // Handle Scroll Effect
   useEffect(() => {
-    setMounted(true);
-    const handleScroll = () => setScrolled(window.scrollY > 20);
+    const handleScroll = () => setIsScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  if (!mounted) return null;
+  // Handle Dark Mode
+  useEffect(() => {
+    if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      setIsDark(true);
+      document.documentElement.classList.add('dark');
+    } else {
+      setIsDark(false);
+      document.documentElement.classList.remove('dark');
+    }
+  }, []);
 
-  // LOGIC: White text at top (for dark hero), Dark text when scrolled (for white bar)
-  const textColorClass = scrolled ? "text-slate-900 dark:text-white" : "text-white";
-  const bgClass = scrolled ? "bg-white/95 dark:bg-slate-900/95 backdrop-blur-md shadow-sm" : "bg-transparent";
+  const toggleTheme = () => {
+    if (isDark) {
+      document.documentElement.classList.remove('dark');
+      localStorage.theme = 'light';
+      setIsDark(false);
+    } else {
+      document.documentElement.classList.add('dark');
+      localStorage.theme = 'dark';
+      setIsDark(true);
+    }
+  };
 
   const navLinks = [
     { name: "Home", href: "/" },
     { name: "About Us", href: "/about" },
     { name: "Team", href: "/team" },
-    { 
-      name: "Learning Centre", 
-      href: "#", 
-      dropdown: [
-        { name: "Resources", href: "/resources" },
-        { name: "Events", href: "/events" },
-      ]
-    },
+    { name: "Learning Centre", href: "/resources" }, // Updated to point to new Resources page
     { name: "Jobs", href: "/jobs" },
-    { name: "Blog", href: "/blog" },
+    { name: "Events", href: "/events" },
     { name: "Gallery", href: "/gallery" },
     { name: "Contact", href: "/contact" },
   ];
 
   return (
-    <nav className={`fixed w-full z-50 transition-all duration-300 ${bgClass}`}>
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="flex justify-between items-center h-20">
-          
-          {/* LOGO IMAGE */}
-          <Link href="/" className="flex items-center gap-2 group">
-            <div className="relative w-12 h-12 rounded-lg overflow-hidden">
-               <Image 
-                 src="https://res.cloudinary.com/dmqjicpcc/image/upload/v1765218297/1001440111_dztflg.jpg" 
-                 alt="HR Mentorship Logo" 
-                 fill
-                 className="object-cover"
-               />
-            </div>
-            <span className={`font-heading font-bold text-xl tracking-tight transition-colors ${textColorClass}`}>
-              HR Mentorship
-            </span>
-          </Link>
+    <nav className={`fixed w-full z-50 transition-all duration-300 ${isScrolled ? "bg-white/90 dark:bg-slate-900/90 backdrop-blur-md shadow-sm py-4" : "bg-transparent py-6"}`}>
+      
+      {/* CONTAINER FIX: Added max-w-7xl mx-auto px-6 to align with page content */}
+      <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
+        
+        {/* LOGO */}
+        <Link href="/" className="flex items-center gap-2 group">
+          <div className="bg-white p-1 rounded-lg">
+             {/* Replace with your actual Logo Image if you have one */}
+             <span className="text-2xl font-heading font-bold text-primary tracking-tighter group-hover:scale-105 transition">HR</span>
+          </div>
+          <span className={`text-xl font-bold font-heading ${isScrolled ? "text-slate-900 dark:text-white" : "text-white"} hidden md:block`}>
+            Mentorship
+          </span>
+        </Link>
 
-          {/* DESKTOP MENU */}
-          <div className="hidden md:flex items-center gap-8">
-            {navLinks.map((link) => (
-              <div key={link.name} className="relative group">
-                {link.dropdown ? (
-                  <button className={`flex items-center gap-1 text-sm font-bold transition-colors hover:text-purple-300 ${textColorClass}`}>
-                    {link.name} <ChevronDown size={14}/>
-                  </button>
-                ) : (
-                  <Link href={link.href} className={`text-sm font-bold transition-colors hover:text-purple-300 ${textColorClass}`}>
-                    {link.name}
-                  </Link>
-                )}
-
-                {/* Dropdown Menu */}
-                {link.dropdown && (
-                  <div className="absolute top-full left-0 mt-2 w-48 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-100 dark:border-slate-800 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all transform translate-y-2 group-hover:translate-y-0">
-                    {link.dropdown.map((item) => (
-                      <Link key={item.name} href={item.href} className="block px-4 py-3 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-primary first:rounded-t-xl last:rounded-b-xl">
-                        {item.name}
-                      </Link>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ))}
-
-            {/* THEME TOGGLE */}
-            <button 
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className={`p-2 rounded-full transition-colors ${scrolled ? 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white' : 'bg-white/20 text-white hover:bg-white/30'}`}
+        {/* DESKTOP NAV */}
+        <div className="hidden lg:flex items-center gap-8">
+          {navLinks.map((link) => (
+            <Link 
+              key={link.name} 
+              href={link.href}
+              className={`text-sm font-bold transition hover:text-primary ${
+                pathname === link.href 
+                  ? "text-primary" 
+                  : isScrolled ? "text-slate-600 dark:text-slate-300" : "text-white/90 hover:text-white"
+              }`}
             >
-              {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
-            </button>
-
-            <Link href="/join" className="px-6 py-2.5 bg-white text-primary text-sm font-bold rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all">
-              Join Community
+              {link.name}
             </Link>
-          </div>
+          ))}
+        </div>
 
-          {/* MOBILE TOGGLE */}
-          <div className="md:hidden flex items-center gap-4">
-             <button 
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className={`p-2 rounded-full transition-colors ${scrolled ? 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white' : 'bg-white/20 text-white'}`}
-            >
-              {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
-            </button>
-            <button 
-              onClick={() => setIsOpen(!isOpen)} 
-              className={`p-2 ${textColorClass}`}
-            >
-              {isOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
-          </div>
+        {/* ACTIONS */}
+        <div className="hidden lg:flex items-center gap-4">
+          <button onClick={toggleTheme} className={`p-2 rounded-full transition ${isScrolled ? "hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300" : "text-white hover:bg-white/10"}`}>
+            {isDark ? <Sun size={20}/> : <Moon size={20}/>}
+          </button>
+          <a 
+            href="https://t.me/hrmentorship" 
+            target="_blank" 
+            className="px-6 py-2.5 bg-white text-primary font-bold rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all text-sm"
+          >
+            Join Community
+          </a>
+        </div>
+
+        {/* MOBILE MENU BUTTON */}
+        <div className="lg:hidden flex items-center gap-4">
+          <button onClick={toggleTheme} className={`p-2 rounded-full ${isScrolled ? "text-slate-600 dark:text-slate-300" : "text-white"}`}>
+            {isDark ? <Sun size={20}/> : <Moon size={20}/>}
+          </button>
+          <button onClick={() => setIsOpen(!isOpen)} className={isScrolled ? "text-slate-900 dark:text-white" : "text-white"}>
+            {isOpen ? <X size={28}/> : <Menu size={28}/>}
+          </button>
         </div>
       </div>
 
-      {/* MOBILE MENU */}
+      {/* MOBILE MENU OVERLAY */}
       {isOpen && (
-        <div className="md:hidden absolute top-20 left-0 w-full bg-white dark:bg-slate-950 border-t border-slate-100 dark:border-slate-800 shadow-xl p-6 flex flex-col gap-4 h-screen overflow-y-auto pb-32">
+        <div className="absolute top-full left-0 w-full bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 shadow-xl p-6 flex flex-col gap-4 lg:hidden animate-in slide-in-from-top-5">
           {navLinks.map((link) => (
-             <div key={link.name}>
-               {link.dropdown ? (
-                 <div>
-                    <button 
-                      onClick={() => setMobileLearningOpen(!mobileLearningOpen)}
-                      className="flex items-center justify-between w-full text-lg font-medium text-slate-900 dark:text-white py-2"
-                    >
-                      {link.name} <ChevronDown size={16} className={`transition ${mobileLearningOpen ? 'rotate-180' : ''}`}/>
-                    </button>
-                    {mobileLearningOpen && (
-                      <div className="pl-4 mt-2 space-y-2 border-l-2 border-slate-100 dark:border-slate-800">
-                         {link.dropdown.map(item => (
-                           <Link key={item.name} href={item.href} onClick={() => setIsOpen(false)} className="block py-2 text-slate-600 dark:text-slate-400">
-                             {item.name}
-                           </Link>
-                         ))}
-                      </div>
-                    )}
-                 </div>
-               ) : (
-                 <Link 
-                   href={link.href} 
-                   onClick={() => setIsOpen(false)}
-                   className="block text-lg font-medium text-slate-900 dark:text-white py-2"
-                 >
-                   {link.name}
-                 </Link>
-               )}
-             </div>
+            <Link 
+              key={link.name} 
+              href={link.href}
+              onClick={() => setIsOpen(false)}
+              className={`text-lg font-bold py-2 border-b border-slate-50 dark:border-slate-800 ${pathname === link.href ? "text-primary" : "text-slate-600 dark:text-slate-400"}`}
+            >
+              {link.name}
+            </Link>
           ))}
-          <Link 
-            href="/join" 
-            onClick={() => setIsOpen(false)}
-            className="w-full py-3 bg-primary text-white text-center font-bold rounded-lg mt-4"
+          <a 
+            href="https://t.me/hrmentorship" 
+            target="_blank" 
+            className="mt-4 w-full py-4 bg-primary text-white font-bold rounded-xl text-center shadow-lg"
           >
             Join Community
-          </Link>
+          </a>
         </div>
       )}
     </nav>
