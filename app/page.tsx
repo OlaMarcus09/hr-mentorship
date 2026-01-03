@@ -1,7 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, CheckCircle2, Calendar, Users, Briefcase } from "lucide-react";
+import { ArrowRight, CheckCircle2, Calendar, Users, Briefcase, GraduationCap, HeartHandshake } from "lucide-react";
 
 export const revalidate = 60;
 
@@ -35,13 +35,11 @@ export default async function Home() {
           <div className="absolute inset-0 bg-purple-900/90 mix-blend-multiply" />
         </div>
 
-        {/* Added px-4 for mobile padding so text doesn't touch edges */}
         <div className="relative z-10 max-w-7xl mx-auto px-4 md:px-6 text-center text-white">
           <div className="animate-fade-in-up space-y-8 md:space-y-10">
             <p className="text-xs md:text-base font-semibold tracking-widest uppercase text-purple-200">
               Trusted by 7,000+ HR Professionals
             </p>
-            {/* Reduced mobile font size to text-4xl to prevent cramping */}
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-heading font-bold leading-tight max-w-5xl mx-auto drop-shadow-lg">
               Where HR Careers Grow, <br/> Leaders Emerge, and <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-200 to-pink-200">Community Thrives</span>
             </h1>
@@ -58,7 +56,6 @@ export default async function Home() {
                </Link>
             </div>
 
-            {/* IMPACT NUMBERS - Changed to Grid for better mobile spacing */}
             <div className="pt-12 md:pt-16 grid grid-cols-3 gap-4 border-t border-white/10 max-w-4xl mx-auto mt-8 md:mt-12 opacity-90">
               <div><p className="text-2xl md:text-5xl font-bold">7k+</p><p className="text-[10px] md:text-xs uppercase tracking-wider mt-1">Members</p></div>
               <div><p className="text-2xl md:text-5xl font-bold">60k+</p><p className="text-[10px] md:text-xs uppercase tracking-wider mt-1">Applications</p></div>
@@ -120,8 +117,48 @@ export default async function Home() {
          </div>
       </section>
 
+      {/* 2.5 RESTORED: JOIN PROGRAM SECTION */}
+      <section className="py-20 bg-slate-50 dark:bg-slate-950">
+         <div className="max-w-7xl mx-auto px-6">
+            <div className="text-center mb-16">
+               <h2 className="text-3xl md:text-4xl font-heading font-bold text-slate-900 dark:text-white mb-4">Join Our Program</h2>
+               <p className="text-xl text-slate-600 dark:text-slate-400">Choose your path and start your journey with us.</p>
+            </div>
+            
+            <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+               {/* MENTEE CARD */}
+               <div className="bg-white dark:bg-slate-900 p-8 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 hover:shadow-xl hover:-translate-y-1 transition duration-300 text-center flex flex-col items-center">
+                  <div className="w-16 h-16 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center mb-6">
+                     <GraduationCap size={32} />
+                  </div>
+                  <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">Become a Mentee</h3>
+                  <p className="text-slate-600 dark:text-slate-400 mb-8 leading-relaxed">
+                     Get paired with experienced HR leaders who can guide your career, review your resume, and help you navigate the corporate world.
+                  </p>
+                  <Link href="/apply?role=mentee" className="mt-auto px-8 py-3 bg-slate-900 dark:bg-slate-700 text-white font-bold rounded-full hover:bg-primary transition w-full">
+                     Apply as Mentee
+                  </Link>
+               </div>
+
+               {/* MENTOR CARD */}
+               <div className="bg-white dark:bg-slate-900 p-8 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 hover:shadow-xl hover:-translate-y-1 transition duration-300 text-center flex flex-col items-center">
+                  <div className="w-16 h-16 bg-purple-100 text-purple-600 rounded-2xl flex items-center justify-center mb-6">
+                     <HeartHandshake size={32} />
+                  </div>
+                  <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">Become a Mentor</h3>
+                  <p className="text-slate-600 dark:text-slate-400 mb-8 leading-relaxed">
+                     Share your expertise, give back to the community, and help shape the next generation of HR professionals.
+                  </p>
+                  <Link href="/apply?role=mentor" className="mt-auto px-8 py-3 bg-primary text-white font-bold rounded-full hover:bg-primary/90 transition w-full">
+                     Apply as Mentor
+                  </Link>
+               </div>
+            </div>
+         </div>
+      </section>
+
       {/* 3. CORE TEAM SECTION */}
-      <section className="py-20 md:py-32 bg-slate-50 dark:bg-slate-950">
+      <section className="py-20 md:py-32 bg-white dark:bg-slate-900">
          <div className="max-w-7xl mx-auto px-6">
             <div className="text-center mb-16 max-w-3xl mx-auto">
                <h2 className="text-3xl md:text-5xl font-heading font-bold text-slate-900 dark:text-white mb-6">Meet Our Core Team</h2>
@@ -130,8 +167,8 @@ export default async function Home() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
                {coreTeamPreview.map((member, i) => (
-                  <div key={i} className="bg-white dark:bg-slate-900 rounded-2xl p-8 shadow-sm border border-slate-100 dark:border-slate-800 text-center hover:shadow-xl hover:-translate-y-2 transition duration-300 group">
-                     <div className="w-32 h-32 md:w-40 md:h-40 mx-auto rounded-full overflow-hidden mb-6 border-4 border-slate-50 dark:border-slate-800 relative group-hover:border-primary/20 transition">
+                  <div key={i} className="bg-slate-50 dark:bg-slate-950 rounded-2xl p-8 shadow-sm border border-slate-100 dark:border-slate-800 text-center hover:shadow-xl hover:-translate-y-2 transition duration-300 group">
+                     <div className="w-32 h-32 md:w-40 md:h-40 mx-auto rounded-full overflow-hidden mb-6 border-4 border-white dark:border-slate-900 relative group-hover:border-primary/20 transition">
                         <Image src={member.image} alt={member.name} fill className="object-cover" priority={true}/>
                      </div>
                      <h3 className="font-bold text-lg text-slate-900 dark:text-white mb-2">{member.name}</h3>
@@ -149,7 +186,7 @@ export default async function Home() {
       </section>
 
       {/* 4. EVENTS & PROGRAMS SECTION */}
-      <section className="py-20 md:py-32 bg-white dark:bg-slate-900">
+      <section className="py-20 md:py-32 bg-slate-50 dark:bg-slate-950">
          <div className="max-w-7xl mx-auto px-6 text-center">
             <h2 className="text-3xl md:text-5xl font-heading font-bold text-slate-900 dark:text-white mb-8 leading-tight">
                Workshops & Learning Experiences <br/> That Drive Real Growth
@@ -167,7 +204,7 @@ export default async function Home() {
                  { label: "Analytics", icon: <Briefcase size={20}/> },
                  { label: "Career Development", icon: <Users size={20}/> }
                ].map((item, i) => (
-                  <div key={i} className="flex items-center justify-center gap-3 p-6 bg-slate-50 dark:bg-slate-950 rounded-xl font-semibold text-slate-700 dark:text-slate-300 border border-slate-100 dark:border-slate-800 hover:border-primary/30 transition">
+                  <div key={i} className="flex items-center justify-center gap-3 p-6 bg-white dark:bg-slate-900 rounded-xl font-semibold text-slate-700 dark:text-slate-300 border border-slate-100 dark:border-slate-800 hover:border-primary/30 transition">
                      <span className="text-primary">{item.icon}</span>
                      {item.label}
                   </div>
@@ -181,7 +218,7 @@ export default async function Home() {
       </section>
 
       {/* 5. GALLERY SECTION */}
-      <section className="py-20 md:py-32 bg-slate-50 dark:bg-slate-950">
+      <section className="py-20 md:py-32 bg-white dark:bg-slate-900">
          <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
             <div className="order-2 md:order-1">
                <span className="text-primary font-bold uppercase tracking-wider text-sm mb-4 block">Our Gallery</span>
@@ -205,16 +242,16 @@ export default async function Home() {
             <div className="order-1 md:order-2 grid grid-cols-2 gap-4 md:gap-6">
                {galleryImages.length > 0 ? (
                  galleryImages.slice(0, 4).map((img, i) => (
-                   <div key={img.id} className={`bg-slate-200 rounded-2xl overflow-hidden relative shadow-lg ${i % 2 === 0 ? 'h-48 md:h-64 mt-8 md:mt-12' : 'h-48 md:h-64'}`}>
+                   <div key={img.id} className={`bg-slate-100 dark:bg-slate-800 rounded-2xl overflow-hidden relative shadow-lg ${i % 2 === 0 ? 'h-48 md:h-64 mt-8 md:mt-12' : 'h-48 md:h-64'}`}>
                       <Image src={img.imageUrl} alt={img.title || "Gallery"} fill className="object-cover hover:scale-110 transition duration-700"/>
                    </div>
                  ))
                ) : (
                  <>
-                   <div className="h-64 bg-slate-200 rounded-2xl overflow-hidden relative mt-12 shadow-lg">
+                   <div className="h-64 bg-slate-100 dark:bg-slate-800 rounded-2xl overflow-hidden relative mt-12 shadow-lg">
                       <Image src="https://images.unsplash.com/photo-1544531586-fde5298cdd40?auto=format&fit=crop&w=600" alt="Gallery 1" fill className="object-cover hover:scale-110 transition duration-700"/>
                    </div>
-                   <div className="h-64 bg-slate-200 rounded-2xl overflow-hidden relative shadow-lg">
+                   <div className="h-64 bg-slate-100 dark:bg-slate-800 rounded-2xl overflow-hidden relative shadow-lg">
                       <Image src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=600" alt="Gallery 2" fill className="object-cover hover:scale-110 transition duration-700"/>
                    </div>
                  </>
@@ -223,7 +260,7 @@ export default async function Home() {
          </div>
       </section>
 
-      {/* 6. CALL TO ACTION - Added padding-x to container */}
+      {/* 6. CALL TO ACTION */}
       <section className="py-20 md:py-32 bg-primary relative overflow-hidden">
          <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
          <div className="relative z-10 max-w-4xl mx-auto px-6 text-center text-white">

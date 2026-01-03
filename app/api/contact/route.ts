@@ -1,27 +1,27 @@
 import { NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
 
-export async function POST(request: Request) {
+export async function POST(req: Request) {
   try {
-    const body = await request.json();
+    const body = await req.json();
     const { name, email, subject, message } = body;
 
-    // Server-side validation
     if (!name || !email || !message) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
-    // In a real app, you would use an email service (like Resend or SendGrid) here.
-    // For now, we log it to the console to prove it works.
-    console.log("--------------------------------");
-    console.log("NEW CONTACT FORM SUBMISSION:");
-    console.log("Name:", name);
-    console.log("Email:", email);
-    console.log("Subject:", subject);
-    console.log("Message:", message);
-    console.log("--------------------------------");
+    const newMessage = await prisma.contactMessage.create({
+      data: {
+        name,
+        email,
+        subject: subject || 'General Inquiry',
+        message,
+      },
+    });
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json(newMessage, { status: 201 });
   } catch (error) {
+    console.error('Contact Error:', error);
     return NextResponse.json({ error: 'Failed to send message' }, { status: 500 });
   }
 }
