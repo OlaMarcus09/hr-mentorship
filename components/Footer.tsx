@@ -9,7 +9,7 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-6 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
           
-          {/* Brand & Contact */}
+          {/* Brand & Contact Information */}
           <div className="space-y-6">
             <h2 className="text-2xl font-heading font-bold text-white flex items-center gap-2">
               <span className="text-primary">HR</span> Mentorship
@@ -17,13 +17,19 @@ export default function Footer() {
             <p className="text-sm leading-relaxed text-slate-400">
               Empowering HR professionals through personalized mentorship, cutting-edge resources, and a thriving community.
             </p>
-            <div className="space-y-3">
-              <a href="mailto:hrmentorshipgroup@gmail.com" className="block text-primary hover:underline font-bold text-lg">
-                hrmentorshipgroup@gmail.com
-              </a>
-              <a href="tel:+2348025320606" className="block text-slate-400 hover:text-white transition font-bold text-lg">
-                +234 802 532 0606
-              </a>
+            <div className="space-y-4">
+              <div className="flex flex-col">
+                 <span className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Email Us</span>
+                 <a href="mailto:hrmentorshipgroup@gmail.com" className="text-primary hover:underline font-bold text-lg">
+                   hrmentorshipgroup@gmail.com
+                 </a>
+              </div>
+              <div className="flex flex-col">
+                 <span className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Call Us</span>
+                 <a href="tel:+2348025320606" className="text-white hover:text-primary transition font-bold text-lg">
+                   +234 802 532 0606
+                 </a>
+              </div>
             </div>
           </div>
 
@@ -35,7 +41,6 @@ export default function Footer() {
               <li><Link href="/about" className="hover:text-primary transition">About Us</Link></li>
               <li><Link href="/team" className="hover:text-primary transition">Our Team</Link></li>
               <li><Link href="/resources" className="hover:text-primary transition">Learning Centre</Link></li>
-              {/* Pulse Link set to # to prevent error */}
               <li><a href="#" className="hover:text-primary transition flex items-center gap-2"><FileIcon/> Download Pulse (Coming Soon)</a></li>
             </ul>
           </div>
