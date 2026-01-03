@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { Menu, X, Sun, Moon, ChevronDown } from "lucide-react";
+import { Menu, X, Sun, Moon } from "lucide-react";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -11,14 +12,12 @@ export default function Navbar() {
   const [isDark, setIsDark] = useState(false);
   const pathname = usePathname();
 
-  // Handle Scroll Effect
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Handle Dark Mode
   useEffect(() => {
     if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
       setIsDark(true);
@@ -45,7 +44,7 @@ export default function Navbar() {
     { name: "Home", href: "/" },
     { name: "About Us", href: "/about" },
     { name: "Team", href: "/team" },
-    { name: "Learning Centre", href: "/resources" }, // Updated to point to new Resources page
+    { name: "Learning Centre", href: "/resources" },
     { name: "Jobs", href: "/jobs" },
     { name: "Events", href: "/events" },
     { name: "Gallery", href: "/gallery" },
@@ -53,24 +52,27 @@ export default function Navbar() {
   ];
 
   return (
-    <nav className={`fixed w-full z-50 transition-all duration-300 ${isScrolled ? "bg-white/90 dark:bg-slate-900/90 backdrop-blur-md shadow-sm py-4" : "bg-transparent py-6"}`}>
+    <nav className={`fixed w-full z-50 transition-all duration-300 ${isScrolled ? "bg-white/90 dark:bg-slate-900/90 backdrop-blur-md shadow-sm py-2" : "bg-transparent py-4"}`}>
       
-      {/* CONTAINER FIX: Added max-w-7xl mx-auto px-6 to align with page content */}
       <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
         
-        {/* LOGO */}
-        <Link href="/" className="flex items-center gap-2 group">
-          <div className="bg-white p-1 rounded-lg">
-             {/* Replace with your actual Logo Image if you have one */}
-             <span className="text-2xl font-heading font-bold text-primary tracking-tighter group-hover:scale-105 transition">HR</span>
+        {/* LOGO SECTION */}
+        <Link href="/" className="flex items-center gap-3 group">
+          <div className="relative w-10 h-10 md:w-14 md:h-14 overflow-hidden rounded-lg bg-white shadow-sm">
+             <Image 
+               src="https://res.cloudinary.com/dmqjicpcc/image/upload/v1765218297/1001440111_dztflg.jpg" 
+               alt="HR Mentorship Logo" 
+               fill 
+               className="object-contain p-0.5 group-hover:scale-105 transition duration-300"
+             />
           </div>
-          <span className={`text-xl font-bold font-heading ${isScrolled ? "text-slate-900 dark:text-white" : "text-white"} hidden md:block`}>
-            Mentorship
+          <span className={`text-xl md:text-2xl font-bold font-heading ${isScrolled ? "text-slate-900 dark:text-white" : "text-white"} hidden md:block`}>
+            HR Mentorship
           </span>
         </Link>
 
         {/* DESKTOP NAV */}
-        <div className="hidden lg:flex items-center gap-8">
+        <div className="hidden lg:flex items-center gap-6">
           {navLinks.map((link) => (
             <Link 
               key={link.name} 
