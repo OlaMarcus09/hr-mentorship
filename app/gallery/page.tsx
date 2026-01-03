@@ -8,12 +8,13 @@ export default function GalleryPage() {
   const [images, setImages] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   
-  // FILTER & PAGINATION STATE
+  // 1. FILTER & PAGINATION STATE
   const [activeCategory, setActiveCategory] = useState("All");
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 9; 
+  const itemsPerPage = 9; // 3x3 Grid
 
   useEffect(() => {
+    // Fetch all images
     fetch('/api/gallery')
       .then(res => res.json())
       .then(data => {
@@ -23,16 +24,19 @@ export default function GalleryPage() {
       .catch(() => setLoading(false));
   }, []);
 
+  // 2. FILTER LOGIC
   const filteredImages = activeCategory === "All" 
     ? images 
     : images.filter(img => img.category === activeCategory);
 
+  // 3. PAGINATION LOGIC
   const totalPages = Math.ceil(filteredImages.length / itemsPerPage);
   const currentImages = filteredImages.slice(
     (currentPage - 1) * itemsPerPage, 
     currentPage * itemsPerPage
   );
 
+  // Reset to page 1 when category changes
   const handleCategoryChange = (cat: string) => {
     setActiveCategory(cat);
     setCurrentPage(1);
@@ -62,7 +66,7 @@ export default function GalleryPage() {
        <div className="max-w-7xl mx-auto px-6 py-20">
           
           {/* CATEGORY TABS */}
-          <div className="flex flex-wrap justify-center gap-3 md:gap-4 mb-12">
+          <div className="flex flex-wrap justify-center gap-4 mb-12">
              {categories.map((cat) => (
                <button
                  key={cat}
@@ -85,30 +89,25 @@ export default function GalleryPage() {
              </div>
           ) : currentImages.length > 0 ? (
              <>
-               {/* IMAGES GRID - FIXED DESIGN */}
-               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+               {/* IMAGES GRID - CHANGED TO CARD STYLE */}
+               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
                   {currentImages.map((img) => (
-                     <div key={img.id} className="group relative h-80 rounded-2xl overflow-hidden bg-white dark:bg-slate-900 shadow-md hover:shadow-2xl transition-all duration-300 border border-slate-100 dark:border-slate-800">
-                        {/* Image Area */}
-                        <div className="relative h-full w-full">
+                     <div key={img.id} className="bg-white dark:bg-slate-900 rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition border border-slate-100 dark:border-slate-800 flex flex-col h-full">
+                        
+                        {/* IMAGE AREA - Added object-top to prevent head cropping */}
+                        <div className="relative h-72 md:h-80 bg-slate-200 w-full">
                            <Image 
                              src={img.imageUrl} 
                              alt={img.title || "Gallery Image"} 
                              fill 
-                             className="object-cover group-hover:scale-105 transition duration-700"
+                             className="object-cover object-top transition duration-700 hover:scale-105"
                            />
-                           {/* Gradient Overlay (Always Visible) */}
-                           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-90" />
-                           
-                           {/* Text Content (Always Visible) */}
-                           <div className="absolute bottom-0 left-0 right-0 p-6 translate-y-2 group-hover:translate-y-0 transition duration-300">
-                              <span className="inline-block px-3 py-1 bg-primary text-white text-[10px] font-bold uppercase tracking-wider rounded-full mb-3 shadow-lg">
-                                {img.category}
-                              </span>
-                              <h3 className="text-white font-bold text-lg leading-tight drop-shadow-md">
-                                {img.title}
-                              </h3>
-                           </div>
+                        </div>
+
+                        {/* TEXT AREA - Always visible below image */}
+                        <div className="p-5 flex flex-col flex-1">
+                           <span className="text-xs font-bold text-primary uppercase tracking-wider mb-2">{img.category}</span>
+                           <h3 className="text-slate-900 dark:text-white font-bold text-lg leading-snug">{img.title}</h3>
                         </div>
                      </div>
                   ))}
