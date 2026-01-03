@@ -9,7 +9,7 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-6 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
           
-          {/* Brand */}
+          {/* Brand & Contact */}
           <div className="space-y-6">
             <h2 className="text-2xl font-heading font-bold text-white flex items-center gap-2">
               <span className="text-primary">HR</span> Mentorship
@@ -17,9 +17,13 @@ export default function Footer() {
             <p className="text-sm leading-relaxed text-slate-400">
               Empowering HR professionals through personalized mentorship, cutting-edge resources, and a thriving community.
             </p>
-            <div className="space-y-2">
-              <a href="mailto:hrmentorshipgroup@gmail.com" className="block text-primary hover:underline font-bold">hrmentorshipgroup@gmail.com</a>
-              <p className="text-slate-400">+234 802 532 0606</p>
+            <div className="space-y-3">
+              <a href="mailto:hrmentorshipgroup@gmail.com" className="block text-primary hover:underline font-bold text-lg">
+                hrmentorshipgroup@gmail.com
+              </a>
+              <a href="tel:+2348025320606" className="block text-slate-400 hover:text-white transition font-bold text-lg">
+                +234 802 532 0606
+              </a>
             </div>
           </div>
 

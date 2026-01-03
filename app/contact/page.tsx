@@ -55,7 +55,7 @@ export default function ContactPage() {
   return (
     <div className="bg-slate-50 dark:bg-slate-950 min-h-screen">
        
-       {/* HERO SECTION (Preserved) */}
+       {/* HERO SECTION */}
        <section className="relative h-[40vh] min-h-[300px] flex items-center justify-center overflow-hidden">
           <Image 
             src="https://images.unsplash.com/photo-1423666639041-f56000c27a9a?auto=format&fit=crop&w=2000" 
