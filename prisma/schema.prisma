@@ -95,3 +95,25 @@ model Contact {
   message   String
   createdAt DateTime @default(now())
 }
+
+// ADDED: Contact Form Messages
+model ContactMessage {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  subject   String
+  message   String
+  createdAt DateTime @default(now())
+}
+
+// ADDED: Mentor/Mentee Applications
+model Applicant {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  role      String   // "MENTOR" or "MENTEE"
+  linkedin  String?
+  goal      String
+  status    String   @default("PENDING") // PENDING, APPROVED, REJECTED
+  createdAt DateTime @default(now())
+}
