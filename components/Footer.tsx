@@ -18,7 +18,7 @@ export default function Footer() {
               Empowering HR professionals through personalized mentorship, cutting-edge resources, and a thriving community.
             </p>
             <div className="space-y-2">
-              <a href="mailto:info@hrmentorship.org" className="block text-primary hover:underline font-bold">hrmentorshipgroup@gmail.com</a>
+              <a href="mailto:hrmentorshipgroup@gmail.com" className="block text-primary hover:underline font-bold">hrmentorshipgroup@gmail.com</a>
               <p className="text-slate-400">+234 802 532 0606</p>
             </div>
           </div>
@@ -30,8 +30,8 @@ export default function Footer() {
               <li><Link href="/" className="hover:text-primary transition">Home</Link></li>
               <li><Link href="/about" className="hover:text-primary transition">About Us</Link></li>
               <li><Link href="/team" className="hover:text-primary transition">Our Team</Link></li>
-              <li><Link href="/blog" className="hover:text-primary transition">Learning Centre</Link></li>
-              {/* FIXED LINK HERE */}
+              <li><Link href="/resources" className="hover:text-primary transition">Learning Centre</Link></li>
+              {/* Pulse Link set to # to prevent error */}
               <li><a href="#" className="hover:text-primary transition flex items-center gap-2"><FileIcon/> Download Pulse (Coming Soon)</a></li>
             </ul>
           </div>
