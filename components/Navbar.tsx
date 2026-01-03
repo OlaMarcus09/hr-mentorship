@@ -4,12 +4,13 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { Menu, X, Sun, Moon } from "lucide-react";
+import { Menu, X, Sun, Moon, ChevronDown } from "lucide-react";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isDark, setIsDark] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false); // State for mobile dropdown
   const pathname = usePathname();
 
   useEffect(() => {
@@ -40,13 +41,22 @@ export default function Navbar() {
     }
   };
 
+  // UPDATED NAVIGATION STRUCTURE
   const navLinks = [
     { name: "Home", href: "/" },
     { name: "About Us", href: "/about" },
     { name: "Team", href: "/team" },
-    { name: "Learning Centre", href: "/resources" },
+    { 
+      name: "Learning Centre", 
+      href: "#", 
+      isDropdown: true, 
+      subItems: [
+        { name: "Resources", href: "/resources" },
+        { name: "Events", href: "/events" }
+      ]
+    },
     { name: "Jobs", href: "/jobs" },
-    { name: "Events", href: "/events" },
+    { name: "Blog", href: "/blog" }, // RESTORED
     { name: "Gallery", href: "/gallery" },
     { name: "Contact", href: "/contact" },
   ];
@@ -56,7 +66,7 @@ export default function Navbar() {
       
       <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
         
-        {/* LOGO SECTION */}
+        {/* LOGO */}
         <Link href="/" className="flex items-center gap-3 group">
           <div className="relative w-10 h-10 md:w-14 md:h-14 overflow-hidden rounded-lg bg-white shadow-sm">
              <Image 
@@ -74,17 +84,39 @@ export default function Navbar() {
         {/* DESKTOP NAV */}
         <div className="hidden lg:flex items-center gap-6">
           {navLinks.map((link) => (
-            <Link 
-              key={link.name} 
-              href={link.href}
-              className={`text-sm font-bold transition hover:text-primary ${
-                pathname === link.href 
-                  ? "text-primary" 
-                  : isScrolled ? "text-slate-600 dark:text-slate-300" : "text-white/90 hover:text-white"
-              }`}
-            >
-              {link.name}
-            </Link>
+            link.isDropdown ? (
+              <div key={link.name} className="relative group">
+                <button 
+                  className={`flex items-center gap-1 text-sm font-bold transition ${isScrolled ? "text-slate-600 dark:text-slate-300 hover:text-primary" : "text-white/90 hover:text-white"}`}
+                >
+                  {link.name} <ChevronDown size={14}/>
+                </button>
+                {/* DROPDOWN MENU */}
+                <div className="absolute top-full left-0 mt-2 w-48 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-100 dark:border-slate-700 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all transform translate-y-2 group-hover:translate-y-0">
+                  {link.subItems?.map(sub => (
+                    <Link 
+                      key={sub.name} 
+                      href={sub.href}
+                      className="block px-4 py-3 text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-primary first:rounded-t-xl last:rounded-b-xl"
+                    >
+                      {sub.name}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <Link 
+                key={link.name} 
+                href={link.href}
+                className={`text-sm font-bold transition hover:text-primary ${
+                  pathname === link.href 
+                    ? "text-primary" 
+                    : isScrolled ? "text-slate-600 dark:text-slate-300" : "text-white/90 hover:text-white"
+                }`}
+              >
+                {link.name}
+              </Link>
+            )
           ))}
         </div>
 
@@ -115,16 +147,41 @@ export default function Navbar() {
 
       {/* MOBILE MENU OVERLAY */}
       {isOpen && (
-        <div className="absolute top-full left-0 w-full bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 shadow-xl p-6 flex flex-col gap-4 lg:hidden animate-in slide-in-from-top-5">
+        <div className="absolute top-full left-0 w-full bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 shadow-xl p-6 flex flex-col gap-2 lg:hidden max-h-[80vh] overflow-y-auto">
           {navLinks.map((link) => (
-            <Link 
-              key={link.name} 
-              href={link.href}
-              onClick={() => setIsOpen(false)}
-              className={`text-lg font-bold py-2 border-b border-slate-50 dark:border-slate-800 ${pathname === link.href ? "text-primary" : "text-slate-600 dark:text-slate-400"}`}
-            >
-              {link.name}
-            </Link>
+            link.isDropdown ? (
+              <div key={link.name} className="border-b border-slate-50 dark:border-slate-800 pb-2">
+                <button 
+                  onClick={() => setDropdownOpen(!dropdownOpen)}
+                  className="w-full flex justify-between items-center text-lg font-bold py-2 text-slate-600 dark:text-slate-400"
+                >
+                  {link.name} <ChevronDown size={18} className={`transition ${dropdownOpen ? 'rotate-180' : ''}`}/>
+                </button>
+                {dropdownOpen && (
+                  <div className="pl-4 space-y-2 bg-slate-50 dark:bg-slate-800/50 rounded-lg p-2">
+                    {link.subItems?.map(sub => (
+                      <Link 
+                        key={sub.name} 
+                        href={sub.href}
+                        onClick={() => setIsOpen(false)}
+                        className="block py-2 text-sm font-bold text-slate-500 hover:text-primary"
+                      >
+                        {sub.name}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <Link 
+                key={link.name} 
+                href={link.href}
+                onClick={() => setIsOpen(false)}
+                className={`text-lg font-bold py-2 border-b border-slate-50 dark:border-slate-800 ${pathname === link.href ? "text-primary" : "text-slate-600 dark:text-slate-400"}`}
+              >
+                {link.name}
+              </Link>
+            )
           ))}
           <a 
             href="https://t.me/hrmentorship" 
