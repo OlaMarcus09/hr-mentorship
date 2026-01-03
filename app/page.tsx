@@ -7,13 +7,11 @@ export const revalidate = 60;
 
 export default async function Home() {
   
-  // 1. FETCH REAL GALLERY IMAGES
   const galleryImages = await prisma.galleryImage.findMany({
     take: 4,
     orderBy: { createdAt: 'desc' }
   });
 
-  // 2. CORE TEAM PREVIEW
   const coreTeamPreview = [
     { name: "Dr. Oluyemi Adeosun", role: "Founder & Visionary Leader", image: "/team/oluyemi.jpg" },
     { name: "Irene Ewheme Obagwu", role: "Director of Brand & Creativity", image: "/team/irene.jpg" },
@@ -22,7 +20,7 @@ export default async function Home() {
   ];
 
   return (
-    <div className="bg-slate-50 dark:bg-slate-950 min-h-screen font-sans selection:bg-purple-100 dark:selection:bg-purple-900">
+    <div className="bg-slate-50 dark:bg-slate-950 min-h-screen font-sans selection:bg-purple-100 dark:selection:bg-purple-900 overflow-x-hidden">
       
       {/* 1. HERO SECTION */}
       <section className="relative min-h-screen flex items-center pt-20 overflow-hidden">
@@ -37,41 +35,43 @@ export default async function Home() {
           <div className="absolute inset-0 bg-purple-900/90 mix-blend-multiply" />
         </div>
 
-        <div className="relative z-10 max-w-7xl mx-auto px-6 text-center text-white">
-          <div className="animate-fade-in-up space-y-10">
-            <p className="text-sm md:text-base font-semibold tracking-widest uppercase text-purple-200">
+        {/* Added px-4 for mobile padding so text doesn't touch edges */}
+        <div className="relative z-10 max-w-7xl mx-auto px-4 md:px-6 text-center text-white">
+          <div className="animate-fade-in-up space-y-8 md:space-y-10">
+            <p className="text-xs md:text-base font-semibold tracking-widest uppercase text-purple-200">
               Trusted by 7,000+ HR Professionals
             </p>
+            {/* Reduced mobile font size to text-4xl to prevent cramping */}
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-heading font-bold leading-tight max-w-5xl mx-auto drop-shadow-lg">
               Where HR Careers Grow, <br/> Leaders Emerge, and <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-200 to-pink-200">Community Thrives</span>
             </h1>
-            <p className="text-lg md:text-xl text-white/90 leading-relaxed max-w-3xl mx-auto font-light">
+            <p className="text-base md:text-xl text-white/90 leading-relaxed max-w-3xl mx-auto font-light px-2">
               HR Mentorship is more than a platform — it's a movement. Whether you're entry-level, mid-career, or senior leadership, this is where clarity meets competence.
             </p>
             
-            <div className="flex flex-col sm:flex-row justify-center gap-6 pt-6">
-               <a href="https://t.me/hrmentorship" target="_blank" className="px-10 py-4 bg-white text-primary font-bold rounded-full shadow-xl hover:shadow-2xl hover:scale-105 transition-all flex items-center justify-center gap-2">
+            <div className="flex flex-col sm:flex-row justify-center gap-4 md:gap-6 pt-6 px-4">
+               <a href="https://t.me/hrmentorship" target="_blank" className="px-8 py-4 bg-white text-primary font-bold rounded-full shadow-xl hover:shadow-2xl hover:scale-105 transition-all flex items-center justify-center gap-2 text-sm md:text-base">
                  Start Your Journey <ArrowRight size={20}/>
                </a>
-               <Link href="/about" className="px-10 py-4 bg-transparent border border-white/40 text-white font-semibold rounded-full hover:bg-white/10 transition flex items-center justify-center">
+               <Link href="/about" className="px-8 py-4 bg-transparent border border-white/40 text-white font-semibold rounded-full hover:bg-white/10 transition flex items-center justify-center text-sm md:text-base">
                  Explore Programs
                </Link>
             </div>
 
-            <div className="pt-16 flex justify-center gap-12 md:gap-24 border-t border-white/10 max-w-4xl mx-auto mt-12 opacity-90">
-              <div><p className="text-4xl md:text-5xl font-bold">7k+</p><p className="text-xs uppercase tracking-wider mt-1">Members</p></div>
-              <div><p className="text-4xl md:text-5xl font-bold">60k+</p><p className="text-xs uppercase tracking-wider mt-1">Applications Supported</p></div>
-              <div><p className="text-4xl md:text-5xl font-bold">100%</p><p className="text-xs uppercase tracking-wider mt-1">Growth Stories</p></div>
+            {/* IMPACT NUMBERS - Changed to Grid for better mobile spacing */}
+            <div className="pt-12 md:pt-16 grid grid-cols-3 gap-4 border-t border-white/10 max-w-4xl mx-auto mt-8 md:mt-12 opacity-90">
+              <div><p className="text-2xl md:text-5xl font-bold">7k+</p><p className="text-[10px] md:text-xs uppercase tracking-wider mt-1">Members</p></div>
+              <div><p className="text-2xl md:text-5xl font-bold">60k+</p><p className="text-[10px] md:text-xs uppercase tracking-wider mt-1">Applications</p></div>
+              <div><p className="text-2xl md:text-5xl font-bold">100%</p><p className="text-[10px] md:text-xs uppercase tracking-wider mt-1">Growth</p></div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 2. ABOUT SECTION (Image Updated & Responsive) */}
-      <section className="py-20 md:py-32 bg-white dark:bg-slate-900">
+      {/* 2. ABOUT SECTION */}
+      <section className="py-16 md:py-32 bg-white dark:bg-slate-900">
          <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-12 md:gap-20 items-center">
             
-            {/* IMAGE CONTAINER */}
             <div className="relative h-[400px] md:h-[600px] w-full rounded-[2rem] overflow-hidden shadow-2xl group">
                <Image 
                  src="https://res.cloudinary.com/dmqjicpcc/image/upload/v1767089482/N-2_qnqd63.jpg" 
@@ -121,17 +121,17 @@ export default async function Home() {
       </section>
 
       {/* 3. CORE TEAM SECTION */}
-      <section className="py-32 bg-slate-50 dark:bg-slate-950">
+      <section className="py-20 md:py-32 bg-slate-50 dark:bg-slate-950">
          <div className="max-w-7xl mx-auto px-6">
-            <div className="text-center mb-20 max-w-3xl mx-auto">
+            <div className="text-center mb-16 max-w-3xl mx-auto">
                <h2 className="text-3xl md:text-5xl font-heading font-bold text-slate-900 dark:text-white mb-6">Meet Our Core Team</h2>
                <p className="text-xl text-slate-600 dark:text-slate-400 font-light">The dedicated visionaries driving our mission forward.</p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-16">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
                {coreTeamPreview.map((member, i) => (
                   <div key={i} className="bg-white dark:bg-slate-900 rounded-2xl p-8 shadow-sm border border-slate-100 dark:border-slate-800 text-center hover:shadow-xl hover:-translate-y-2 transition duration-300 group">
-                     <div className="w-40 h-40 mx-auto rounded-full overflow-hidden mb-8 border-4 border-slate-50 dark:border-slate-800 relative group-hover:border-primary/20 transition">
+                     <div className="w-32 h-32 md:w-40 md:h-40 mx-auto rounded-full overflow-hidden mb-6 border-4 border-slate-50 dark:border-slate-800 relative group-hover:border-primary/20 transition">
                         <Image src={member.image} alt={member.name} fill className="object-cover" priority={true}/>
                      </div>
                      <h3 className="font-bold text-lg text-slate-900 dark:text-white mb-2">{member.name}</h3>
@@ -149,16 +149,16 @@ export default async function Home() {
       </section>
 
       {/* 4. EVENTS & PROGRAMS SECTION */}
-      <section className="py-32 bg-white dark:bg-slate-900">
+      <section className="py-20 md:py-32 bg-white dark:bg-slate-900">
          <div className="max-w-7xl mx-auto px-6 text-center">
             <h2 className="text-3xl md:text-5xl font-heading font-bold text-slate-900 dark:text-white mb-8 leading-tight">
                Workshops & Learning Experiences <br/> That Drive Real Growth
             </h2>
-            <p className="text-xl text-slate-600 dark:text-slate-400 max-w-3xl mx-auto mb-20 font-light leading-relaxed">
+            <p className="text-xl text-slate-600 dark:text-slate-400 max-w-3xl mx-auto mb-16 font-light leading-relaxed">
                From weekly learning sessions to paid masterclasses, global webinars, study groups, and certification support, our programs are designed to strengthen competence.
             </p>
 
-            <div className="grid md:grid-cols-3 gap-6 mb-16 max-w-5xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-16 max-w-5xl mx-auto">
                {[
                  { label: "HR Book Review", icon: <Briefcase size={20}/> },
                  { label: "Certification Prep", icon: <CheckCircle2 size={20}/> },
@@ -180,9 +180,9 @@ export default async function Home() {
          </div>
       </section>
 
-      {/* 5. COMMUNITY / GALLERY SECTION */}
-      <section className="py-32 bg-slate-50 dark:bg-slate-950">
-         <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-20 items-center">
+      {/* 5. GALLERY SECTION */}
+      <section className="py-20 md:py-32 bg-slate-50 dark:bg-slate-950">
+         <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
             <div className="order-2 md:order-1">
                <span className="text-primary font-bold uppercase tracking-wider text-sm mb-4 block">Our Gallery</span>
                <h2 className="text-3xl md:text-5xl font-heading font-bold text-slate-900 dark:text-white mb-8">
@@ -202,10 +202,10 @@ export default async function Home() {
                </Link>
             </div>
             
-            <div className="order-1 md:order-2 grid grid-cols-2 gap-6">
+            <div className="order-1 md:order-2 grid grid-cols-2 gap-4 md:gap-6">
                {galleryImages.length > 0 ? (
                  galleryImages.slice(0, 4).map((img, i) => (
-                   <div key={img.id} className={`bg-slate-200 rounded-2xl overflow-hidden relative shadow-lg ${i % 2 === 0 ? 'h-64 mt-12' : 'h-64'}`}>
+                   <div key={img.id} className={`bg-slate-200 rounded-2xl overflow-hidden relative shadow-lg ${i % 2 === 0 ? 'h-48 md:h-64 mt-8 md:mt-12' : 'h-48 md:h-64'}`}>
                       <Image src={img.imageUrl} alt={img.title || "Gallery"} fill className="object-cover hover:scale-110 transition duration-700"/>
                    </div>
                  ))
@@ -223,12 +223,12 @@ export default async function Home() {
          </div>
       </section>
 
-      {/* 6. CALL TO ACTION */}
-      <section className="py-32 bg-primary relative overflow-hidden">
+      {/* 6. CALL TO ACTION - Added padding-x to container */}
+      <section className="py-20 md:py-32 bg-primary relative overflow-hidden">
          <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
          <div className="relative z-10 max-w-4xl mx-auto px-6 text-center text-white">
-            <h2 className="text-4xl md:text-5xl font-heading font-bold mb-8">Ready to Grow Your HR Career?</h2>
-            <p className="text-xl text-white/90 mb-12 font-light max-w-2xl mx-auto">Join thousands of professionals who have found their path, their people, and their potential with us.</p>
+            <h2 className="text-3xl md:text-5xl font-heading font-bold mb-6">Ready to Grow Your HR Career?</h2>
+            <p className="text-lg md:text-xl text-white/90 mb-10 font-light max-w-2xl mx-auto">Join thousands of professionals who have found their path, their people, and their potential with us.</p>
             <div className="flex justify-center">
                <a href="https://t.me/hrmentorship" target="_blank" className="px-12 py-5 bg-white text-primary font-bold text-lg rounded-full shadow-2xl hover:scale-105 hover:shadow-white/20 transition-all flex items-center gap-2">
                   Join the Movement <ArrowRight size={20}/>
