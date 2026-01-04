@@ -15,7 +15,7 @@ export async function GET() {
   }
 }
 
-// POST: Create Applicant (For the Application Form)
+// POST: Create Applicant
 export async function POST(req: Request) {
   try {
     const body = await req.json();
@@ -28,24 +28,54 @@ export async function POST(req: Request) {
   }
 }
 
-// DELETE: Fix for Mentor/Mentee Delete Button
+// DELETE: Robust Fix (Handles # symbols, Body, and Query Params)
 export async function DELETE(request: Request) {
   try {
-    const { searchParams } = new URL(request.url);
-    const id = searchParams.get('id'); // Get the text ID (e.g., cmjy...)
-
+    let id: string | null = null;
+    
+    // 1. Try to get ID from request body (JSON)
+    try {
+      const contentType = request.headers.get('content-type');
+      if (contentType?.includes('application/json')) {
+        const body = await request.json().catch(() => null);
+        if (body && body.id) {
+          id = String(body.id);
+        }
+      }
+    } catch (error) {
+      console.log("Body parsing failed, trying URL params");
+    }
+    
+    // 2. If not in body, try URL search parameters (?id=...)
+    if (!id) {
+      const { searchParams } = new URL(request.url);
+      const urlId = searchParams.get('id');
+      if (urlId) id = urlId;
+    }
+    
+    // 3. Validate ID
     if (!id) {
       return NextResponse.json({ error: 'ID is required' }, { status: 400 });
     }
+    
+    // 4. CLEAN THE ID (Remove the # if it exists)
+    const cleanedId = id.trim().replace(/^#/, '');
+    
+    console.log(`Deleting applicant: ${cleanedId}`);
 
-    // Delete using the String ID
+    // 5. Execute Delete
     await prisma.applicant.delete({
-      where: { id } 
+      where: { id: cleanedId }
     });
 
-    return NextResponse.json({ success: true });
-  } catch (error) {
+    return NextResponse.json({ success: true, message: 'Deleted successfully' });
+    
+  } catch (error: any) {
     console.error("Delete Error:", error);
+    // Handle "Record not found" gracefully
+    if (error.code === 'P2025') {
+       return NextResponse.json({ error: 'Applicant not found' }, { status: 404 });
+    }
     return NextResponse.json({ error: 'Failed to delete applicant' }, { status: 500 });
   }
 }
