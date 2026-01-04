@@ -15,7 +15,7 @@ export async function GET() {
   }
 }
 
-// POST: Create Applicant
+// POST: Create Applicant (Application Form)
 export async function POST(req: Request) {
   try {
     const body = await req.json();
@@ -28,54 +28,75 @@ export async function POST(req: Request) {
   }
 }
 
-// DELETE: Robust Fix (Handles # symbols, Body, and Query Params)
+// PATCH: HANDLE ACCEPT / REJECT
+export async function PATCH(request: Request) {
+  try {
+    const body = await request.json();
+    
+    // 1. Get ID from Body (Since URL fragment # might be stripped)
+    let id = body.id;
+
+    // 2. Fallback: Get ID from URL
+    if (!id) {
+        const { searchParams } = new URL(request.url);
+        id = searchParams.get('id');
+    }
+
+    if (!id) {
+        return NextResponse.json({ error: 'ID is required' }, { status: 400 });
+    }
+
+    // 3. Clean the ID (Remove #)
+    const cleanedId = String(id).trim().replace(/^#/, '');
+    const status = body.status; // "Accepted" or "Rejected"
+
+    // 4. Update Database
+    const updated = await prisma.applicant.update({
+      where: { id: cleanedId },
+      data: { status }
+    });
+
+    return NextResponse.json({ success: true, applicant: updated });
+  } catch (error) {
+    console.error("Patch Error:", error);
+    return NextResponse.json({ error: 'Failed to update status' }, { status: 500 });
+  }
+}
+
+// DELETE: HANDLE REMOVAL
 export async function DELETE(request: Request) {
   try {
-    let id: string | null = null;
-    
-    // 1. Try to get ID from request body (JSON)
-    try {
-      const contentType = request.headers.get('content-type');
-      if (contentType?.includes('application/json')) {
-        const body = await request.json().catch(() => null);
-        if (body && body.id) {
-          id = String(body.id);
-        }
-      }
-    } catch (error) {
-      console.log("Body parsing failed, trying URL params");
-    }
-    
-    // 2. If not in body, try URL search parameters (?id=...)
-    if (!id) {
-      const { searchParams } = new URL(request.url);
-      const urlId = searchParams.get('id');
-      if (urlId) id = urlId;
-    }
-    
-    // 3. Validate ID
-    if (!id) {
-      return NextResponse.json({ error: 'ID is required' }, { status: 400 });
-    }
-    
-    // 4. CLEAN THE ID (Remove the # if it exists)
-    const cleanedId = id.trim().replace(/^#/, '');
-    
-    console.log(`Deleting applicant: ${cleanedId}`);
+    let id = null;
 
-    // 5. Execute Delete
+    // 1. Try URL Params first
+    const { searchParams } = new URL(request.url);
+    id = searchParams.get('id');
+
+    // 2. If no ID in URL, try Body
+    if (!id) {
+        try {
+            const body = await request.json();
+            id = body.id;
+        } catch (e) {
+            // Body might be empty, ignore error
+        }
+    }
+
+    if (!id) {
+        return NextResponse.json({ error: 'ID is required' }, { status: 400 });
+    }
+
+    // 3. Clean ID
+    const cleanedId = String(id).trim().replace(/^#/, '');
+
+    // 4. Delete from Database
     await prisma.applicant.delete({
       where: { id: cleanedId }
     });
 
-    return NextResponse.json({ success: true, message: 'Deleted successfully' });
-    
-  } catch (error: any) {
+    return NextResponse.json({ success: true });
+  } catch (error) {
     console.error("Delete Error:", error);
-    // Handle "Record not found" gracefully
-    if (error.code === 'P2025') {
-       return NextResponse.json({ error: 'Applicant not found' }, { status: 404 });
-    }
     return NextResponse.json({ error: 'Failed to delete applicant' }, { status: 500 });
   }
 }
