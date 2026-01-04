@@ -1,201 +1,141 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
-import { Mail, Phone, MapPin, Send, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
+import { Mail, Phone, MapPin, Send, Loader2, CheckCircle, MessageSquare } from "lucide-react";
 
 export default function ContactPage() {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    subject: "",
-    message: ""
-  });
   const [loading, setLoading] = useState(false);
-  const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
+  const [success, setSuccess] = useState(false);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const getWordCount = (text: string) => {
-    return text.trim().split(/\s+/).filter(Boolean).length;
-  };
-
-  const wordCount = getWordCount(formData.message);
-  const isOverLimit = wordCount > 500;
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (isOverLimit) return;
-
     setLoading(true);
-    setStatus("idle");
+    
+    const formData = new FormData(e.target as HTMLFormElement);
+    const data = Object.fromEntries(formData.entries());
 
     try {
-      const res = await fetch("/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
       });
 
       if (res.ok) {
-        setStatus("success");
-        setFormData({ name: "", email: "", subject: "", message: "" });
+        setSuccess(true);
+        (e.target as HTMLFormElement).reset();
       } else {
-        setStatus("error");
+        alert("Failed to send message. Please try again.");
       }
     } catch (error) {
-      setStatus("error");
+      alert("Something went wrong.");
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   return (
-    <div className="bg-slate-50 dark:bg-slate-950 min-h-screen">
-       
-       {/* HERO SECTION */}
-       <section className="relative h-[40vh] min-h-[300px] flex items-center justify-center overflow-hidden">
-          <Image 
-            src="https://images.unsplash.com/photo-1423666639041-f56000c27a9a?auto=format&fit=crop&w=2000" 
-            alt="Contact Us" 
-            fill 
-            className="object-cover"
-            priority
-          />
-          <div className="absolute inset-0 bg-purple-900/80 mix-blend-multiply" />
-          <div className="relative z-10 text-center px-6 max-w-4xl mx-auto">
-             <h1 className="text-4xl md:text-5xl font-heading font-bold text-white mb-4">Get in Touch</h1>
-             <p className="text-xl text-white/90">Have questions about joining, partnership, or our programs? We are here to help.</p>
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 pt-24 pb-20 px-6">
+      <div className="max-w-6xl mx-auto">
+        
+        <div className="text-center mb-16">
+          <h1 className="text-4xl md:text-5xl font-bold font-heading text-slate-900 dark:text-white mb-6">
+            Get in Touch
+          </h1>
+          <p className="text-slate-600 dark:text-slate-400 max-w-2xl mx-auto text-lg">
+            Have questions about our mentorship programs or HR services? We're here to help.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+          
+          {/* Contact Info Cards */}
+          <div className="space-y-6">
+            <div className="bg-slate-900 text-white p-8 rounded-2xl shadow-xl">
+              <div className="w-12 h-12 bg-primary/20 rounded-xl flex items-center justify-center mb-6 text-primary">
+                <Phone size={24} />
+              </div>
+              <h3 className="text-xl font-bold mb-2">Phone Support</h3>
+              <p className="text-slate-400 mb-4">Mon-Fri from 8am to 6pm.</p>
+              <a href="tel:+2348025320606" className="text-xl font-bold text-primary hover:text-white transition">
+                +234 802 532 0606
+              </a>
+            </div>
+
+            <div className="bg-slate-900 text-white p-8 rounded-2xl shadow-xl">
+              <div className="w-12 h-12 bg-primary/20 rounded-xl flex items-center justify-center mb-6 text-primary">
+                <Mail size={24} />
+              </div>
+              <h3 className="text-xl font-bold mb-2">Email Us</h3>
+              <p className="text-slate-400 mb-4">We usually reply within 24 hours.</p>
+              <a href="mailto:hrmentorshipgroup@gmail.com" className="text-lg md:text-xl font-bold text-primary hover:text-white transition break-all">
+                hrmentorshipgroup@gmail.com
+              </a>
+            </div>
+
+            <div className="bg-slate-900 text-white p-8 rounded-2xl shadow-xl">
+              <div className="w-12 h-12 bg-primary/20 rounded-xl flex items-center justify-center mb-6 text-primary">
+                <MapPin size={24} />
+              </div>
+              <h3 className="text-xl font-bold mb-2">Our Presence</h3>
+              <p className="text-slate-400 leading-relaxed">
+                We have active chapters in Lagos, Abuja, Port Harcourt, Ibadan, and Northern Nigeria.
+              </p>
+            </div>
           </div>
-       </section>
 
-       <div className="max-w-7xl mx-auto px-6 py-20">
-          <div className="grid lg:grid-cols-3 gap-8">
-             {/* Contact Info */}
-             <div className="space-y-6">
-                <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800">
-                   <div className="w-12 h-12 bg-primary/10 text-primary rounded-xl flex items-center justify-center mb-6">
-                      <Phone size={24}/>
-                   </div>
-                   <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Phone Support</h3>
-                   <p className="text-slate-500 mb-4">Mon-Fri from 8am to 6pm.</p>
-                   <a href="tel:+2348025320606" className="text-lg font-bold text-primary hover:underline">+234 802 532 0606</a>
+          {/* Contact Form */}
+          <div className="bg-white dark:bg-slate-900 p-8 md:p-10 rounded-3xl shadow-lg border border-slate-200 dark:border-slate-800">
+            {success ? (
+              <div className="h-full flex flex-col items-center justify-center text-center py-10">
+                <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-6">
+                  <CheckCircle size={40} />
                 </div>
-
-                <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800">
-                   <div className="w-12 h-12 bg-primary/10 text-primary rounded-xl flex items-center justify-center mb-6">
-                      <Mail size={24}/>
-                   </div>
-                   <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Email Us</h3>
-                   <p className="text-slate-500 mb-4">We usually reply within 24 hours.</p>
-                   <a href="mailto:hrmentorshipgroup@gmail.com" className="text-lg font-bold text-primary hover:underline">hrmentorshipgroup@gmail.com</a>
-                </div>
-
-                <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800">
-                   <div className="w-12 h-12 bg-primary/10 text-primary rounded-xl flex items-center justify-center mb-6">
-                      <MapPin size={24}/>
-                   </div>
-                   <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Our Presence</h3>
-                   <p className="text-slate-500">
-                     We have active chapters in Lagos, Abuja, Port Harcourt, Ibadan, and Northern Nigeria.
-                   </p>
-                </div>
-             </div>
-
-             {/* Form */}
-             <div className="lg:col-span-2 bg-white dark:bg-slate-900 p-8 md:p-12 rounded-3xl shadow-lg border border-slate-100 dark:border-slate-800">
-                <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-8">Send us a Message</h2>
-                
-                {status === "success" && (
-                  <div className="mb-6 p-4 bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-xl flex items-center gap-3">
-                    <CheckCircle2 size={24} />
-                    <div>
-                      <p className="font-bold">Message Sent Successfully!</p>
-                      <p className="text-sm">We will get back to you shortly.</p>
-                    </div>
-                  </div>
-                )}
-
-                {status === "error" && (
-                  <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-xl flex items-center gap-3">
-                    <AlertCircle size={24} />
-                    <div>
-                      <p className="font-bold">Failed to send</p>
-                      <p className="text-sm">Please try again later or email us directly.</p>
-                    </div>
-                  </div>
-                )}
-
+                <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Message Sent!</h3>
+                <p className="text-slate-500">We'll get back to you shortly.</p>
+                <button onClick={() => setSuccess(false)} className="mt-8 text-primary font-bold hover:underline">Send another message</button>
+              </div>
+            ) : (
+              <>
+                <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-8 flex items-center gap-3">
+                  <MessageSquare className="text-primary"/> Send us a Message
+                </h3>
                 <form onSubmit={handleSubmit} className="space-y-6">
-                   <div className="grid md:grid-cols-2 gap-6">
-                      <div className="space-y-2">
-                         <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Full Name</label>
-                         <input 
-                           name="name"
-                           type="text" 
-                           placeholder="John Doe" 
-                           required
-                           value={formData.name}
-                           onChange={handleChange}
-                           className="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-primary outline-none transition" 
-                         />
-                      </div>
-                      <div className="space-y-2">
-                         <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Email Address</label>
-                         <input 
-                           name="email"
-                           type="email" 
-                           placeholder="john@example.com" 
-                           required
-                           value={formData.email}
-                           onChange={handleChange}
-                           className="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-primary outline-none transition" 
-                         />
-                      </div>
-                   </div>
-                   <div className="space-y-2">
-                      <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Subject</label>
-                      <input 
-                        name="subject"
-                        type="text" 
-                        placeholder="Inquiry about..." 
-                        required
-                        value={formData.subject}
-                        onChange={handleChange}
-                        className="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-primary outline-none transition" 
-                      />
-                   </div>
-                   <div className="space-y-2">
-                      <div className="flex justify-between">
-                        <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Message</label>
-                        <span className={`text-xs font-bold ${isOverLimit ? "text-red-500" : "text-slate-400"}`}>
-                          {wordCount} / 500 words
-                        </span>
-                      </div>
-                      <textarea 
-                        name="message"
-                        rows={6} 
-                        placeholder="How can we help you?" 
-                        required
-                        value={formData.message}
-                        onChange={handleChange}
-                        className={`w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-xl border focus:ring-2 focus:ring-primary outline-none transition ${isOverLimit ? "border-red-500 focus:ring-red-500" : "border-slate-200 dark:border-slate-700"}`}
-                      ></textarea>
-                      {isOverLimit && <p className="text-xs text-red-500 font-bold">Your message exceeds the 500-word limit.</p>}
-                   </div>
-                   <button 
-                     disabled={loading || isOverLimit} 
-                     className="w-full py-4 bg-primary text-white font-bold rounded-xl shadow-lg hover:bg-primary/90 transition flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                   >
-                      {loading ? "Sending..." : "Send Message"} 
-                      {loading ? <Loader2 className="animate-spin" size={20}/> : <Send size={20}/>}
-                   </button>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Your Name</label>
+                      <input name="name" required className="w-full p-4 rounded-xl bg-slate-50 dark:bg-slate-800 border-none outline-none focus:ring-2 focus:ring-primary/50 transition" placeholder="John Doe" />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Your Email</label>
+                      <input name="email" type="email" required className="w-full p-4 rounded-xl bg-slate-50 dark:bg-slate-800 border-none outline-none focus:ring-2 focus:ring-primary/50 transition" placeholder="john@example.com" />
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Subject</label>
+                    <input name="subject" required className="w-full p-4 rounded-xl bg-slate-50 dark:bg-slate-800 border-none outline-none focus:ring-2 focus:ring-primary/50 transition" placeholder="Inquiry about..." />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Message</label>
+                    <textarea name="message" required rows={5} className="w-full p-4 rounded-xl bg-slate-50 dark:bg-slate-800 border-none outline-none focus:ring-2 focus:ring-primary/50 transition resize-none" placeholder="How can we help you today?" />
+                  </div>
+
+                  <button 
+                    type="submit" 
+                    disabled={loading}
+                    className="w-full py-4 bg-primary text-white font-bold rounded-xl hover:bg-primary/90 transition shadow-lg shadow-primary/25 flex items-center justify-center gap-2 disabled:opacity-70"
+                  >
+                    {loading ? <Loader2 className="animate-spin" size={20}/> : <><Send size={20}/> Send Message</>}
+                  </button>
                 </form>
-             </div>
+              </>
+            )}
           </div>
-       </div>
+
+        </div>
+      </div>
     </div>
   );
 }

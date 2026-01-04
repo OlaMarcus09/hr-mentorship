@@ -1,122 +1,159 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Image from "next/image";
-import { MapPin, Briefcase, DollarSign, Clock, Search, ChevronLeft, ChevronRight } from "lucide-react";
+import Link from "next/link";
+import { MapPin, Clock, Briefcase, DollarSign, ChevronRight, ChevronLeft, Loader2, Search } from "lucide-react";
 
 export default function JobsPage() {
   const [jobs, setJobs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [search, setSearch] = useState("");
+  
+  // PAGINATION
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 6;
+  const itemsPerPage = 9;
 
   useEffect(() => {
-    fetch('/api/jobs')
-      .then(res => res.json())
-      .then(data => {
-        setJobs(Array.isArray(data) ? data : []);
+    async function fetchJobs() {
+      try {
+        const res = await fetch('/api/jobs');
+        const data = await res.json();
+        if (Array.isArray(data)) setJobs(data);
+      } catch (error) {
+        console.error("Failed to load jobs");
+      } finally {
         setLoading(false);
-      })
-      .catch(() => setLoading(false));
+      }
+    }
+    fetchJobs();
   }, []);
 
+  // Filter Logic
   const filteredJobs = jobs.filter(job => 
-    job.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    job.company.toLowerCase().includes(searchTerm.toLowerCase())
+    job.title.toLowerCase().includes(search.toLowerCase()) ||
+    job.company.toLowerCase().includes(search.toLowerCase()) ||
+    job.location.toLowerCase().includes(search.toLowerCase())
   );
 
+  // Pagination Logic
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentJobs = filteredJobs.slice(indexOfFirstItem, indexOfLastItem);
   const totalPages = Math.ceil(filteredJobs.length / itemsPerPage);
-  const currentJobs = filteredJobs.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+  const formatDate = (dateString: string) => {
+    if (!dateString) return "Recently";
+    return new Date(dateString).toLocaleDateString('en-GB', {
+      day: 'numeric', month: 'short', year: 'numeric'
+    });
+  };
 
   return (
-    <div className="bg-slate-50 dark:bg-slate-950 min-h-screen">
-       {/* HERO */}
-       <section className="relative h-[40vh] min-h-[300px] flex items-center justify-center overflow-hidden">
-          <Image 
-            src="https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?auto=format&fit=crop&w=2000" 
-            alt="Jobs" 
-            fill 
-            className="object-cover"
-            priority
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 pt-24 pb-16 px-6">
+      <div className="max-w-6xl mx-auto">
+        
+        {/* HEADER */}
+        <div className="text-center mb-12">
+          <h1 className="text-4xl md:text-5xl font-bold font-heading text-slate-900 dark:text-white mb-4">
+            Career Opportunities
+          </h1>
+          <p className="text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
+            Find your dream role. We connect talented professionals with top-tier companies.
+          </p>
+        </div>
+
+        {/* SEARCH */}
+        <div className="bg-white dark:bg-slate-900 p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 mb-10 max-w-2xl mx-auto flex gap-2">
+          <Search className="text-slate-400 my-auto ml-2" size={20}/>
+          <input 
+            type="text" 
+            placeholder="Search by role, company, or location..." 
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="flex-1 bg-transparent outline-none text-slate-900 dark:text-white p-2"
           />
-          <div className="absolute inset-0 bg-purple-900/80 mix-blend-multiply" />
-          <div className="relative z-10 text-center px-6 max-w-4xl mx-auto">
-             <h1 className="text-4xl md:text-5xl font-heading font-bold text-white mb-4">Find Your Dream Role</h1>
-             <p className="text-xl text-white/90">Explore curated opportunities from top companies.</p>
-          </div>
-       </section>
+        </div>
 
-       <div className="max-w-7xl mx-auto px-6 py-20">
-          
-          {/* SEARCH */}
-          <div className="mb-12 relative max-w-xl mx-auto">
-             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"/>
-             <input 
-               type="text" 
-               placeholder="Search by job title or company..." 
-               className="w-full p-4 pl-12 rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm focus:ring-2 focus:ring-primary outline-none transition"
-               onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
-             />
-          </div>
+        {/* JOBS LIST */}
+        {loading ? (
+          <div className="h-64 flex items-center justify-center"><Loader2 className="animate-spin text-primary" size={40}/></div>
+        ) : (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+              {currentJobs.length > 0 ? currentJobs.map((job) => (
+                <div key={job.id} className="bg-white dark:bg-slate-900 rounded-xl p-6 shadow-sm border border-slate-100 dark:border-slate-800 hover:shadow-lg hover:-translate-y-1 transition group flex flex-col h-full">
+                  <div className="flex justify-between items-start mb-4">
+                    <div>
+                      <h3 className="text-lg font-bold text-slate-900 dark:text-white line-clamp-1 group-hover:text-primary transition">{job.title}</h3>
+                      <p className="text-sm text-slate-500 font-bold">{job.company}</p>
+                    </div>
+                    <span className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider">
+                      {job.type}
+                    </span>
+                  </div>
 
-          {loading ? (
-             <p className="text-center text-slate-500">Loading opportunities...</p>
-          ) : filteredJobs.length > 0 ? (
-             <>
-               <div className="grid md:grid-cols-2 gap-6 mb-12">
-                  {currentJobs.map(job => (
-                     <div key={job.id} className="bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-sm hover:shadow-lg transition border border-slate-100 dark:border-slate-800 group">
-                        <div className="flex justify-between items-start mb-4">
-                           <div>
-                              <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-1 group-hover:text-primary transition">{job.title}</h3>
-                              <p className="text-slate-500 font-medium">{job.company}</p>
-                           </div>
-                           <span className="px-3 py-1 bg-slate-100 dark:bg-slate-800 text-xs font-bold rounded-full text-slate-600 dark:text-slate-400 uppercase tracking-wide">{job.type}</span>
-                        </div>
-                        
-                        <div className="flex flex-wrap gap-4 text-sm text-slate-500 dark:text-slate-400 mb-6">
-                           <span className="flex items-center gap-1"><MapPin size={16}/> {job.location}</span>
-                           {job.salary && <span className="flex items-center gap-1"><DollarSign size={16}/> {job.salary}</span>}
-                           <span className="flex items-center gap-1"><Clock size={16}/> {new Date(job.createdAt).toLocaleDateString()}</span>
-                        </div>
+                  <div className="space-y-2 mb-6 flex-1">
+                    <div className="flex items-center gap-2 text-sm text-slate-500">
+                      <MapPin size={16} className="text-primary"/> {job.location}
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-slate-500">
+                      <DollarSign size={16} className="text-green-600"/> {job.salary}
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-slate-500">
+                      <Clock size={16} className="text-orange-500"/> Posted {formatDate(job.createdAt)}
+                    </div>
+                  </div>
 
-                        <p className="text-slate-600 dark:text-slate-400 mb-6 line-clamp-3 leading-relaxed">{job.description}</p>
-
-                        <a href={job.applyLink} target="_blank" className="inline-block w-full text-center py-3 border-2 border-primary text-primary font-bold rounded-xl hover:bg-primary hover:text-white transition">
-                           Apply Now
-                        </a>
-                     </div>
-                  ))}
-               </div>
-
-               {/* PAGINATION */}
-               {totalPages > 1 && (
-                 <div className="flex justify-center gap-4">
-                    <button 
-                      onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                      disabled={currentPage === 1}
-                      className="p-3 bg-white dark:bg-slate-900 rounded-full shadow-sm hover:bg-slate-50 disabled:opacity-50 transition"
+                  <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex gap-3">
+                    <Link 
+                      href={`/jobs/${job.id}`}
+                      className="flex-1 py-2.5 text-center rounded-lg border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-bold text-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition"
                     >
-                      <ChevronLeft/>
-                    </button>
-                    <span className="flex items-center font-bold text-slate-500">Page {currentPage} of {totalPages}</span>
-                    <button 
-                      onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                      disabled={currentPage === totalPages}
-                      className="p-3 bg-white dark:bg-slate-900 rounded-full shadow-sm hover:bg-slate-50 disabled:opacity-50 transition"
+                      View Details
+                    </Link>
+                    <a 
+                      href={job.applyLink || "#"} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="flex-1 py-2.5 text-center rounded-lg bg-primary text-white font-bold text-sm hover:bg-primary/90 transition shadow-lg shadow-primary/20"
                     >
-                      <ChevronRight/>
-                    </button>
-                 </div>
-               )}
-             </>
-          ) : (
-             <div className="text-center py-20">
-                <p className="text-xl text-slate-500 font-medium">No jobs found matching your search.</p>
-             </div>
-          )}
-       </div>
+                      Apply Now
+                    </a>
+                  </div>
+                </div>
+              )) : (
+                <div className="col-span-full text-center py-20 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-dashed border-slate-300">
+                  <Briefcase className="mx-auto text-slate-300 mb-4" size={48} />
+                  <p className="text-slate-500 font-bold">No jobs found matching your search.</p>
+                </div>
+              )}
+            </div>
+
+            {/* PAGINATION */}
+            {totalPages > 1 && (
+              <div className="flex justify-center gap-2">
+                <button
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  className="p-3 bg-white dark:bg-slate-800 rounded-full shadow-md disabled:opacity-50 hover:bg-slate-50 transition"
+                >
+                  <ChevronLeft size={20} />
+                </button>
+                <span className="px-4 py-3 bg-white dark:bg-slate-800 rounded-full shadow-md font-bold text-sm flex items-center">
+                  Page {currentPage} of {totalPages}
+                </span>
+                <button
+                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                  className="p-3 bg-white dark:bg-slate-800 rounded-full shadow-md disabled:opacity-50 hover:bg-slate-50 transition"
+                >
+                  <ChevronRight size={20} />
+                </button>
+              </div>
+            )}
+          </>
+        )}
+      </div>
     </div>
   );
 }
