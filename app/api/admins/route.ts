@@ -18,6 +18,11 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
+    
+    if (!body.email || !body.password) {
+      return NextResponse.json({ error: 'Email and Password are required' }, { status: 400 });
+    }
+
     const hashedPassword = await hash(body.password, 12);
 
     const admin = await prisma.admin.create({
@@ -38,13 +43,17 @@ export async function POST(request: Request) {
 export async function DELETE(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const id = searchParams.get('id'); // FIXED: No parseInt here, accepts text
+    const id = searchParams.get('id'); // FIXED: No parseInt here. Accepts text IDs.
     
-    if (!id) return NextResponse.json({ error: 'ID required' }, { status: 400 });
+    if (!id) {
+      return NextResponse.json({ error: 'ID is required' }, { status: 400 });
+    }
 
     await prisma.admin.delete({ where: { id } });
+    
     return NextResponse.json({ success: true });
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to delete' }, { status: 500 });
+    console.error("Delete Error:", error);
+    return NextResponse.json({ error: 'Failed to delete admin' }, { status: 500 });
   }
 }

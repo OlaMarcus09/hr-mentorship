@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
+// PATCH: Update Status (Accept/Reject)
 export async function PATCH(req: Request, { params }: { params: { id: string } }) {
   try {
     const { status } = await req.json();
@@ -14,6 +15,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
   }
 }
 
+// DELETE: Remove Applicant
 export async function DELETE(req: Request, { params }: { params: { id: string } }) {
   try {
     await prisma.applicant.delete({
