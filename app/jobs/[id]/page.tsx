@@ -32,23 +32,32 @@ export default function JobDetailsPage() {
   const formatDate = (dateString: string) => {
     if (!dateString) return "Recently";
     const date = new Date(dateString);
+    // If date is invalid, return fallback
     if (isNaN(date.getTime())) return "Recently";
     return date.toLocaleDateString('en-GB', {
       day: 'numeric', month: 'long', year: 'numeric'
     });
   };
 
-  // HELPER: Fix Links (Detects Email vs Website)
+  // HELPER: Strict Link Detection
   const getSafeLink = (link: string) => {
     if (!link) return "#";
-    // If it's already a full link, keep it
-    if (link.startsWith('http') || link.startsWith('mailto:')) return link;
+    const cleanLink = link.trim();
+
+    // 1. Trust existing protocols
+    if (cleanLink.startsWith('http://') || cleanLink.startsWith('https://')) return cleanLink;
+    if (cleanLink.startsWith('mailto:')) return cleanLink;
     
-    // If it looks like an email, make it a mailto link
-    if (link.includes('@') && !link.includes('/')) return `mailto:${link}`;
+    // 2. STRICT Email Check: Must match pattern "user@domain.com"
+    // (No slashes allowed, must have @, must have dot after @)
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     
-    // Otherwise, assume it's a website and add https://
-    return `https://${link}`;
+    if (emailPattern.test(cleanLink)) {
+        return `mailto:${cleanLink}`;
+    }
+    
+    // 3. Fallback: Treat as Website (add https://)
+    return `https://${cleanLink}`;
   };
 
   if (loading) return <div className="min-h-screen pt-32 flex justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>;
@@ -84,7 +93,11 @@ export default function JobDetailsPage() {
                   href={safeApplyLink} 
                   target={isEmail ? "_self" : "_blank"} 
                   rel="noopener noreferrer"
-                  className="px-8 py-3 bg-primary text-white font-bold rounded-xl hover:bg-primary/90 transition shadow-lg shadow-primary/20 text-center whitespace-nowrap flex items-center gap-2"
+                  className={`px-8 py-3 font-bold rounded-xl transition shadow-lg text-center whitespace-nowrap flex items-center gap-2
+                    ${isEmail 
+                        ? "bg-slate-800 text-white hover:bg-slate-700 shadow-slate-200" 
+                        : "bg-primary text-white hover:bg-primary/90 shadow-primary/20"
+                    }`}
                 >
                   {isEmail ? <Mail size={18}/> : <ExternalLink size={18}/>}
                   {isEmail ? "Send Email" : "Apply Now"}
@@ -117,7 +130,11 @@ export default function JobDetailsPage() {
                   href={safeApplyLink} 
                   target={isEmail ? "_self" : "_blank"} 
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-10 py-4 bg-primary text-white font-bold rounded-xl hover:bg-primary/90 transition shadow-xl shadow-primary/20"
+                  className={`inline-flex items-center gap-2 px-10 py-4 font-bold rounded-xl transition shadow-xl
+                    ${isEmail 
+                        ? "bg-slate-800 text-white hover:bg-slate-700 shadow-slate-200" 
+                        : "bg-primary text-white hover:bg-primary/90 shadow-primary/20"
+                    }`}
                 >
                   {isEmail ? "Send Email Application" : "Apply for this Position"}
                 </a>
