@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { MapPin, Clock, DollarSign, Briefcase, ArrowLeft, Share2, Building } from "lucide-react";
+import { MapPin, Clock, DollarSign, Briefcase, ArrowLeft, Building, ExternalLink, Mail } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 
@@ -28,6 +28,29 @@ export default function JobDetailsPage() {
     if (params.id) fetchJob();
   }, [params.id]);
 
+  // HELPER: Format Date Safely
+  const formatDate = (dateString: string) => {
+    if (!dateString) return "Recently";
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return "Recently";
+    return date.toLocaleDateString('en-GB', {
+      day: 'numeric', month: 'long', year: 'numeric'
+    });
+  };
+
+  // HELPER: Fix Links (Detects Email vs Website)
+  const getSafeLink = (link: string) => {
+    if (!link) return "#";
+    // If it's already a full link, keep it
+    if (link.startsWith('http') || link.startsWith('mailto:')) return link;
+    
+    // If it looks like an email, make it a mailto link
+    if (link.includes('@') && !link.includes('/')) return `mailto:${link}`;
+    
+    // Otherwise, assume it's a website and add https://
+    return `https://${link}`;
+  };
+
   if (loading) return <div className="min-h-screen pt-32 flex justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>;
   
   if (!job) return (
@@ -36,6 +59,9 @@ export default function JobDetailsPage() {
         <Link href="/jobs" className="text-primary hover:underline mt-4 block">Back to Jobs</Link>
     </div>
   );
+
+  const safeApplyLink = getSafeLink(job.applyLink);
+  const isEmail = safeApplyLink.startsWith('mailto:');
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 pt-24 pb-16 px-6">
@@ -52,13 +78,16 @@ export default function JobDetailsPage() {
                         <Building size={20}/> {job.company}
                     </div>
                 </div>
+                
+                {/* SMART APPLY BUTTON */}
                 <a 
-                  href={job.applyLink} 
-                  target="_blank" 
+                  href={safeApplyLink} 
+                  target={isEmail ? "_self" : "_blank"} 
                   rel="noopener noreferrer"
-                  className="px-8 py-3 bg-primary text-white font-bold rounded-xl hover:bg-primary/90 transition shadow-lg shadow-primary/20 text-center whitespace-nowrap"
+                  className="px-8 py-3 bg-primary text-white font-bold rounded-xl hover:bg-primary/90 transition shadow-lg shadow-primary/20 text-center whitespace-nowrap flex items-center gap-2"
                 >
-                  Apply Now
+                  {isEmail ? <Mail size={18}/> : <ExternalLink size={18}/>}
+                  {isEmail ? "Send Email" : "Apply Now"}
                 </a>
             </div>
 
@@ -73,7 +102,7 @@ export default function JobDetailsPage() {
                     <Briefcase size={18} className="text-blue-500"/> {job.type}
                 </div>
                 <div className="flex items-center gap-2 px-4 py-2 bg-slate-50 dark:bg-slate-800 rounded-lg font-medium text-slate-600 dark:text-slate-300">
-                    <Clock size={18} className="text-orange-500"/> Posted {new Date(job.createdAt).toLocaleDateString()}
+                    <Clock size={18} className="text-orange-500"/> Posted {formatDate(job.createdAt)}
                 </div>
             </div>
 
@@ -85,12 +114,12 @@ export default function JobDetailsPage() {
             <div className="mt-12 pt-8 border-t border-slate-100 dark:border-slate-800 text-center">
                 <p className="text-slate-500 mb-6">Interested in this role?</p>
                 <a 
-                  href={job.applyLink} 
-                  target="_blank" 
+                  href={safeApplyLink} 
+                  target={isEmail ? "_self" : "_blank"} 
                   rel="noopener noreferrer"
-                  className="inline-block px-10 py-4 bg-primary text-white font-bold rounded-xl hover:bg-primary/90 transition shadow-xl shadow-primary/20"
+                  className="inline-flex items-center gap-2 px-10 py-4 bg-primary text-white font-bold rounded-xl hover:bg-primary/90 transition shadow-xl shadow-primary/20"
                 >
-                  Apply for this Position
+                  {isEmail ? "Send Email Application" : "Apply for this Position"}
                 </a>
             </div>
         </div>
