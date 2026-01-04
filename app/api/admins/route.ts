@@ -38,7 +38,7 @@ export async function POST(request: Request) {
 export async function DELETE(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const id = searchParams.get('id'); // FIXED: No parseInt here
+    const id = searchParams.get('id'); // FIXED: No parseInt here, accepts text
     
     if (!id) return NextResponse.json({ error: 'ID required' }, { status: 400 });
 
