@@ -87,11 +87,17 @@ function DashboardContent() {
     {
       title: "System",
       items: [
-        ...(role === 'SUPER_ADMIN' ? [{ id: 'admins', label: 'Manage Admins', icon: <ShieldAlert size={18}/> }] : []),
+        { id: 'admins', label: 'Manage Admins', icon: <ShieldAlert size={18}/> }, // Always visible, filtered by role logic if needed
         { id: 'settings', label: 'Settings', icon: <Settings size={18}/> },
       ]
     }
   ];
+
+  // Filter menu items if role isn't SUPER_ADMIN (optional, based on your logic)
+  const filteredMenuGroups = menuGroups.map(group => ({
+    ...group,
+    items: group.items.filter(item => item.id !== 'admins' || role === 'SUPER_ADMIN')
+  }));
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -128,30 +134,51 @@ function DashboardContent() {
 
   useEffect(() => { fetchData(); }, [activeTab]);
 
-  const handleStatusUpdate = async (id: number, status: 'ACCEPTED' | 'REJECTED') => {
+  // --- FIXED: HANDLE STATUS UPDATE (Accept/Reject) ---
+  const handleStatusUpdate = async (id: any, status: 'ACCEPTED' | 'REJECTED') => {
     if (!confirm(`Are you sure you want to mark this applicant as ${status}?`)) return;
     try {
-      const res = await fetch(`/api/applicants/${id}`, {
+      // FIX: Use Body instead of URL Param to safely handle IDs with #
+      const res = await fetch(`/api/applicants`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status })
+        body: JSON.stringify({ id, status })
       });
-      if (res.ok) { fetchData(); alert(`Applicant ${status}`); }
-      else { alert("Failed to update status"); }
+      
+      if (res.ok) { 
+        fetchData(); 
+        alert(`Applicant ${status}`); 
+        setViewApplicant(null); // Close modal if open
+      } else { 
+        const err = await res.json();
+        alert(err.error || "Failed to update status"); 
+      }
     } catch (e) { alert("Error updating status"); }
   };
 
-  const handleDelete = async (id: number) => {
+  // --- FIXED: HANDLE DELETE ---
+  const handleDelete = async (id: any) => {
     if (!confirm("Are you sure you want to delete this?")) return;
     try {
-      let endpoint = `/api/${activeTab}/${id}`;
-      if (activeTab === 'gallery') endpoint = `/api/gallery?id=${id}`;
-      if (activeTab === 'mentors' || activeTab === 'mentees') endpoint = `/api/applicants/${id}`;
-      if (activeTab === 'messages') endpoint = `/api/messages?id=${id}`;
-      if (activeTab === 'admins') endpoint = `/api/admins?id=${id}`;
+      let endpoint = '';
+      
+      // FIX: Use encodeURIComponent for IDs with special characters (#)
+      if (activeTab === 'mentors' || activeTab === 'mentees') {
+        endpoint = `/api/applicants?id=${encodeURIComponent(id)}`;
+      } else if (activeTab === 'gallery') {
+        endpoint = `/api/gallery?id=${id}`;
+      } else if (activeTab === 'messages') {
+        endpoint = `/api/messages?id=${id}`;
+      } else if (activeTab === 'admins') {
+        endpoint = `/api/admins?id=${id}`;
+      } else {
+        // Standard ID handling for other items
+        endpoint = `/api/${activeTab}/${id}`;
+      }
 
       const res = await fetch(endpoint, { method: 'DELETE' });
       if (res.ok) { fetchData(); alert("Deleted successfully"); }
+      else { alert("Failed to delete item"); }
     } catch (e) { alert("Error deleting"); }
   };
 
@@ -203,7 +230,7 @@ function DashboardContent() {
       if (activeTab === 'mentors' || activeTab === 'mentees') endpointBase = 'applicants';
       if (activeTab === 'admins') { url = '/api/admins'; method = 'POST'; }
       else {
-         url = editItem ? `/api/${endpointBase}/${editItem.id}` : `/api/${endpointBase}`; method = editItem ? 'PATCH' : 'POST';
+        url = editItem ? `/api/${endpointBase}/${editItem.id}` : `/api/${endpointBase}`; method = editItem ? 'PATCH' : 'POST';
       }
 
       if (fileInputRef.current?.files?.[0]) {
@@ -235,7 +262,7 @@ function DashboardContent() {
            <p className="text-xs text-slate-500">Logged in as: {role}</p>
         </div>
         <nav className="px-4 space-y-8 flex-1 overflow-y-auto">
-           {menuGroups.map((group) => (
+           {filteredMenuGroups.map((group) => (
              <div key={group.title}>
                 <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 px-2">{group.title}</h3>
                 <div className="space-y-1">
@@ -303,7 +330,7 @@ function DashboardContent() {
                                  {activeTab === 'events' && item.date && new Date(item.date).toLocaleDateString()}
                                  {activeTab === 'admins' && <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs font-bold">{item.role}</span>}
                                  {(activeTab === 'mentors' || activeTab === 'mentees') && (
-                                    <span className={`px-2 py-1 rounded text-xs font-bold ${item.status === 'ACCEPTED' ? 'bg-green-100 text-green-700' : item.status === 'REJECTED' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'}`}>{item.status || 'PENDING'}</span>
+                                     <span className={`px-2 py-1 rounded text-xs font-bold ${item.status === 'ACCEPTED' ? 'bg-green-100 text-green-700' : item.status === 'REJECTED' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'}`}>{item.status || 'PENDING'}</span>
                                  )}
                               </td>
                               <td className="p-4 flex justify-end gap-2">
@@ -317,7 +344,7 @@ function DashboardContent() {
                                    <button onClick={() => activeTab === 'messages' ? setViewMessage(item) : setViewApplicant(item)} className="p-2 text-blue-600 bg-blue-50 rounded hover:bg-blue-100"><Eye size={16}/></button>
                                  )}
                                  {activeTab !== 'mentors' && activeTab !== 'mentees' && activeTab !== 'messages' && (
-                                    <button onClick={() => { setEditItem(item); setPreviewUrl(item.image || item.imageUrl); setIsEditing(true); }} className="p-2 text-slate-600 hover:text-primary"><Edit size={16}/></button>
+                                     <button onClick={() => { setEditItem(item); setPreviewUrl(item.image || item.imageUrl); setIsEditing(true); }} className="p-2 text-slate-600 hover:text-primary"><Edit size={16}/></button>
                                  )}
                                  <button onClick={() => handleDelete(item.id)} className="p-2 text-red-600 hover:bg-red-50 rounded"><Trash2 size={16}/></button>
                               </td>
@@ -456,7 +483,7 @@ function DashboardContent() {
                     )}
 
                     <button disabled={isUploading} type="submit" className="w-full py-3 bg-primary text-white font-bold rounded-lg mt-4 disabled:opacity-50 hover:bg-primary/90">{isUploading ? "Processing..." : "Save Changes"}</button>
-                 </form>
+               </form>
               </div>
            </div>
         )}
