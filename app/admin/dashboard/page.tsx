@@ -87,13 +87,12 @@ function DashboardContent() {
     {
       title: "System",
       items: [
-        { id: 'admins', label: 'Manage Admins', icon: <ShieldAlert size={18}/> }, // Always visible, filtered by role logic if needed
+        { id: 'admins', label: 'Manage Admins', icon: <ShieldAlert size={18}/> },
         { id: 'settings', label: 'Settings', icon: <Settings size={18}/> },
       ]
     }
   ];
 
-  // Filter menu items if role isn't SUPER_ADMIN (optional, based on your logic)
   const filteredMenuGroups = menuGroups.map(group => ({
     ...group,
     items: group.items.filter(item => item.id !== 'admins' || role === 'SUPER_ADMIN')
@@ -134,21 +133,24 @@ function DashboardContent() {
 
   useEffect(() => { fetchData(); }, [activeTab]);
 
-  // --- FIXED: HANDLE STATUS UPDATE (Accept/Reject) ---
-  const handleStatusUpdate = async (id: any, status: 'ACCEPTED' | 'REJECTED') => {
+  // --- FIXED: HANDLE STATUS UPDATE (Converts to Title Case) ---
+  const handleStatusUpdate = async (id: any, status: string) => {
     if (!confirm(`Are you sure you want to mark this applicant as ${status}?`)) return;
+    
+    // FIX: Convert "ACCEPTED" -> "Accepted" to match Backend validation
+    const formattedStatus = status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
+
     try {
-      // FIX: Use Body instead of URL Param to safely handle IDs with #
       const res = await fetch(`/api/applicants`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id, status })
+        body: JSON.stringify({ id, status: formattedStatus })
       });
       
       if (res.ok) { 
         fetchData(); 
-        alert(`Applicant ${status}`); 
-        setViewApplicant(null); // Close modal if open
+        alert(`Applicant ${formattedStatus}`); 
+        setViewApplicant(null); 
       } else { 
         const err = await res.json();
         alert(err.error || "Failed to update status"); 
@@ -156,13 +158,11 @@ function DashboardContent() {
     } catch (e) { alert("Error updating status"); }
   };
 
-  // --- FIXED: HANDLE DELETE ---
+  // --- SAFE DELETE ---
   const handleDelete = async (id: any) => {
     if (!confirm("Are you sure you want to delete this?")) return;
     try {
       let endpoint = '';
-      
-      // FIX: Use encodeURIComponent for IDs with special characters (#)
       if (activeTab === 'mentors' || activeTab === 'mentees') {
         endpoint = `/api/applicants?id=${encodeURIComponent(id)}`;
       } else if (activeTab === 'gallery') {
@@ -172,7 +172,6 @@ function DashboardContent() {
       } else if (activeTab === 'admins') {
         endpoint = `/api/admins?id=${id}`;
       } else {
-        // Standard ID handling for other items
         endpoint = `/api/${activeTab}/${id}`;
       }
 
@@ -254,6 +253,14 @@ function DashboardContent() {
   const currentItems = items.slice(indexOfFirstItem, indexOfLastItem);
   const totalPages = Math.ceil(items.length / itemsPerPage);
 
+  // Helper for Badge Colors (Case Insensitive)
+  const getStatusColor = (status: string) => {
+    const s = status?.toUpperCase();
+    if (s === 'ACCEPTED' || s === 'ACCEPTED') return 'bg-green-100 text-green-700';
+    if (s === 'REJECTED' || s === 'REJECTED') return 'bg-red-100 text-red-700';
+    return 'bg-yellow-100 text-yellow-700';
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col md:flex-row pt-20">
       <aside className="w-full md:w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 shrink-0 flex flex-col h-[calc(100vh-80px)] md:sticky md:top-20">
@@ -330,7 +337,7 @@ function DashboardContent() {
                                  {activeTab === 'events' && item.date && new Date(item.date).toLocaleDateString()}
                                  {activeTab === 'admins' && <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs font-bold">{item.role}</span>}
                                  {(activeTab === 'mentors' || activeTab === 'mentees') && (
-                                     <span className={`px-2 py-1 rounded text-xs font-bold ${item.status === 'ACCEPTED' ? 'bg-green-100 text-green-700' : item.status === 'REJECTED' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'}`}>{item.status || 'PENDING'}</span>
+                                     <span className={`px-2 py-1 rounded text-xs font-bold ${getStatusColor(item.status)}`}>{item.status || 'PENDING'}</span>
                                  )}
                               </td>
                               <td className="p-4 flex justify-end gap-2">
@@ -395,7 +402,7 @@ function DashboardContent() {
                    <div><label className="text-xs font-bold text-slate-500">GOAL</label><div className="bg-slate-50 dark:bg-slate-800 p-3 rounded mt-1"><p>{viewApplicant.goal}</p></div></div>
                    <div className="flex justify-between items-center pt-2 border-t mt-4 border-slate-100 dark:border-slate-800">
                       <span className="text-xs text-slate-400">Applied: {new Date(viewApplicant.createdAt).toLocaleDateString()}</span>
-                      <span className={`px-2 py-1 rounded text-xs font-bold ${viewApplicant.status === 'ACCEPTED' ? 'bg-green-100 text-green-700' : viewApplicant.status === 'REJECTED' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'}`}>{viewApplicant.status || 'PENDING'}</span>
+                      <span className={`px-2 py-1 rounded text-xs font-bold ${getStatusColor(viewApplicant.status)}`}>{viewApplicant.status || 'PENDING'}</span>
                    </div>
                 </div>
              </div>
@@ -408,7 +415,6 @@ function DashboardContent() {
                  <div className="flex justify-between mb-6 pb-4 border-b border-slate-100 dark:border-slate-800"><h3 className="text-xl font-bold text-slate-900 dark:text-white">{editItem ? 'Edit' : 'Create'}</h3><button onClick={() => setIsEditing(false)}><X className="text-slate-500"/></button></div>
                  <form onSubmit={handleSubmit} className="space-y-5">
                     
-                    {/* ADDED: ADMIN CREATION FORM */}
                     {activeTab === 'admins' && (
                        <>
                           <div><label className="admin-label">Email</label><input name="email" type="email" required className="admin-input" /></div>
