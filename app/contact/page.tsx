@@ -35,23 +35,35 @@ export default function ContactPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 pt-24 pb-20 px-6">
-      <div className="max-w-6xl mx-auto">
-        
-        <div className="text-center mb-16">
-          <h1 className="text-4xl md:text-5xl font-bold font-heading text-slate-900 dark:text-white mb-6">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
+      
+      {/* HERO SECTION (Restored) */}
+      <div className="relative bg-slate-900 py-32 px-6">
+        <div 
+          className="absolute inset-0 z-0 opacity-20"
+          style={{
+            backgroundImage: "url('https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&q=80')",
+            backgroundSize: "cover",
+            backgroundPosition: "center"
+          }}
+        />
+        <div className="relative z-10 max-w-6xl mx-auto text-center">
+          <h1 className="text-4xl md:text-6xl font-bold font-heading text-white mb-6">
             Get in Touch
           </h1>
-          <p className="text-slate-600 dark:text-slate-400 max-w-2xl mx-auto text-lg">
+          <p className="text-slate-300 text-lg md:text-xl max-w-2xl mx-auto">
             Have questions about our mentorship programs or HR services? We're here to help.
           </p>
         </div>
+      </div>
 
+      {/* CONTENT SECTION (Overlapping Hero) */}
+      <div className="max-w-6xl mx-auto px-6 -mt-10 relative z-20 pb-20">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           
           {/* Contact Info Cards */}
           <div className="space-y-6">
-            <div className="bg-slate-900 text-white p-8 rounded-2xl shadow-xl">
+            <div className="bg-slate-900 text-white p-8 rounded-2xl shadow-xl border border-slate-700">
               <div className="w-12 h-12 bg-primary/20 rounded-xl flex items-center justify-center mb-6 text-primary">
                 <Phone size={24} />
               </div>
@@ -62,7 +74,7 @@ export default function ContactPage() {
               </a>
             </div>
 
-            <div className="bg-slate-900 text-white p-8 rounded-2xl shadow-xl">
+            <div className="bg-slate-900 text-white p-8 rounded-2xl shadow-xl border border-slate-700">
               <div className="w-12 h-12 bg-primary/20 rounded-xl flex items-center justify-center mb-6 text-primary">
                 <Mail size={24} />
               </div>
@@ -73,7 +85,7 @@ export default function ContactPage() {
               </a>
             </div>
 
-            <div className="bg-slate-900 text-white p-8 rounded-2xl shadow-xl">
+            <div className="bg-slate-900 text-white p-8 rounded-2xl shadow-xl border border-slate-700">
               <div className="w-12 h-12 bg-primary/20 rounded-xl flex items-center justify-center mb-6 text-primary">
                 <MapPin size={24} />
               </div>
