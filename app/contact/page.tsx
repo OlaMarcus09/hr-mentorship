@@ -111,15 +111,24 @@ export default function ContactPage() {
                       <input name="email" type="email" required className="w-full p-4 rounded-xl bg-slate-50 dark:bg-slate-800 border-none outline-none focus:ring-2 focus:ring-primary/50 transition" placeholder="john@example.com" />
                     </div>
                   </div>
-                  
+                
                   <div className="space-y-2">
                     <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Subject</label>
                     <input name="subject" required className="w-full p-4 rounded-xl bg-slate-50 dark:bg-slate-800 border-none outline-none focus:ring-2 focus:ring-primary/50 transition" placeholder="Inquiry about..." />
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Message</label>
-                    <textarea name="message" required rows={5} className="w-full p-4 rounded-xl bg-slate-50 dark:bg-slate-800 border-none outline-none focus:ring-2 focus:ring-primary/50 transition resize-none" placeholder="How can we help you today?" />
+                    <label className="text-sm font-bold text-slate-700 dark:text-slate-300">
+                        Message <span className="text-slate-400 font-normal ml-1">(Max 2000 chars)</span>
+                    </label>
+                    <textarea 
+                        name="message" 
+                        required 
+                        rows={5} 
+                        maxLength={2000}
+                        className="w-full p-4 rounded-xl bg-slate-50 dark:bg-slate-800 border-none outline-none focus:ring-2 focus:ring-primary/50 transition resize-none" 
+                        placeholder="How can we help you today?" 
+                    />
                   </div>
 
                   <button 
