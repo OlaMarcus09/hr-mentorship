@@ -37,8 +37,8 @@ export default function ContactPage() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
       
-      {/* HERO SECTION (Restored) */}
-      <div className="relative bg-slate-900 py-32 px-6">
+      {/* HERO SECTION */}
+      <div className="relative bg-slate-900 py-20 md:py-32 px-6">
         <div 
           className="absolute inset-0 z-0 opacity-20"
           style={{
@@ -57,8 +57,9 @@ export default function ContactPage() {
         </div>
       </div>
 
-      {/* CONTENT SECTION (Overlapping Hero) */}
-      <div className="max-w-6xl mx-auto px-6 -mt-10 relative z-20 pb-20">
+      {/* CONTENT SECTION (Fixed Mobile Overlap) */}
+      {/* Changed: mt-10 (adds space on mobile) -> md:-mt-10 (overlaps on desktop) */}
+      <div className="max-w-6xl mx-auto px-6 mt-10 md:-mt-10 relative z-20 pb-20">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           
           {/* Contact Info Cards */}
